@@ -1,0 +1,45 @@
+-
+  uri: node.community.rino.io:18081
+  is_default: true
+-
+  uri: node.sethforprivacy.com:18089
+  is_default: false
+-
+  uri: node2.sethforprivacy.com:18089
+  is_default: false
+-
+  uri: selsta1.featherwallet.net:18081
+  is_default: false
+-
+  uri: selsta2.featherwallet.net:18081
+  is_default: false
+-
+  uri: node.monerooutreach.org:18081
+  is_default: false
+-
+  uri: node.majesticbank.is:18089
+  is_default: false
+-
+  uri: node.majesticbank.su:18089
+  is_default: false
+-
+  uri: xmr-node-eu.cakewallet.com:18081
+  is_default: false
+-
+  uri: xmr-node-usa-east.cakewallet.com:18081
+  is_default: false
+-
+  uri: canada.node.xmr.pm:18089
+  is_default: false
+-
+  uri: singapore.node.xmr.pm:18089
+  is_default: false
+-
+  uri: nodes.hashvault.pro:18081
+  is_default: false
+-
+  uri: node.supportxmr.com:18081
+  is_default: false
+-
+  uri: node.xmr.ru:18081
+  is_default: false

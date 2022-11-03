@@ -1,0 +1,6 @@
+name: elite_wallet
+description: Elite Wallet.
+version: 0.0.0
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"

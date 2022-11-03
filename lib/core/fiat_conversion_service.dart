@@ -1,0 +1,109 @@
+import 'package:cw_core/crypto_currency.dart';
+import 'package:elite_wallet/entities/fiat_currency.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:cw_core/http_port_redirector.dart';
+import 'package:elite_wallet/store/settings_store.dart';
+import 'package:cw_core/proxy_settings_store.dart';
+
+
+Future<double> _fetchPrice(Map<String, dynamic> args) async {
+  if (args['provider'] == 'CoinGecko') {
+    return _fetchCoinGeckoPrice(args);
+  }
+  if (args['provider'] == 'MajesticBank') {
+    return _fetchMajesticBankPrice(args);
+  }
+
+  return 0.0;
+}
+
+Future<double> _fetchCoinGeckoPrice(Map<String, dynamic> args) async {
+  const fiatApiAuthority = 'api.coingecko.com';
+  const fiatApiPath = '/api/v3/coins/';
+  const cryptoTickerToCoingeckoId = {
+    'BTC' : 'bitcoin',
+    'LTC' : 'litecoin',
+    'XMR' : 'monero',
+    'XHV' : 'haven',
+    'WOW' : 'wownero'};
+
+  final crypto = args['crypto'] as CryptoCurrency;
+  final fiat = args['fiat'] as FiatCurrency;
+  final proxySettingsStore = args['settings'] as ProxySettingsStore;
+  final settingsStore = ProxySettingsStore.toSettingsStore(proxySettingsStore);
+
+  try {
+    final uri = Uri.https(
+      fiatApiAuthority, fiatApiPath + cryptoTickerToCoingeckoId[crypto.title]);
+    final response = await get(settingsStore, uri.toString());
+
+    if (response.statusCode != 200) {
+      return 0.0;
+    }
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    if (responseJSON.containsKey("market_data") &&
+        responseJSON["market_data"].containsKey("current_price") &&
+        responseJSON["market_data"]["current_price"].containsKey(
+          fiat.title.toLowerCase())) {
+      return double.parse(responseJSON["market_data"]["current_price"]
+        [fiat.title.toLowerCase()].toString());
+    }
+
+    return 0.0;
+  } catch (e) {
+    return 0.0;
+  }
+}
+
+Future<double> _fetchMajesticBankPrice(Map<String, dynamic> args) async {
+  const fiatApiAuthority = 'majesticbank.is';
+  const fiatApiPath = '/api/v1/rates';
+
+  final crypto = args['crypto'] as CryptoCurrency;
+  final fiat = args['fiat'] as FiatCurrency;
+  final proxySettingsStore = args['settings'] as ProxySettingsStore;
+  final settingsStore = ProxySettingsStore.toSettingsStore(proxySettingsStore);
+
+  try {
+    final uri = Uri.https(
+      fiatApiAuthority, fiatApiPath);
+    final response = await get(settingsStore, uri.toString());
+
+    if (response.statusCode != 200) {
+      return 0.0;
+    }
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    String priceKey = crypto.title + "-" + fiat.title;
+    if (responseJSON.containsKey(priceKey)) {
+      return double.parse(responseJSON[priceKey].toString());
+    }
+
+    return 0.0;
+  } catch (e) {
+    return 0.0;
+  }
+}
+
+Future<double> _fetchPriceAsync(
+        CryptoCurrency crypto,
+        FiatCurrency fiat,
+        SettingsStore settingsStore) async =>
+    compute(_fetchPrice,
+            {'fiat': fiat, 'crypto': crypto,
+             'settings': ProxySettingsStore.fromSettingsStore(settingsStore),
+             'provider': settingsStore.cryptoPriceProvider});
+
+class FiatConversionService {
+  static List<String> get services => ["CoinGecko", "MajesticBank"];
+
+  static Future<double> fetchPrice(
+          CryptoCurrency crypto,
+          FiatCurrency fiat,
+          SettingsStore settingsStore) async =>
+      await _fetchPriceAsync(crypto, fiat, settingsStore);
+}
