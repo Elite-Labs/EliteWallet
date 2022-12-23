@@ -16,5 +16,7 @@ case $APP_ANDROID_TYPE in
   $DIR/build_wownero_seed.sh
   ;;
 "haven") $DIR/build_haven_all.sh ;;
-"wownero") $DIR/build_wownero_all.sh ;;
+"wownero") 
+  $DIR/build_wownero_all.sh 
+  $DIR/build_wownero_seed.sh;;
 esac

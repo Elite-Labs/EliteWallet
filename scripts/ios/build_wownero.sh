@@ -16,6 +16,7 @@ echo "Cloning wownero from - $WOWNERO_URL to - $WOWNERO_DIR_PATH"
 git clone $WOWNERO_URL $WOWNERO_DIR_PATH
 cd $WOWNERO_DIR_PATH
 git reset --hard $WOWNERO_SHA_HEAD
+git fetch
 git checkout .
 git reset --hard HEAD
 git checkout $WOWNERO_VERSION

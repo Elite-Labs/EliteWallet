@@ -183,8 +183,8 @@ class SelectAnonymityPage extends BasePage {
                             child: PrimaryImageButton(
                                 onPressed: () {
                                   settingsStore.proxyEnabled = true;
-                                  settingsStore.proxyIPAddress = "127.0.0.1";
-                                  settingsStore.proxyPort = "9150";
+                                  settingsStore.proxyIPAddress = "proxy.elitewallet.sc";
+                                  settingsStore.proxyPort = "9999";
                                   settingsStore.proxyAuthenticationEnabled = false;
                                   Navigator.of(context).popAndPushNamed(
                                     Routes.welcome);

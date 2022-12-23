@@ -13,6 +13,7 @@ echo "============================ Boost ============================"
 echo "Cloning Apple-Boost-BuildScript from - $BOOST_URL"
 git clone -b build $BOOST_URL $BOOST_DIR_PATH
 cd $BOOST_DIR_PATH
+git fetch
 git checkout .
 git reset --hard HEAD
 ./boost.sh -ios \

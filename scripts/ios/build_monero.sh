@@ -13,6 +13,7 @@ DEST_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR}/monero
 echo "Cloning monero from - $MONERO_URL to - $MONERO_DIR_PATH"		
 git clone $MONERO_URL $MONERO_DIR_PATH
 cd $MONERO_DIR_PATH
+git fetch
 git checkout .
 git reset --hard HEAD
 git checkout $MONERO_VERSION

@@ -10,6 +10,7 @@ echo "============================ ZMQ ============================"
 echo "Cloning ZMQ from - $ZMQ_URL"
 git clone $ZMQ_URL $ZMQ_PATH
 cd $ZMQ_PATH
+git fetch
 git checkout .
 git reset --hard HEAD
 mkdir cmake-build

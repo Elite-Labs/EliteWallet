@@ -10,6 +10,7 @@ echo "============================ OpenSSL ============================"
 echo "Cloning Open SSL from - $OPEN_SSL_URL"
 git clone $OPEN_SSL_URL $OPEN_SSL_DIR_PATH
 cd $OPEN_SSL_DIR_PATH
+git fetch
 git checkout .
 git reset --hard HEAD
 ./build-libssl.sh --version=1.1.1q --targets="ios-cross-arm64" --deprecated

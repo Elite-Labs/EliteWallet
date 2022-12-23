@@ -13,6 +13,7 @@ DEST_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR}/haven
 echo "Cloning haven from - $HAVEN_URL to - $HAVEN_DIR_PATH"		
 git clone $HAVEN_URL $HAVEN_DIR_PATH
 cd $HAVEN_DIR_PATH
+git fetch
 git checkout .
 git reset --hard HEAD
 git checkout $HAVEN_VERSION

@@ -57,6 +57,34 @@ git clone -b $SEED_TAG --depth 1 ${LOCAL_GIT_REPOS}/wownero-seed $SEED_DIR
 cd $SEED_DIR
 git reset --hard $SEED_COMMIT_HASH
 
+sed -i -e "s/finalize/finalize_/g" src/argon2/argon2.c
+sed -i -e "s/validate_inputs/validate_inputs_/g" src/argon2/argon2.c
+sed -i -e "s/initial_hash/initial_hash_/g" src/argon2/argon2.c
+sed -i -e "s/fill_first_blocks/fill_first_blocks_/g" src/argon2/argon2.c
+sed -i -e "s/initialize/initialize_/g" src/argon2/argon2.c
+sed -i -e "s/fill_memory_blocks/fill_memory_blocks_/g" src/argon2/argon2.c
+
+sed -i -e "s/finalize/finalize_/g" src/argon2/argon2.h
+sed -i -e "s/validate_inputs/validate_inputs_/g" src/argon2/argon2.h
+sed -i -e "s/initial_hash/initial_hash_/g" src/argon2/argon2.h
+sed -i -e "s/fill_first_blocks/fill_first_blocks_/g" src/argon2/argon2.h
+sed -i -e "s/initialize/initialize_/g" src/argon2/argon2.h
+sed -i -e "s/fill_memory_blocks/fill_memory_blocks_/g" src/argon2/argon2.h
+
+sed -i -e "s/finalize/finalize_/g" src/argon2/core.c
+sed -i -e "s/validate_inputs/validate_inputs_/g" src/argon2/core.c
+sed -i -e "s/initial_hash/initial_hash_/g" src/argon2/core.c
+sed -i -e "s/fill_first_blocks/fill_first_blocks_/g" src/argon2/core.c
+sed -i -e "s/initialize/initialize_/g" src/argon2/core.c
+sed -i -e "s/fill_memory_blocks/fill_memory_blocks_/g" src/argon2/core.c
+
+sed -i -e "s/finalize/finalize_/g" src/argon2/core.h
+sed -i -e "s/validate_inputs/validate_inputs_/g" src/argon2/core.h
+sed -i -e "s/initial_hash/initial_hash_/g" src/argon2/core.h
+sed -i -e "s/fill_first_blocks/fill_first_blocks_/g" src/argon2/core.h
+sed -i -e "s/initialize/initialize_/g" src/argon2/core.h
+sed -i -e "s/fill_memory_blocks/fill_memory_blocks_/g" src/argon2/core.h
+
 CC={$CLANG} CXX={$CXXLANG} cmake -Bbuild -DCMAKE_INSTALL_PREFIX=${PREFIX} ARCH=${ARCH} -D CMAKE_BUILD_TYPE=Release -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARCH_ABI=${ARCH_ABI} $FLAGS .
 make -Cbuild -j$THREADS
 make -Cbuild install
