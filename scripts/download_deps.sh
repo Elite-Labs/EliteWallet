@@ -19,36 +19,35 @@ if [[ ! "$PATH" == *"flutter"* ]]; then
     else
         echo "export PATH=~/flutter/bin:\$PATH" >> ~/.zshenv
         source ~/.zshenv
-        brew install autoconf cmake pkg-config cocoapods
+        brew install autoconf cmake pkg-config cocoapods wget
     fi
 fi
 
-./scripts/get_repos.sh
-
 cd scripts/android
 
-configure_and_build_deps () {
+configure_and_download_deps () {
   source ./app_env.sh elitewallet
   ./app_config.sh
   . ./config.sh
+  DEPS_URL=https://elitewallet.sc/archive/${1}/${BUILD_TYPE}/${LAST_DEPS_CHANGE_GITHASH}.tar.gz
   if [ ! -d $CURRENT_DEPS ]; then
-    mkdir -p $CURRENT_DEPS
-    ./build_all.sh
-    ./cache_deps.sh
-  else
-    ./copy_cached_deps.sh
+    wget $DEPS_URL -P $LOCAL_GIT_DEPS_SUBDIR
+    cd $LOCAL_GIT_DEPS_SUBDIR
+    tar -xvf ${LAST_DEPS_CHANGE_GITHASH}.tar.gz
+    rm ${LAST_DEPS_CHANGE_GITHASH}.tar.gz
+    cd -
   fi
+  ./copy_cached_deps.sh
 }
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  ./install_ndk.sh
-  configure_and_build_deps
+if [[ "$1" == "android"* ]]; then
+  configure_and_download_deps $1
   ./copy_monero_deps.sh
   cd ../..
 else
   ./manifest.sh
   cd ../ios
-  configure_and_build_deps
+  configure_and_download_deps $1
   ./setup.sh
   cd ../android
   cd ../..

@@ -1,8 +1,8 @@
 #!/bin/bash
 
+. ./config.sh
+
 WORKDIR=/opt/android
-CW_DIR=${WORKDIR}/elite_wallet
-CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
 CW_WOWNERO_EXTERNAL_DIR=${CW_DIR}/cw_wownero/ios/External/android
 CW_HAVEN_EXTERNAL_DIR=${CW_DIR}/cw_haven/ios/External/android
 CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
