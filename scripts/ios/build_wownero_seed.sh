@@ -18,7 +18,7 @@ if [ -z $INSTALL_PREFIX ]; then
     INSTALL_PREFIX=${ROOT_DIR}/wownero-seed
 fi
 
-for arch in "arm64" #"armv7" "arm64"
+for arch in "x86_64" #"armv7" "arm64"
 do
 
 echo "Building wownero-seed IOS ${arch}"
@@ -26,13 +26,15 @@ export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 case $arch in
+	"x86_64"	)
+		DEST_LIB=../../lib-x86_64;;
 	"armv7"	)
 		DEST_LIB=../../lib-armv7;;
 	"arm64"	)
 		DEST_LIB=../../lib-armv8-a;;
 esac
 
-cmake -Bbuild -DCMAKE_INSTALL_PREFIX="${PREFIX}" -DCMAKE_SYSTEM_NAME="iOS" -DCMAKE_OSX_ARCHITECTURES="${arch}" .
+cmake -Bbuild -DCMAKE_INSTALL_PREFIX="${PREFIX}" -DCMAKE_SYSTEM_NAME="iOS" -DCMAKE_OSX_ARCHITECTURES="${arch}" -DCMAKE_OSX_SYSROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk" .
 make -Cbuild -j$THREADS
 make -Cbuild install
 

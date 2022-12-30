@@ -47,7 +47,7 @@ jobs:
             - ew_shared_external/ios/External/sources/elite_wallet_data
       - run:
           name: Build
-          command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+          command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --debug
       - run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/

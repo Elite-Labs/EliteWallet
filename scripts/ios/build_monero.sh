@@ -16,6 +16,7 @@ git revert eff4dc2be6d8bd1cb565141bbfce66e2bf697a4c --no-edit
 git reset HEAD~1
 
 mkdir -p build
+sed -i -e 's/elseif(IOS AND ARCH STREQUAL "arm64")/elseif(IOS AND ARCH STREQUAL "x86_64")\n     message(STATUS "IOS: Changing arch from x86_64 to x86-64")\n     set(ARCH_FLAG "-march=x86-64")\n  elseif(IOS AND ARCH STREQUAL "arm64")/g' CMakeLists.txt
 cd ..
 
 mkdir -p $DEST_LIB_DIR
@@ -26,7 +27,7 @@ if [ -z $INSTALL_PREFIX ]; then
     INSTALL_PREFIX=${ROOT_DIR}/monero
 fi
 
-for arch in "arm64" #"armv7" "arm64"
+for arch in "x86_64" #"armv7" "arm64"
 do
 
 echo "Building IOS ${arch}"
@@ -34,6 +35,8 @@ export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 case $arch in
+	"x86_64")
+		DEST_LIB=../../lib-x86_64;;
 	"armv7"	)
 		DEST_LIB=../../lib-armv7;;
 	"arm64"	)
@@ -45,6 +48,7 @@ rm -r monero/build > /dev/null
 mkdir -p monero/build/${BUILD_TYPE}
 pushd monero/build/${BUILD_TYPE}
 cmake -D IOS=ON \
+	-DIOS_PLATFORM=SIMULATOR64 \
 	-DARCH=${arch} \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DSTATIC=ON \

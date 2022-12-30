@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.dependency 'Flutter'
   s.platform = :ios, '10.0'
 
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS' => 'arm64', 'ENABLE_BITCODE' => 'NO' }
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS' => 'x86_64', 'ENABLE_BITCODE' => 'NO' }
   s.swift_version = '5.0'
 
   s.subspec 'OpenSSL' do |openssl|

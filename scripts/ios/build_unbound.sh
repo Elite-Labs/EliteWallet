@@ -9,10 +9,10 @@ cd $UNBOUND_DIR_PATH
 git checkout .
 git clean -fdx
 
-export IOS_SDK=iPhone
-export IOS_CPU=arm64
+export IOS_SDK=iPhoneSimulator
+export IOS_CPU=x86_64
 export IOS_PREFIX=$EXTERNAL_IOS_DIR
-export AUTOTOOLS_HOST=aarch64-apple-ios
+export AUTOTOOLS_HOST=x86_64-apple-ios
 export AUTOTOOLS_BUILD="$(./config.guess)"
 source ./contrib/ios/setenv_ios.sh
 ./contrib/ios/install_tools.sh
