@@ -1,6 +1,11 @@
 MIT License
 
-Copyright (c) 2022 Elite Technologies
+Copyright (c) Elite Technologies
+Copyright (c) Monero Project
+Copyright (c) Wownero Project
+Copyright (c) Bitcoin Foundation 
+Copyright (c) Litecoin Foundation
+Copyright (c) Cake Labs LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
