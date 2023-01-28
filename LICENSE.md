@@ -2,7 +2,7 @@ MIT License
 
 Copyright (c) Elite Technologies
 Copyright (c) Monero Project
-Copyright (c) Wownero Project
+Copyright (c) Wownero Inc., a Monero Enterprise Alliance partner company
 Copyright (c) Bitcoin Foundation 
 Copyright (c) Litecoin Foundation
 Copyright (c) Cake Labs LLC
