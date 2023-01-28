@@ -22,3 +22,15 @@
   uri: idontwanttogototoronto.wow.fail:34568
   is_default: false
   useSSL: false
+-
+  uri: nyc.muchwow.lol:34568
+  is_default: false
+  useSSL: false
+-
+  uri: amsterdam.muchwow.lol:34568
+  is_default: false
+  useSSL: false
+-
+  uri: singapore.muchwow.lol:34568
+  is_default: false
+  useSSL: false
