@@ -4,8 +4,8 @@
 
 WOWNERO_URL="${LOCAL_GIT_REPOS}/wownero"
 WOWNERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/wownero"
-WOWNERO_VERSION=v0.10.2.1
-WOWNERO_SHA_HEAD="301e33520c736f308359fe0e406cc5cfa37ccd4b"
+WOWNERO_VERSION=v0.11.0.0
+WOWNERO_SHA_HEAD="6b28de1cdc020493dee2bf20b62c6d9227140ef2"
 
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
@@ -26,7 +26,7 @@ sed -i -e "s/https:\/\/github.com\/monero-project\/unbound/${LOCAL_GIT_REPOS_FOR
 sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
-sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/RandomWOW/g" .gitmodules
+sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/randomwow/g" .gitmodules
 
 git submodule update --init --force
 mkdir -p build
