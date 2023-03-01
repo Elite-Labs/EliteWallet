@@ -26,7 +26,7 @@ sed -i -e "s/https:\/\/github.com\/monero-project\/unbound/${LOCAL_GIT_REPOS_FOR
 sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
-sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/randomwow/g" .gitmodules
+sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/RandomWOW/g" .gitmodules
 
 git submodule update --init --force
 mkdir -p build
