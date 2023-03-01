@@ -7,6 +7,8 @@ MONERO_SRC_DIR=${WORKDIR}/monero
 rm -rf ${MONERO_SRC_DIR}
 git clone ${LOCAL_GIT_REPOS}/monero ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
 cd $MONERO_SRC_DIR
+git fetch
+git reset --hard ${MONERO_BRANCH}
 
 LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
 sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules

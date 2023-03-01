@@ -2,7 +2,7 @@ Last Modified: January 11, 2022
 
 Acceptance of the Terms of Use
 ==============================
-	These terms of use are entered into by and between You and Elite Technologies, a limited liability company formed under the laws of Nevis ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Elite Wallet and Monero.com apps, including any content, functionality, and services offered on or through the Elite Wallet app and the Monero.com app, as applicable (the “App").
+	These terms of use are entered into by and between You and Elite Technologies, a limited liability company formed under the laws of Nevis ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Elite Wallet and Monero.so apps, including any content, functionality, and services offered on or through the Elite Wallet app and the Monero.so app, as applicable (the “App").
 	Please read the Terms of Use carefully before you start to use the App. By using the App you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, incorporated herein by reference. If you do not wish to agree to these Terms of Use or the Privacy Policy, you must not access or use the App.
 
 Changes to the Terms of Use
@@ -185,4 +185,4 @@ Your Comments and Concerns
 ==========================
 
 	This App is operated by Elite Technologies.
-	All feedback, comments, and other communications relating to the App should be directed to support@elitewallet.sc. All requests for technical support should be directed to support@elitewallet.sc.
+	All feedback, comments, and other communications relating to the App should be directed to info@elitewallet.sc. All requests for technical support should be directed to info@elitewallet.sc.

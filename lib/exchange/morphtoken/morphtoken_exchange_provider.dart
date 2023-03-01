@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:elite_wallet/core/amount_converter.dart';
+import 'package:ew_core/amount_converter.dart';
 import 'package:hive/hive.dart';
 import 'package:elite_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/exchange/exchange_pair.dart';
 import 'package:elite_wallet/exchange/exchange_provider.dart';
 import 'package:elite_wallet/exchange/limits.dart';
@@ -18,7 +18,8 @@ import 'package:elite_wallet/exchange/trade_not_created_exeption.dart';
 
 class MorphTokenExchangeProvider extends ExchangeProvider {
   MorphTokenExchangeProvider(
-    this.settingsStore, {@required this.trades}) : super(pairList: [
+    this.settingsStore, {required this.trades})
+      : super(pairList: [
           ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.eth),
           ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.bch),
           ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.ltc),
@@ -70,6 +71,9 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
+  bool get supportsFixedRate => false;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.morphToken;
 
@@ -77,8 +81,12 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode}) async {
     final url = apiUri + _limitsURISuffix;
+    final uri = Uri.parse(url);
     final headers = {'Content-type': 'application/json'};
     final body = json.encode({
       "input": {"asset": from.toString()},
@@ -86,11 +94,11 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         {"asset": to.toString(), "weight": weight}
       ]
     });
-    final response = await post(settingsStore, url, headers: headers, body: body);
+    final response = await post(settingsStore, uri, headers: headers, body: body);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     final min = responseJSON['input']['limits']['min'] as int;
-    int max;
+    int max = 0;
     double ethMax;
 
     if (from == CryptoCurrency.eth) {
@@ -99,14 +107,16 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
       max = responseJSON['input']['limits']['max'] as int;
     }
 
-    double minFormatted = AmountConverter.amountIntToDouble(from, min);
-    double maxFormatted = AmountConverter.amountIntToDouble(from, max);
+    final minFormatted = AmountConverter.amountIntToDouble(from, min);
+    final maxFormatted = AmountConverter.amountIntToDouble(from, max);
 
     return Limits(min: minFormatted, max: maxFormatted);
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode}) async {
     const url = apiUri + _morphURISuffix;
     final _request = request as MorphTokenRequest;
     final body = {
@@ -123,8 +133,8 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
       ],
       "tag": "elitewallet"
     };
-
-    final response = await post(settingsStore, url,
+    final uri = Uri.parse(url);
+    final response = await post(settingsStore, uri,
         headers: {'Content-Type': 'application/json'}, body: json.encode(body));
 
     if (response.statusCode != 200) {
@@ -152,9 +162,10 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({@required String id}) async {
+  Future<Trade> findTradeById({required String id}) async {
     final url = apiUri + _morphURISuffix + '/' + id;
-    final response = await get(settingsStore, url);
+    final uri = Uri.parse(url);
+    final response = await get(settingsStore, uri);
 
     if (response.statusCode != 200) {
       if (response.statusCode == 400) {
@@ -196,18 +207,22 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount, bool isFixedRateMode,
-        bool isReceiveAmount}) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     final url = apiUri + _ratesURISuffix;
-    final response = await get(settingsStore, url);
+    final uri = Uri.parse(url);
+    final response = await get(settingsStore, uri);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final rate = responseJSON['data'][from.toString()][to.toString()] as String;
 
     try {
       final estimatedAmount = double.parse(rate) * amount;
       return estimatedAmount;
-    } catch (e) {
+    } catch (_) {
       return 0.0;
     }
   }

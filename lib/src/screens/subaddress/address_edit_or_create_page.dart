@@ -10,15 +10,13 @@ import 'package:elite_wallet/src/widgets/base_text_form_field.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 
 class AddressEditOrCreatePage extends BasePage {
-  AddressEditOrCreatePage({@required this.addressEditOrCreateViewModel})
+  AddressEditOrCreatePage({required this.addressEditOrCreateViewModel})
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
         super() {
     _labelController.addListener(
         () => addressEditOrCreateViewModel.label = _labelController.text);
     _labelController.text = addressEditOrCreateViewModel.label;
-    print(_labelController.text);
-    print(addressEditOrCreateViewModel.label);
   }
 
   final WalletAddressEditOrCreateViewModel addressEditOrCreateViewModel;
@@ -53,14 +51,14 @@ class AddressEditOrCreatePage extends BasePage {
               Observer(
                 builder: (_) => LoadingPrimaryButton(
                   onPressed: () async {
-                    if (_formKey.currentState.validate()) {
+                    if (_formKey.currentState?.validate() ?? false) {
                       await addressEditOrCreateViewModel.save();
                     }
                   },
                   text: addressEditOrCreateViewModel.isEdit
                       ? S.of(context).rename
                       : S.of(context).new_subaddress_create,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                   isLoading:
                       addressEditOrCreateViewModel.state is AddressIsSaving,

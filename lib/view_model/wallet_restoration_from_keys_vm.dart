@@ -3,13 +3,13 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/monero/monero.dart';
 import 'package:elite_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:ew_core/wallet_base.dart';
 import 'package:elite_wallet/core/generate_wallet_password.dart';
 import 'package:elite_wallet/core/wallet_creation_service.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cw_core/wallet_info.dart';
+import 'package:ew_core/wallet_info.dart';
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
 
 part 'wallet_restoration_from_keys_vm.g.dart';
@@ -21,8 +21,13 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromKeysVMBase(AppStore appStore,
       WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
-      {@required WalletType type, @required this.language})
-      : super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+      {required WalletType type, required this.language})
+      : height = 0,
+        viewKey = '',
+        spendKey = '',
+        wif = '',
+        address = '',
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -49,7 +54,7 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
 
     switch (type) {
       case WalletType.monero:
-        return monero.createMoneroRestoreWalletFromKeysCredentials(
+        return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
             password: password,
             language: language,
@@ -58,10 +63,10 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
             spendKey: spendKey,
             height: height);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinRestoreWalletFromWIFCredentials(
+        return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
             name: name, password: password, wif: wif);
       default:
-        return null;
+        throw Exception('Unexpected type: ${type.toString()}');;
     }
   }
 

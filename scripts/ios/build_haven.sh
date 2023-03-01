@@ -4,7 +4,7 @@
 
 HAVEN_URL="${LOCAL_GIT_REPOS}/haven"
 HAVEN_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/haven"
-HAVEN_VERSION=tags/v2.2.2
+HAVEN_VERSION=tags/v3.0.7
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/haven
@@ -28,6 +28,7 @@ sed -i -e "s/https:\/\/github.com\/haven-protocol-org\/haven-blockchain-explorer
 
 git submodule update --init --force
 mkdir -p build
+sed -i -e 's/ifdef TARGET_OS_OSX/ifndef TARGET_OS_OSX/g' external/randomx/src/virtual_memory.cpp
 cd ..
 
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

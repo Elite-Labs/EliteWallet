@@ -3,40 +3,41 @@ import 'package:elite_wallet/haven/haven.dart';
 import 'package:elite_wallet/wownero/wownero.dart';
 import 'package:elite_wallet/core/validator.dart';
 import 'package:elite_wallet/entities/mnemonic_item.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/monero/monero.dart';
 import 'package:elite_wallet/utils/language_list.dart';
 
 class SeedValidator extends Validator<MnemonicItem> {
-  SeedValidator({this.type, this.language})
-      : _words = getWordList(type: type, language: language);
+  SeedValidator({required this.type, required this.language})
+      : _words = getWordList(type: type, language: language),
+        super(errorMessage: 'Wrong seed mnemonic');
 
   final WalletType type;
   final String language;
   final List<String> _words;
 
-  static List<String> getWordList({WalletType type, String language}) {
+  static List<String> getWordList({required WalletType type, required String language}) {
     switch (type) {
       case WalletType.bitcoin:
         return getBitcoinWordList(language);
       case WalletType.litecoin:
         return getBitcoinWordList(language);
       case WalletType.monero:
-        return monero.getMoneroWordList(language);
+        return monero!.getMoneroWordList(language);
       case WalletType.wownero:
-        return wownero.getWowneroWordList(language);
+        return wownero!.getWowneroWordList(language);
       case WalletType.haven:
-        return haven.getMoneroWordList(language);
+        return haven!.getMoneroWordList(language);
       default:
-        return [];
+        return <String>[];
     }
   }
 
   static List<String> getBitcoinWordList(String language) {
     assert(language.toLowerCase() == LanguageList.english.toLowerCase());
-    return bitcoin.getWordList();
+    return bitcoin!.getWordList();
   }
 
   @override
-  bool isValid(MnemonicItem value) => _words.contains(value.text);
+  bool isValid(MnemonicItem? value) => _words.contains(value?.text);
 }

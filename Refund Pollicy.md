@@ -24,4 +24,4 @@ If you believe a cryptocurrency purchase was conducted fraudulently, please aler
 
 ### Contact Us
 
-If you believe that there has been an error in processing your payment, please contact us at support@elitewallet.sc.
+If you believe that there has been an error in processing your payment, please contact us at info@elitewallet.sc.

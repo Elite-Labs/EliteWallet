@@ -1,17 +1,13 @@
-import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/src/screens/nodes/widgets/node_indicator.dart';
-import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:elite_wallet/src/widgets/standard_list.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NodeListRow extends StandardListRow {
   NodeListRow(
-      {@required String title,
-      @required void Function(BuildContext context) onTap,
-      @required bool isSelected,
-      @required this.isAlive})
+      {required String title,
+      required void Function(BuildContext context) onTap,
+      required bool isSelected,
+      required this.isAlive})
       : super(title: title, onTap: onTap, isSelected: isSelected);
 
   final Future<bool> isAlive;
@@ -23,7 +19,7 @@ class NodeListRow extends StandardListRow {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return NodeIndicator(isLive: (snapshot.data as bool)??false);
+              return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
             default:
               return NodeIndicator(isLive: false);
           }
@@ -32,12 +28,15 @@ class NodeListRow extends StandardListRow {
 }
 
 class NodeHeaderListRow extends StandardListRow {
-  NodeHeaderListRow({@required String title, @required void Function(BuildContext context) onTap})
+  NodeHeaderListRow({required String title, required void Function(BuildContext context) onTap})
       : super(title: title, onTap: onTap, isSelected: false);
 
   @override
   Widget buildTrailing(BuildContext context) {
-    return Icon(Icons.add,
-        color: Theme.of(context).accentTextTheme.subhead.color, size: 24.0);
+    return SizedBox(
+      width: 20,
+      child: Icon(Icons.add,
+          color: Theme.of(context).accentTextTheme.subtitle1?.color, size: 24.0),
+    );
   }
 }

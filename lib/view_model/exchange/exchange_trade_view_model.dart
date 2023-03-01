@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:elite_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:elite_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:elite_wallet/exchange/majesticbank/majesticbank_exchange_provider.dart';
+import 'package:elite_wallet/exchange/xchangeme/xchangeme_exchange_provider.dart';
+import 'package:elite_wallet/exchange/exch/exch_exchange_provider.dart';
 import 'package:elite_wallet/exchange/exchange_provider.dart';
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
 import 'package:elite_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
@@ -20,19 +22,19 @@ import 'package:elite_wallet/store/settings_store.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
-class ExchangeTradeViewModel = ExchangeTradeViewModelBase
-    with _$ExchangeTradeViewModel;
+class ExchangeTradeViewModel = ExchangeTradeViewModelBase with _$ExchangeTradeViewModel;
 
 abstract class ExchangeTradeViewModelBase with Store {
   ExchangeTradeViewModelBase(
-      {this.wallet, this.trades, this.tradesStore, this.sendViewModel,
-       this.settingsStore}) {
-
-    trade = tradesStore.trade;
-
-    isSendable = trade.from == wallet.currency ||
-        trade.provider == ExchangeProviderDescription.xmrto;
-
+      {required this.wallet,
+      required this.trades,
+      required this.tradesStore,
+      required this.sendViewModel,
+      required this.settingsStore})
+      : trade = tradesStore.trade!,
+        isSendable = tradesStore.trade!.from == wallet.currency ||
+            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto,
+        items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider(settingsStore);
@@ -42,6 +44,12 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.majesticBank:
         _provider = MajesticBankExchangeProvider(settingsStore);
+        break;
+      case ExchangeProviderDescription.xchangeme:
+        _provider = XchangeMeExchangeProvider(settingsStore);
+        break;
+      case ExchangeProviderDescription.exch:
+        _provider = ExchExchangeProvider(settingsStore);
         break;
       case ExchangeProviderDescription.morphToken:
         _provider = MorphTokenExchangeProvider(settingsStore, trades: trades);
@@ -54,12 +62,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
-    items = ObservableList<ExchangeTradeItem>();
-
     _updateItems();
-
     _updateTrade();
-
     timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
@@ -77,17 +81,27 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @computed
   String get extraInfo => trade.from == CryptoCurrency.xlm
-  ? '\n\n' + S.current.xlm_extra_info
-  : trade.from == CryptoCurrency.xrp
-    ? '\n\n' + S.current.xrp_extra_info
-    : '';
+      ? '\n\n' + S.current.xlm_extra_info
+      : trade.from == CryptoCurrency.xrp
+          ? '\n\n' + S.current.xrp_extra_info
+          : '';
+
+  @computed
+  String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
+      ? ''
+      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
+
+  @computed
+  String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
+      ? ''
+      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
 
   @observable
   ObservableList<ExchangeTradeItem> items;
 
-  ExchangeProvider _provider;
+  ExchangeProvider? _provider;
 
-  Timer timer;
+  Timer? timer;
 
   @action
   Future confirmSending() async {
@@ -97,8 +111,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     sendViewModel.clearOutputs();
     final output = sendViewModel.outputs.first;
-
-    output.address = trade.inputAddress;
+    output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
     await sendViewModel.createTransaction();
   }
@@ -106,7 +119,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final updatedTrade = await _provider.findTradeById(id: trade.id);
+      final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
@@ -121,8 +134,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
-    items?.clear();
-
+    final tagFrom = trade.from.tag != null ? '${trade.from.tag}' + ' ' : '';
+    final tagTo = trade.to.tag != null ? '${trade.to.tag}' + ' ' : '';
+    items.clear();
     items.add(ExchangeTradeItem(
         title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
 
@@ -130,21 +144,21 @@ abstract class ExchangeTradeViewModelBase with Store {
       final title = trade.from == CryptoCurrency.xrp
           ? S.current.destination_tag
           : trade.from == CryptoCurrency.xlm
-                ? S.current.memo
-                : S.current.extra_id;
+              ? S.current.memo
+              : S.current.extra_id;
 
-      items.add(ExchangeTradeItem(
-          title: title, data: '${trade.extraId}', isCopied: false));
+      items.add(ExchangeTradeItem(title: title, data: '${trade.extraId}', isCopied: false));
     }
 
     items.addAll([
+      ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: false),
       ExchangeTradeItem(
-          title: S.current.amount, data: '${trade.amount}', isCopied: false),
+          title: S.current.send_to_this_address('${trade.from}', tagFrom) + ':',
+          data: trade.inputAddress ?? '',
+          isCopied: true),
       ExchangeTradeItem(
-          title: S.current.status, data: '${trade.state}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.widgets_address + ':',
-          data: trade.inputAddress,
+          title: S.current.arrive_in_this_address('${trade.to}', tagTo) + ':',
+          data: trade.payoutAddress ?? '',
           isCopied: true),
     ]);
   }

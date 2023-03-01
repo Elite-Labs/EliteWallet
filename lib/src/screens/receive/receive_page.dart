@@ -1,12 +1,13 @@
 import 'package:elite_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:elite_wallet/src/widgets/section_divider.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/di.dart';
@@ -14,6 +15,7 @@ import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/header_tile.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/address_cell.dart';
+import 'package:elite_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:elite_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:elite_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:elite_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -22,7 +24,7 @@ import 'package:elite_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ReceivePage extends BasePage {
-  ReceivePage({this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
+  ReceivePage({required this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
 
@@ -44,7 +46,7 @@ class ReceivePage extends BasePage {
   @override
   Widget leading(BuildContext context) {
     final _backButton = Icon(Icons.arrow_back_ios,
-      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
       size: 16,);
 
     return SizedBox(
@@ -52,10 +54,11 @@ class ReceivePage extends BasePage {
       width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
+        child: TextButton(
+          // FIX-ME: Style
+            //highlightColor: Colors.transparent,
+            //splashColor: Colors.transparent,
+            //padding: EdgeInsets.all(0),
             onPressed: () => onClose(context),
             child: _backButton),
       ),
@@ -70,7 +73,7 @@ class ReceivePage extends BasePage {
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+          color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!),
     );
   }
 
@@ -89,21 +92,19 @@ class ReceivePage extends BasePage {
   Widget trailing(BuildContext context) {
     final shareImage =
         Image.asset('assets/images/share.png',
-            color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+            color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!);
 
-    return SizedBox(
-      height: 20.0,
-      width: 20.0,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: FlatButton(
+    return Material(
+        color: Colors.transparent,
+        child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
-            onPressed: () => Share.text(S.current.share_address,
-                addressListViewModel.address.address, 'text/plain'),
-            child: shareImage),
-      ),
+            iconSize: 25,
+            onPressed: () => Share.share(addressListViewModel.address.address),
+            icon: shareImage
+        )
     );
   }
 
@@ -113,8 +114,8 @@ class ReceivePage extends BasePage {
         ? KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor: Theme.of(context).accentTextTheme!.bodyText1!
+                .backgroundColor!,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -136,8 +137,7 @@ class ReceivePage extends BasePage {
               Observer(
                   builder: (_) => ListView.separated(
                       padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, _) => Container(
-                          height: 1, color: Theme.of(context).dividerColor),
+                      separatorBuilder: (context, _) => const SectionDivider(),
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: addressListViewModel.items.length,
@@ -156,20 +156,25 @@ class ReceivePage extends BasePage {
                                 Icons.arrow_forward_ios,
                                 size: 14,
                                 color:
-                                Theme.of(context).textTheme.display1.color,
+                                Theme.of(context).textTheme!.headline4!.color!,
                               ));
                         }
 
                         if (item is WalletAddressListHeader) {
                           cell = HeaderTile(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(Routes.newSubaddress),
+                              onTap: () {
+                                WalletAddressEditOrCreateViewModel view_model =
+                                  getIt.get<WalletAddressEditOrCreateViewModel>(param1: null);
+                                view_model.label = "#" +
+                                  (addressListViewModel.addressList.length + 1).toString();
+                                view_model.save();
+                              },
                               title: S.of(context).addresses,
                               icon: Icon(
                                 Icons.add,
                                 size: 20,
                                 color:
-                                Theme.of(context).textTheme.display1.color,
+                                Theme.of(context).textTheme!.headline4!.color!,
                               ));
                         }
 
@@ -179,16 +184,16 @@ class ReceivePage extends BasePage {
                                 addressListViewModel.address.address;
                             final backgroundColor = isCurrent
                                 ? Theme.of(context)
-                                .textTheme
-                                .display3
-                                .decorationColor
+                                .textTheme!
+                                .headline2!
+                                .decorationColor!
                                 : Theme.of(context)
-                                .textTheme
-                                .display2
-                                .decorationColor;
+                                .textTheme!
+                                .headline3!
+                                .decorationColor!;
                             final textColor = isCurrent
-                                ? Theme.of(context).textTheme.display3.color
-                                : Theme.of(context).textTheme.display2.color;
+                                ? Theme.of(context).textTheme!.headline2!.color!
+                                : Theme.of(context).textTheme!.headline3!.color!;
 
                             return AddressCell.fromItem(item,
                                 isCurrent: isCurrent,
@@ -233,9 +238,9 @@ class ReceivePage extends BasePage {
               style: TextStyle(
                   fontSize: 15,
                   color: Theme.of(context)
-                      .accentTextTheme
-                      .display2
-                      .backgroundColor)),
+                      .accentTextTheme!
+                      .headline3!
+                      .backgroundColor!)),
         ],
       ),
     );

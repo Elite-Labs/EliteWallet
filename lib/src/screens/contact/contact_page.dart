@@ -10,7 +10,7 @@ import 'package:elite_wallet/core/address_validator.dart';
 import 'package:elite_wallet/core/contact_name_validator.dart';
 import 'package:elite_wallet/core/execution_state.dart';
 import 'package:elite_wallet/view_model/contact_list/contact_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
@@ -48,7 +48,7 @@ class ContactPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
-        color: Theme.of(context).primaryTextTheme.overline.color, height: 8);
+        color: Theme.of(context).primaryTextTheme!.overline!.color!, height: 8);
 
     reaction((_) => contactViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
@@ -98,9 +98,9 @@ class ContactPage extends BasePage {
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.qrCode,
                       ],
-                      buttonColor: Theme.of(context).accentTextTheme.display2.color,
+                      buttonColor: Theme.of(context).accentTextTheme!.headline3!.color!,
                       iconColor: PaletteDark.gray,
-                      borderColor: Theme.of(context).primaryTextTheme.title.backgroundColor,
+                      borderColor: Theme.of(context).primaryTextTheme!.headline6!.backgroundColor!,
                       validator: TextValidator()
                       // AddressValidator(
                       //     type: contactViewModel.currency),
@@ -129,14 +129,14 @@ class ContactPage extends BasePage {
                 child: Observer(
                     builder: (_) => PrimaryButton(
                         onPressed: () async {
-                          if (!_formKey.currentState.validate()) {
+                          if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                             return;
                           }
 
                           await contactViewModel.save();
                         },
                         text: S.of(context).save,
-                        color: Theme.of(context).accentTextTheme.body2.color,
+                        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                         textColor: Colors.white,
                         isDisabled: !contactViewModel.isReady)))
           ],
@@ -147,7 +147,9 @@ class ContactPage extends BasePage {
     showPopUp<void>(
         builder: (_) => CurrencyPicker(
             selectedAtIndex:
-                contactViewModel.currencies.indexOf(contactViewModel.currency),
+              contactViewModel.currency != null
+                ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
+                : 0,
             items: contactViewModel.currencies,
             title: S.of(context).please_select,
             hintText: S.of(context).search_currency,

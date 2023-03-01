@@ -1,4 +1,4 @@
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:mobx/mobx.dart';
 
 part 'fiat_conversion_store.g.dart';

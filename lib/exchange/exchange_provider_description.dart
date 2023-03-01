@@ -1,8 +1,12 @@
-import 'package:cw_core/enumerable_item.dart';
+import 'package:ew_core/enumerable_item.dart';
 
 class ExchangeProviderDescription extends EnumerableItem<int>
     with Serializable<int> {
-  const ExchangeProviderDescription({String title, int raw, this.horizontalLogo = false, this.image})
+  const ExchangeProviderDescription({
+    required String title,
+    required int raw,
+    required this.image,
+    this.horizontalLogo = false})
       : super(title: title, raw: raw);
 
   final bool horizontalLogo;
@@ -23,7 +27,16 @@ class ExchangeProviderDescription extends EnumerableItem<int>
   static const majesticBank =
       ExchangeProviderDescription(title: 'MajesticBank', raw: 5, image: 'assets/images/majesticbank.png');
 
-  static ExchangeProviderDescription deserialize({int raw}) {
+  static const all =
+      ExchangeProviderDescription(title: 'All trades', raw: 6, image:'');
+
+  static const xchangeme =
+      ExchangeProviderDescription(title: 'Xchange.me', raw: 7, image: 'assets/images/xchangeme.png');
+
+  static const exch =
+      ExchangeProviderDescription(title: 'Exch.cx', raw: 8, image: 'assets/images/exch.png');
+
+  static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return xmrto;
@@ -37,8 +50,14 @@ class ExchangeProviderDescription extends EnumerableItem<int>
         return simpleSwap;
       case 5:
         return majesticBank;
+      case 6:
+        return all;
+      case 7:
+        return xchangeme;
+      case 8:
+        return exch;
       default:
-        return null;
+        throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }
   }
 }

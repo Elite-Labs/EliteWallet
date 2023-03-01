@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/entities/contact.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/entities/record.dart';
 import 'package:elite_wallet/entities/contact_base.dart';
 
@@ -13,7 +13,10 @@ abstract class ContactRecordBase extends Record<Contact>
     with Store
     implements ContactBase {
   ContactRecordBase(Box<Contact> source, Contact original)
-      : super(source, original);
+      : name = original.name,
+        address = original.address,
+        type = original.type,
+      super(source, original);
 
   @override
   @observable

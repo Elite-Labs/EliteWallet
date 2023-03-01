@@ -55,7 +55,7 @@
 
 # Support
 
-We have 24/7 free support. Please contact support@elitewallet.sc
+We have 24/7 free support. Please contact info@elitewallet.sc
 
 # Build Instructions
 

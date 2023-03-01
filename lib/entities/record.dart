@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:elite_wallet/utils/mobx.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_core/keyable.dart';
+import 'package:ew_core/keyable.dart';
 
 abstract class Record<T extends HiveObject> with Keyable {
   Record(this._source, this.original) {
@@ -27,7 +27,7 @@ abstract class Record<T extends HiveObject> with Keyable {
 
   final Box<T> _source;
 
-  StreamSubscription<BoxEvent> _listener;
+  StreamSubscription<BoxEvent>? _listener;
 
   void fromBind(T original);
 

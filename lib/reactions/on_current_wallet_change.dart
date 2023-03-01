@@ -1,8 +1,9 @@
+import 'package:elite_wallet/entities/fiat_api_mode.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
 import 'package:elite_wallet/entities/update_haven_rate.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:ew_core/transaction_history.dart';
+import 'package:ew_core/balance.dart';
+import 'package:ew_core/transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elite_wallet/di.dart';
@@ -13,19 +14,18 @@ import 'package:elite_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/core/fiat_conversion_service.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:elite_wallet/store/yat/yat_store.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_type.dart';
 
-ReactionDisposer _onCurrentWalletChangeReaction;
-ReactionDisposer _onCurrentWalletChangeFiatRateUpdateReaction;
+ReactionDisposer? _onCurrentWalletChangeReaction;
+ReactionDisposer? _onCurrentWalletChangeFiatRateUpdateReaction;
 //ReactionDisposer _onCurrentWalletAddressChangeReaction;
 
 void startCurrentWalletChangeReaction(AppStore appStore,
     SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
-  _onCurrentWalletChangeReaction?.reaction?.dispose();
-  _onCurrentWalletChangeFiatRateUpdateReaction?.reaction?.dispose();
-  //_onCurrentWalletAddressChangeReaction?.reaction?.dispose();
+  _onCurrentWalletChangeReaction?.reaction.dispose();
+  _onCurrentWalletChangeFiatRateUpdateReaction?.reaction.dispose();
+  //_onCurrentWalletAddressChangeReaction?.reaction?dispose();
 
   //_onCurrentWalletAddressChangeReaction = reaction((_) => appStore.wallet.walletAddresses.address,
     //(String address) async {
@@ -49,9 +49,13 @@ void startCurrentWalletChangeReaction(AppStore appStore,
   //});
 
   _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet, (WalletBase<
-          Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+          Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
       wallet) async {
     try {
+      if (wallet == null) {
+        return;
+      }
+
       final node = settingsStore.getCurrentNode(wallet.type);
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
@@ -81,9 +85,13 @@ void startCurrentWalletChangeReaction(AppStore appStore,
 
   _onCurrentWalletChangeFiatRateUpdateReaction =
       reaction((_) => appStore.wallet, (WalletBase<Balance,
-              TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+              TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
     try {
+      if (wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
+        return;
+      }
+
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] =
           await FiatConversionService.fetchPrice(

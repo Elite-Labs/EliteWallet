@@ -1,4 +1,4 @@
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/wallet_types.g.dart';
 
 bool get isMoneroOnly {
@@ -22,7 +22,7 @@ bool get isSingleCoin {
 
 String get approximatedAppName {
     if (isMoneroOnly) {
-        return 'Monero.com';   
+        return 'Monero.so';   
     }
 
     if (isHaven) {

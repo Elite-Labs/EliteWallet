@@ -16,6 +16,8 @@ cd $WORKDIR
 rm -rf $EXPAT_SRC_DIR
 git clone ${LOCAL_GIT_REPOS}/libexpat -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
 cd $EXPAT_SRC_DIR
+git fetch
+git reset --hard ${EXPAT_VERSION}
 test `git rev-parse HEAD` = ${EXPAT_HASH} || exit 1
 cd $EXPAT_SRC_DIR/expat
 
@@ -51,6 +53,8 @@ cd $WORKDIR
 rm -rf $UNBOUND_SRC_DIR
 git clone ${LOCAL_GIT_REPOS}/unbound -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
 cd $UNBOUND_SRC_DIR
+git fetch
+git reset --hard ${UNBOUND_HASH}
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
 case $arch in

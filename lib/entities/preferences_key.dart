@@ -10,6 +10,7 @@ class PreferencesKey {
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
+  static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const proxyEnabledKey = 'proxy_enabled';
   static const proxyIPAddressKey = 'proxy_ip_address';
   static const proxyPortKey = 'proxy_port';
@@ -19,6 +20,7 @@ class PreferencesKey {
   static const portScanEnabledKey = 'proxy_port_scan_enabled';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
+  static const disableExchangeKey = 'disable_exchange';
   static const currentTheme = 'current_theme';
   static const isDarkThemeLegacy = 'dark_theme';
   static const displayActionListModeKey = 'display_list_mode';
@@ -29,9 +31,15 @@ class PreferencesKey {
       'current_default_settings_migration_version';
   static const moneroTransactionPriority = 'current_fee_priority_monero';
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
+  static const havenTransactionPriority = 'current_fee_priority_haven';
+  static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
+  static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
+  static const pinTimeOutDuration = 'pin_timeout_duration';
+  static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
+
 
   static String moneroWalletUpdateV1Key(String name)
     => '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

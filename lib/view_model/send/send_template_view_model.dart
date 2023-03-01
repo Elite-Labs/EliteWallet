@@ -6,8 +6,8 @@ import 'package:elite_wallet/core/template_validator.dart';
 import 'package:elite_wallet/core/address_validator.dart';
 import 'package:elite_wallet/core/amount_validator.dart';
 import 'package:elite_wallet/core/validator.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
 import 'package:elite_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:elite_wallet/store/settings_store.dart';
@@ -19,8 +19,8 @@ class SendTemplateViewModel = SendTemplateViewModelBase
 
 abstract class SendTemplateViewModelBase with Store {
   SendTemplateViewModelBase(this._wallet, this._settingsStore,
-      this._sendTemplateStore, this._fiatConversationStore) {
-
+      this._sendTemplateStore, this._fiatConversationStore)
+  : output = Output(_wallet, _settingsStore, _fiatConversationStore, () => _wallet.currency) {
     output = Output(_wallet, _settingsStore, _fiatConversationStore, () => currency);
   }
 
@@ -65,13 +65,13 @@ abstract class SendTemplateViewModelBase with Store {
   void updateTemplate() => _sendTemplateStore.update();
 
   void addTemplate(
-      {String name,
-        bool isCurrencySelected,
-        String address,
-        String cryptoCurrency,
-        String fiatCurrency,
-        String amount,
-        String amountFiat}) {
+      {required String name,
+        required bool isCurrencySelected,
+        required String address,
+        required String cryptoCurrency,
+        required String fiatCurrency,
+        required String amount,
+        required String amountFiat}) {
     _sendTemplateStore.addTemplate(
         name: name,
         isCurrencySelected: isCurrencySelected,
@@ -83,7 +83,7 @@ abstract class SendTemplateViewModelBase with Store {
     updateTemplate();
   }
 
-  void removeTemplate({Template template}) {
+  void removeTemplate({required Template template}) {
     _sendTemplateStore.remove(template: template);
     updateTemplate();
   }

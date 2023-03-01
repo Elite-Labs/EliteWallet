@@ -1,23 +1,24 @@
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
+import 'package:elite_wallet/entities/pin_code_required_duration.dart';
 import 'package:elite_wallet/entities/preferences_key.dart';
-import 'package:cw_core/transaction_priority.dart';
+import 'package:ew_core/transaction_priority.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/themes/theme_list.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
 import 'package:elite_wallet/di.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elite_wallet/entities/language_service.dart';
 import 'package:elite_wallet/entities/balance_display_mode.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
-import 'package:cw_core/node.dart';
+import 'package:ew_core/node.dart';
 import 'package:elite_wallet/monero/monero.dart';
+import 'package:elite_wallet/wownero/wownero.dart';
 import 'package:elite_wallet/entities/action_list_display_mode.dart';
-import 'package:elite_wallet/.secrets.g.dart' as secrets;
+import 'package:elite_wallet/entities/fiat_api_mode.dart';
 
 part 'settings_store.g.dart';
 
@@ -25,54 +26,78 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
-      {@required SharedPreferences sharedPreferences,
-      @required FiatCurrency initialFiatCurrency,
-      @required BalanceDisplayMode initialBalanceDisplayMode,
-      @required bool initialSaveRecipientAddress,
-      @required bool initialProxyEnabled,
-      @required String initialProxyIPAddress,
-      @required String initialProxyPort,
-      @required bool initialproxyAuthenticationEnabled,
-      @required String initialProxyUsername,
-      @required String initialProxyPassword,
-      @required bool initialPortScanEnabled,
-      @required bool initialAllowBiometricalAuthentication,
-      @required ThemeBase initialTheme,
-      @required int initialPinLength,
-      @required String initialLanguageCode,
-      @required String initialCryptoPriceProvider,
-      // @required String initialCurrentLocale,
-      @required this.appVersion,
-      @required Map<WalletType, Node> nodes,
-      @required TransactionPriority initialBitcoinTransactionPriority,
-      @required TransactionPriority initialMoneroTransactionPriority,
-      @required TransactionPriority initialWowneroTransactionPriority,
-      @required this.shouldShowYatPopup,
-      @required this.isBitcoinBuyEnabled,
-      this.actionlistDisplayMode}) {
-    fiatCurrency = initialFiatCurrency;
-    balanceDisplayMode = initialBalanceDisplayMode;
-    shouldSaveRecipientAddress = initialSaveRecipientAddress;
-    proxyEnabled = initialProxyEnabled;
-    proxyIPAddress = initialProxyIPAddress;
-    proxyPort = initialProxyPort;
-    proxyAuthenticationEnabled = initialproxyAuthenticationEnabled;
-    proxyUsername = initialProxyUsername;
-    proxyPassword = initialProxyPassword;
-    portScanEnabled = initialPortScanEnabled;
-    allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
-    currentTheme = initialTheme;
-    pinCodeLength = initialPinLength;
-    languageCode = initialLanguageCode;
-    cryptoPriceProvider = initialCryptoPriceProvider;
-    priority = ObservableMap<WalletType, TransactionPriority>.of({
-      WalletType.monero: initialMoneroTransactionPriority,
-      WalletType.bitcoin: initialBitcoinTransactionPriority,
-      WalletType.wownero: initialWowneroTransactionPriority
-    });
-    this.nodes = ObservableMap<WalletType, Node>.of(nodes);
-    proxySettingsListeners = List<Function(SettingsStoreBase)>();
-    _sharedPreferences = sharedPreferences;
+      {required SharedPreferences sharedPreferences,
+      required FiatCurrency initialFiatCurrency,
+      required BalanceDisplayMode initialBalanceDisplayMode,
+      required bool initialSaveRecipientAddress,
+      required bool initialProxyEnabled,
+      required String initialProxyIPAddress,
+      required String initialProxyPort,
+      required bool initialproxyAuthenticationEnabled,
+      required String initialProxyUsername,
+      required String initialProxyPassword,
+      required bool initialPortScanEnabled,
+      required FiatApiMode initialFiatMode,
+      required bool initialAllowBiometricalAuthentication,
+      required bool initialExchangeEnabled,
+      required ThemeBase initialTheme,
+      required int initialPinLength,
+      required String initialLanguageCode,
+      required String initialCryptoPriceProvider,
+      // required String initialCurrentLocale,
+      required this.appVersion,
+      required Map<WalletType, Node> nodes,
+      required this.shouldShowYatPopup,
+      required this.isBitcoinBuyEnabled,
+      required this.actionlistDisplayMode,
+      required this.pinTimeOutDuration,
+      TransactionPriority? initialBitcoinTransactionPriority,
+      TransactionPriority? initialMoneroTransactionPriority,
+      TransactionPriority? initialHavenTransactionPriority,
+      TransactionPriority? initialLitecoinTransactionPriority,
+      TransactionPriority? initialWowneroTransactionPriority})
+  : nodes = ObservableMap<WalletType, Node>.of(nodes),
+    proxySettingsListeners = <Function(SettingsStoreBase)>[],
+    _sharedPreferences = sharedPreferences,
+    fiatCurrency = initialFiatCurrency,
+    balanceDisplayMode = initialBalanceDisplayMode,
+    shouldSaveRecipientAddress = initialSaveRecipientAddress,
+    proxyEnabled = initialProxyEnabled,
+    proxyIPAddress = initialProxyIPAddress,
+    proxyPort = initialProxyPort,
+    proxyAuthenticationEnabled = initialproxyAuthenticationEnabled,
+    proxyUsername = initialProxyUsername,
+    proxyPassword = initialProxyPassword,
+    portScanEnabled = initialPortScanEnabled,
+    fiatApiMode = initialFiatMode,
+    allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+    disableExchange = initialExchangeEnabled,
+    currentTheme = initialTheme,
+    pinCodeLength = initialPinLength,
+    languageCode = initialLanguageCode,
+    cryptoPriceProvider = initialCryptoPriceProvider,
+    priority = ObservableMap<WalletType, TransactionPriority>() {
+    //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
+
+    if (initialMoneroTransactionPriority != null) {
+        priority[WalletType.monero] = initialMoneroTransactionPriority;
+    }
+
+    if (initialBitcoinTransactionPriority != null) {
+        priority[WalletType.bitcoin] = initialBitcoinTransactionPriority;
+    }
+
+    if (initialHavenTransactionPriority != null) {
+        priority[WalletType.haven] = initialHavenTransactionPriority;
+    }
+
+    if (initialLitecoinTransactionPriority != null) {
+        priority[WalletType.litecoin] = initialLitecoinTransactionPriority;
+    }
+
+    if (initialWowneroTransactionPriority != null) {
+        priority[WalletType.wownero] = initialWowneroTransactionPriority;
+    }
 
     reaction(
         (_) => fiatCurrency,
@@ -85,11 +110,30 @@ abstract class SettingsStoreBase with Store {
              .setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
 
     priority.observe((change) {
-      final key = change.key == WalletType.monero
-          ? PreferencesKey.moneroTransactionPriority
-          : PreferencesKey.bitcoinTransactionPriority;
+      final String? key;
+      switch (change.key) {
+        case WalletType.monero:
+          key = PreferencesKey.moneroTransactionPriority;
+          break;
+        case WalletType.bitcoin:
+          key = PreferencesKey.bitcoinTransactionPriority;
+          break;
+        case WalletType.litecoin:
+          key = PreferencesKey.litecoinTransactionPriority;
+          break;
+        case WalletType.haven:
+          key = PreferencesKey.havenTransactionPriority;
+          break;
+        case WalletType.wownero:
+          key = PreferencesKey.wowneroTransactionPriority;
+          break;
+        default:
+          key = null;
+      }
 
-      sharedPreferences.setInt(key, change.newValue.serialize());
+      if (change.newValue != null && key != null) {
+        sharedPreferences.setInt(key, change.newValue!.serialize());
+      }
     });
 
     reaction(
@@ -153,6 +197,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.portScanEnabledKey, portScanEnabled));
 
     reaction(
+        (_) => fiatApiMode,
+        (FiatApiMode mode) => sharedPreferences.setInt(
+            PreferencesKey.currentFiatApiModeKey, mode.serialize()));
+
+    reaction(
         (_) => currentTheme,
         (ThemeBase theme) =>
             sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
@@ -179,17 +228,32 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.cryptoPriceProvider, cryptoPriceProvider));
 
     reaction(
+        (_) => pinTimeOutDuration,
+        (PinCodeRequiredDuration pinCodeInterval) => sharedPreferences.setInt(
+            PreferencesKey.pinTimeOutDuration, pinCodeInterval.value));
+
+    reaction(
         (_) => balanceDisplayMode,
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+            (_) => disableExchange,
+            (bool disableExchange) => sharedPreferences.setBool(
+            PreferencesKey.disableExchangeKey, disableExchange));
+
     this
         .nodes
-        .observe((change) => _saveCurrentNode(change.newValue, change.key));
+        .observe((change) {
+            if (change.newValue != null && change.key != null) {
+                _saveCurrentNode(change.newValue!, change.key!);
+            }
+        });
   }
 
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
+  static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -202,6 +266,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BalanceDisplayMode balanceDisplayMode;
+
+  @observable
+  FiatApiMode fiatApiMode;
 
   @observable
   bool shouldSaveRecipientAddress;
@@ -231,10 +298,16 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
+  bool disableExchange;
+
+  @observable
   ThemeBase currentTheme;
 
   @observable
   int pinCodeLength;
+
+  @observable
+  PinCodeRequiredDuration pinTimeOutDuration;
 
   @computed
   ThemeData get theme => currentTheme.themeData;
@@ -256,7 +329,15 @@ abstract class SettingsStoreBase with Store {
 
   List<Function(SettingsStoreBase)> proxySettingsListeners;
 
-  Node getCurrentNode(WalletType walletType) => nodes[walletType];
+  Node getCurrentNode(WalletType walletType) {
+    final node = nodes[walletType];
+
+    if (node == null) {
+        throw Exception('No node found for wallet type: ${walletType.toString()}');
+    }
+
+    return node;
+  }
 
   bool isBitcoinBuyEnabled;
 
@@ -267,41 +348,53 @@ abstract class SettingsStoreBase with Store {
     _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
 
   static Future<SettingsStore> load(
-      {@required Box<Node> nodeSource,
-      @required bool isBitcoinBuyEnabled,
+      {required Box<Node> nodeSource,
+      required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      TransactionPriority initialMoneroTransactionPriority,
-      TransactionPriority initialBitcoinTransactionPriority,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
-    if (initialBitcoinTransactionPriority == null) {
-        initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
-    }
-
-    if (initialMoneroTransactionPriority == null) {
-        initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
-    }
 
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
-    final currentFiatCurrency = FiatCurrency(
-        symbol:
-            sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey));
-    final savedMoneroTransactionPriority =
+    final currentFiatCurrency = FiatCurrency.deserialize(raw:
+            sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+
+    TransactionPriority? moneroTransactionPriority =
         monero?.deserializeMoneroTransactionPriority(
             raw: sharedPreferences
-                .getInt(PreferencesKey.moneroTransactionPriority));
-    final savedBitcoinTransactionPriority =
+                .getInt(PreferencesKey.moneroTransactionPriority)!);
+    TransactionPriority? bitcoinTransactionPriority =
         bitcoin?.deserializeBitcoinTransactionPriority(sharedPreferences
-                .getInt(PreferencesKey.bitcoinTransactionPriority));
-    final moneroTransactionPriority =
-        savedMoneroTransactionPriority ?? initialMoneroTransactionPriority;
-    final bitcoinTransactionPriority =
-        savedBitcoinTransactionPriority ?? initialBitcoinTransactionPriority;
+                .getInt(PreferencesKey.bitcoinTransactionPriority)!);
+
+    TransactionPriority? havenTransactionPriority;
+    TransactionPriority? litecoinTransactionPriority;
+    TransactionPriority? wowneroTransactionPriority;
+
+    if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
+      havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
+      litecoinTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
+      wowneroTransactionPriority = wownero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
+    }
+
+    moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
+    bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
+    havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
+    litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
+    wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
+
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences
-            .getInt(PreferencesKey.currentBalanceDisplayModeKey));
+            .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
-        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey);
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
     final proxyEnabled =
         sharedPreferences.getBool(PreferencesKey.proxyEnabledKey) ?? true;
     final proxyIPAddress =
@@ -319,19 +412,25 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getString(PreferencesKey.proxyPasswordKey) ?? "";
     final portScanEnabled =
         sharedPreferences.getBool(PreferencesKey.portScanEnabledKey) ?? false;
+    final currentFiatApiMode = FiatApiMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.currentFiatApiModeKey) ?? FiatApiMode.enabled.raw);
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final legacyTheme =
-        (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
-            ? ThemeType.dark.index
-            : ThemeType.bright.index;
+    final disableExchange = sharedPreferences
+            .getBool(PreferencesKey.disableExchangeKey) ?? false;
     final savedTheme = ThemeList.deserialize(raw: ThemeType.dark.index);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
             defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
+    final timeOutDuration =  sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
+    final pinCodeTimeOutDuration = timeOutDuration != null
+        ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
+        : defaultPinCodeTimeOutDuration;
+    
     // If no value
     if (pinLength == null || pinLength == 0) {
       pinLength = defaultPinLength;
@@ -361,15 +460,31 @@ abstract class SettingsStoreBase with Store {
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
+    final nodes = <WalletType, Node>{};
+
+    if (moneroNode != null) {
+        nodes[WalletType.monero] = moneroNode;
+    }
+
+    if (bitcoinElectrumServer != null) {
+        nodes[WalletType.bitcoin] = bitcoinElectrumServer;
+    }
+
+    if (litecoinElectrumServer != null) {
+        nodes[WalletType.litecoin] = litecoinElectrumServer;
+    }
+
+    if (havenNode != null) {
+        nodes[WalletType.haven] = havenNode;
+    }
+
+    if (wowneroNode != null) {
+        nodes[WalletType.wownero] = wowneroNode;
+    }
+
     return SettingsStore(
         sharedPreferences: sharedPreferences,
-        nodes: {
-          WalletType.monero: moneroNode,
-          WalletType.bitcoin: bitcoinElectrumServer,
-          WalletType.litecoin: litecoinElectrumServer,
-          WalletType.haven: havenNode,
-          WalletType.wownero: wowneroNode
-        },
+        nodes: nodes,
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
@@ -382,63 +497,117 @@ abstract class SettingsStoreBase with Store {
         initialProxyUsername: proxyUsername,
         initialProxyPassword: proxyPassword,
         initialPortScanEnabled: portScanEnabled,
+        initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialExchangeEnabled: disableExchange,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
+        pinTimeOutDuration: pinCodeTimeOutDuration,
         initialLanguageCode: savedLanguageCode,
         initialCryptoPriceProvider: savedCryptoPriceProvider,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+        initialHavenTransactionPriority: havenTransactionPriority,
+        initialLitecoinTransactionPriority: litecoinTransactionPriority,
+        initialWowneroTransactionPriority: wowneroTransactionPriority,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
-  Future<void> reload(
-      {@required Box<Node> nodeSource,
-      FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      TransactionPriority initialMoneroTransactionPriority,
-      TransactionPriority initialBitcoinTransactionPriority,
-      BalanceDisplayMode initialBalanceDisplayMode =
-          BalanceDisplayMode.availableBalance}) async {
-    if (initialBitcoinTransactionPriority == null) {
-        initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
+  Future<void> reload({required Box<Node> nodeSource}) async {
+
+    final sharedPreferences = await getIt.getAsync<SharedPreferences>();
+
+    fiatCurrency = FiatCurrency.deserialize(
+        raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+
+    priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
+        raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
+        priority[WalletType.monero]!;
+    priority[WalletType.bitcoin] = bitcoin?.deserializeBitcoinTransactionPriority(
+        sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
+        priority[WalletType.bitcoin]!;
+
+    if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
+      priority[WalletType.haven] = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!) ??
+          priority[WalletType.haven]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
+      priority[WalletType.litecoin] = bitcoin?.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
+          priority[WalletType.litecoin]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
+      priority[WalletType.wownero] = wownero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!) ??
+          priority[WalletType.wownero]!;
     }
 
-    if (initialMoneroTransactionPriority == null) {
-        initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
+    balanceDisplayMode = BalanceDisplayMode.deserialize(
+        raw: sharedPreferences
+            .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    shouldSaveRecipientAddress =
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? shouldSaveRecipientAddress;
+    allowBiometricalAuthentication = sharedPreferences
+        .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+        allowBiometricalAuthentication;
+    disableExchange = sharedPreferences.getBool(PreferencesKey.disableExchangeKey) ?? disableExchange;
+    final legacyTheme =
+        (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
+            ? ThemeType.dark.index
+            : ThemeType.bright.index;
+    currentTheme = ThemeList.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
+            legacyTheme);
+    actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
+    actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
+        sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
+            defaultActionsMode));
+    var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
+    // If no value
+    if (pinLength == null || pinLength == 0) {
+      pinLength = pinCodeLength;
+    }
+    pinCodeLength = pinLength;
+
+    languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
+    shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
+
+    final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+    final bitcoinElectrumServerId = sharedPreferences
+        .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+    final litecoinElectrumServerId = sharedPreferences
+        .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+    final havenNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentHavenNodeIdKey);
+    final wowneroNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentWowneroNodeIdKey);
+    final moneroNode = nodeSource.get(nodeId);
+    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
+    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
+    final havenNode = nodeSource.get(havenNodeId);
+    final wowneroNode = nodeSource.get(wowneroNodeId);
+
+    if (moneroNode != null) {
+      nodes[WalletType.monero] = moneroNode;
     }
 
-    final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
-        (secrets.wyreApiKey?.isNotEmpty ?? false) &&
-        (secrets.wyreAccountId?.isNotEmpty ?? false);
+    if (bitcoinElectrumServer != null) {
+      nodes[WalletType.bitcoin] = bitcoinElectrumServer;
+    }
 
-    final settings = await SettingsStoreBase.load(
-        nodeSource: nodeSource,
-        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        initialBalanceDisplayMode: initialBalanceDisplayMode,
-        initialFiatCurrency: initialFiatCurrency,
-        initialMoneroTransactionPriority: initialMoneroTransactionPriority,
-        initialBitcoinTransactionPriority: initialBitcoinTransactionPriority);
-    fiatCurrency = settings.fiatCurrency;
-    actionlistDisplayMode = settings.actionlistDisplayMode;
-    priority[WalletType.monero] = initialMoneroTransactionPriority;
-    priority[WalletType.bitcoin] = initialBitcoinTransactionPriority;
-    balanceDisplayMode = settings.balanceDisplayMode;
-    shouldSaveRecipientAddress = settings.shouldSaveRecipientAddress;
-    proxyEnabled = settings.proxyEnabled;
-    proxyIPAddress = settings.proxyIPAddress;
-    proxyPort = settings.proxyPort;
-    proxyAuthenticationEnabled = settings.proxyAuthenticationEnabled;
-    proxyUsername = settings.proxyUsername;
-    proxyPassword = settings.proxyPassword;
-    portScanEnabled = settings.portScanEnabled;
-    allowBiometricalAuthentication = settings.allowBiometricalAuthentication;
-    currentTheme = settings.currentTheme;
-    pinCodeLength = settings.pinCodeLength;
-    languageCode = settings.languageCode;
-    cryptoPriceProvider = settings.cryptoPriceProvider;
-    appVersion = settings.appVersion;
-    shouldShowYatPopup = settings.shouldShowYatPopup;
+    if (litecoinElectrumServer != null) {
+      nodes[WalletType.litecoin] = litecoinElectrumServer;
+    }
+
+    if (havenNode != null) {
+      nodes[WalletType.haven] = havenNode;
+    }
+
+    if (wowneroNode != null) {
+      nodes[WalletType.wownero] = wowneroNode;
+    }
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {

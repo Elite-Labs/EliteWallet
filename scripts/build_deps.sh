@@ -5,7 +5,7 @@ fi
 
 cd ~/flutter
 git fetch
-git checkout -f 2.0.4
+git checkout -f 3.3.9
 cd -
 
 
@@ -15,7 +15,7 @@ if [[ ! "$PATH" == *"flutter"* ]]; then
         echo "export PATH=~/flutter/bin:\$PATH" >> ~/.bashrc
         source ~/.bashrc
         sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake openjdk-8-jre-headless clang bison byacc
-        keytool -genkey -v -keystore $HOME/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key -keypass adminadmin -storepass adminadmin
+        keytool -genkey -v -keystore $HOME/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key -noprompt -dname "CN=EliteWallet, OU=EliteWallet, O=EliteWallet, L=California, S=America, C=USA" -keypass adminadmin -storepass adminadmin
     else
         echo "export PATH=~/flutter/bin:\$PATH" >> ~/.zshenv
         source ~/.zshenv
@@ -32,8 +32,8 @@ configure_and_build_deps () {
   ./app_config.sh
   . ./config.sh
   if [ ! -d $CURRENT_DEPS ]; then
-    mkdir -p $CURRENT_DEPS
     ./build_all.sh
+    mkdir -p $CURRENT_DEPS
     ./cache_deps.sh
   else
     ./copy_cached_deps.sh

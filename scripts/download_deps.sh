@@ -1,3 +1,10 @@
+TYPES=("android" "ios")
+
+if ! [[ " ${TYPES[*]} " =~ " ${1} " ]]; then
+    echo "Download type must be 'android' or 'ios'."
+    exit 1
+fi
+
 
 if [ ! -d ~/flutter ]; then
     git clone https://github.com/flutter/flutter.git ~/flutter
@@ -5,7 +12,7 @@ fi
 
 cd ~/flutter
 git fetch
-git checkout -f 2.0.4
+git checkout -f 3.3.9
 cd -
 
 

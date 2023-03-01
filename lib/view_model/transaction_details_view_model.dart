@@ -1,11 +1,11 @@
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/transaction_info.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:elite_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:elite_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:elite_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
-import 'package:cw_core/transaction_direction.dart';
+import 'package:ew_core/transaction_direction.dart';
 import 'package:elite_wallet/utils/date_formatter.dart';
 import 'package:elite_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
@@ -23,21 +23,21 @@ class TransactionDetailsViewModel = TransactionDetailsViewModelBase
 
 abstract class TransactionDetailsViewModelBase with Store {
   TransactionDetailsViewModelBase(
-      {this.transactionInfo,
-      this.transactionDescriptionBox,
-      this.wallet,
-      this.settingsStore})
-      : items = [] {
-    showRecipientAddress = settingsStore?.shouldSaveRecipientAddress ?? false;
-    isRecipientAddressShown = false;
-
+      {required this.transactionInfo,
+      required this.transactionDescriptionBox,
+      required this.wallet,
+      required this.settingsStore})
+      : items = <TransactionDetailsListItem>[],
+      isRecipientAddressShown = false,
+      showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
     if (wallet.type == WalletType.monero) {
-      final key = tx.additionalInfo['key'] as String;
+      final key = tx.additionalInfo['key'] as String?;
       final accountIndex = tx.additionalInfo['accountIndex'] as int;
       final addressIndex = tx.additionalInfo['addressIndex'] as int;
+      final feeFormatted = tx.feeFormatted();
       final _items = [
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
@@ -49,18 +49,19 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        StandartListItem(
-            title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+        if (feeFormatted != null)
+          StandartListItem(
+            title: S.current.transaction_details_fee, value: feeFormatted),
         if (key?.isNotEmpty ?? false)
-          StandartListItem(title: S.current.transaction_key, value: key)
+          StandartListItem(title: S.current.transaction_key, value: key!)
       ];
 
       if (tx.direction == TransactionDirection.incoming &&
           accountIndex != null &&
           addressIndex != null) {
         try {
-          final address = monero.getTransactionAddress(wallet, accountIndex, addressIndex);
-          final label = monero.getSubaddressLabel(wallet, accountIndex, addressIndex);
+          final address = monero!.getTransactionAddress(wallet, accountIndex, addressIndex);
+          final label = monero!.getSubaddressLabel(wallet, accountIndex, addressIndex);
 
           if (address?.isNotEmpty ?? false) {
             isRecipientAddressShown = true;
@@ -95,16 +96,16 @@ abstract class TransactionDetailsViewModelBase with Store {
             value: dateFormat.format(tx.date)),
         StandartListItem(
             title: S.current.confirmations,
-            value: tx.confirmations?.toString()),
+            value: tx.confirmations.toString()),
         StandartListItem(
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        if (tx.feeFormatted()?.isNotEmpty)
+        if (tx.feeFormatted()?.isNotEmpty ?? false)
           StandartListItem(
               title: S.current.transaction_details_fee,
-              value: tx.feeFormatted()),
+              value: tx.feeFormatted()!),
       ];
 
       items.addAll(_items);
@@ -122,20 +123,25 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        StandartListItem(
-            title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+        if (tx.feeFormatted()?.isNotEmpty ?? false)
+          StandartListItem(
+            title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
       ]);
     }
 
     if (showRecipientAddress && !isRecipientAddressShown) {
-      final recipientAddress = transactionDescriptionBox.values
-          .firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)
-          ?.recipientAddress;
+      try {
+        final recipientAddress = transactionDescriptionBox.values
+            .firstWhere((val) => val.id == transactionInfo.id)
+            .recipientAddress;
 
-      if (recipientAddress?.isNotEmpty ?? false) {
-        items.add(StandartListItem(
-            title: S.current.transaction_details_recipient_address,
-            value: recipientAddress));
+        if (recipientAddress?.isNotEmpty ?? false) {
+          items.add(StandartListItem(
+              title: S.current.transaction_details_recipient_address,
+              value: recipientAddress!));
+        }
+      } catch(_) {
+        // FIX-ME: Unhandled exception
       }
     }
 
@@ -176,9 +182,9 @@ abstract class TransactionDetailsViewModelBase with Store {
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
       case WalletType.monero:
-        return 'https://monero.com/tx/${txId}';
+        return 'https://monero.so/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://www.blockchain.com/btc/tx/${txId}';
+        return 'https://mempool.space/tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.haven:
@@ -193,14 +199,14 @@ abstract class TransactionDetailsViewModelBase with Store {
   String _explorerDescription(WalletType type) {
     switch (type) {
       case WalletType.monero:
-        return S.current.view_transaction_on + 'Monero.com';
+        return S.current.view_transaction_on + 'Monero.so';
       case WalletType.bitcoin:
-        return S.current.view_transaction_on + 'Blockchain.com';
+        return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
-      case WalletType.haven:
+      case WalletType.wownero:
         return S.current.view_transaction_on + 'explore.wownero.com';
       default:
         return '';

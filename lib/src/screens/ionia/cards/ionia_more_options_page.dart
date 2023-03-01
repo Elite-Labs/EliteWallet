@@ -5,7 +5,6 @@ import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
-
 class IoniaMoreOptionsPage extends BasePage {
   IoniaMoreOptionsPage(this.giftCard);
 
@@ -16,7 +15,7 @@ class IoniaMoreOptionsPage extends BasePage {
     return Text(
       S.current.more_options,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme.headline1!.backgroundColor!,
       ),
     );
   }
@@ -27,53 +26,53 @@ class IoniaMoreOptionsPage extends BasePage {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 10,),
-            Center(child: Text(S.of(context).choose_from_available_options, style: textMedium(
-              color:  Theme.of(context).primaryTextTheme.title.color,
-            ),)),
-            SizedBox(height: 40,),
-            InkWell(
-              onTap: () async {
-                final amount = await  Navigator.of(context).pushNamed(Routes.ioniaCustomRedeemPage, arguments: [giftCard]) as String;
-                if(amount.isNotEmpty){
-                  Navigator.pop(context, amount);
-                }
-              },
-              child: _GradiantContainer(
-                content:  Padding(
-                        padding: const EdgeInsets.only(top: 24, left: 20, right: 24, bottom: 50),
-                        child: Text(
-                          S.of(context).custom_redeem_amount,
-                          style: textXLargeSemiBold(),
-                        ),
-                      ),
-                    ),
-            )
-              ],    
-        ),
+        children: [
+          SizedBox(
+            height: 10,
+          ),
+          Center(
+            child: Text(
+              S.of(context).choose_from_available_options,
+              style: textMedium(
+                color: Theme.of(context).primaryTextTheme.headline6!.color!,
+              ),
+            ),
+          ),
+          SizedBox(height: 40),
+          InkWell(
+            onTap: () async {
+              final amount = await Navigator.of(context)
+                  .pushNamed(Routes.ioniaCustomRedeemPage, arguments: [giftCard]) as String?;
+              if (amount != null && amount.isNotEmpty) {
+                Navigator.pop(context);
+              }
+            },
+            child: _GradiantContainer(
+              content: Padding(
+                padding: const EdgeInsets.only(top: 24, left: 20, right: 24, bottom: 50),
+                child: Text(
+                  S.of(context).custom_redeem_amount,
+                  style: textXLargeSemiBold(),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
 
 class _GradiantContainer extends StatelessWidget {
-  const _GradiantContainer({
-    Key key,
-    @required this.content,
-    this.padding,
-    this.width,
-  }) : super(key: key);
+  const _GradiantContainer({Key? key, required this.content}) : super(key: key);
 
   final Widget content;
-  final EdgeInsets padding;
-  final double width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: content,
-      width: width,
-      padding: padding ?? EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(

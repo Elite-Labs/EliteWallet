@@ -4,14 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elite_wallet/entities/preferences_key.dart';
 import 'package:elite_wallet/entities/secret_store_key.dart';
 import 'package:elite_wallet/entities/encrypt.dart';
+import 'package:elite_wallet/di.dart';
+import 'package:elite_wallet/store/settings_store.dart';
 
 class AuthService with Store {
-  AuthService({this.secureStorage, this.sharedPreferences});
+  AuthService({
+    required this.secureStorage,
+    required this.sharedPreferences,
+    required this.settingsStore,
+  });
 
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
+  final SettingsStore settingsStore;
 
-  Future setPassword(String password) async {
+  Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
     await secureStorage.write(key: key, value: encodedPassword);
@@ -19,12 +26,11 @@ class AuthService with Store {
 
   Future<bool> canAuthenticate() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final walletName =
-        sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
+    final walletName = sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
     var password = '';
 
     try {
-      password = await secureStorage.read(key: key);
+      password = await secureStorage.read(key: key) ?? '';
     } catch (e) {
       print(e);
     }
@@ -35,8 +41,29 @@ class AuthService with Store {
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPin = await secureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin);
+    final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;
+  }
+
+  void saveLastAuthTime() {
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+    sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
+  }
+
+  bool requireAuth() {
+    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+    final duration = _durationToRequireAuth(timestamp ?? 0);
+    final requiredPinInterval = settingsStore.pinTimeOutDuration;
+
+    return duration >= requiredPinInterval.value;
+  }
+
+  int _durationToRequireAuth(int timestamp) {
+    DateTime before = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    DateTime now = DateTime.now();
+    Duration timeDifference = now.difference(before);
+
+    return timeDifference.inMinutes;
   }
 }

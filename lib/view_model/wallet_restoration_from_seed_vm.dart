@@ -4,13 +4,13 @@ import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/monero/monero.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:ew_core/wallet_base.dart';
 import 'package:elite_wallet/core/generate_wallet_password.dart';
 import 'package:elite_wallet/core/wallet_creation_service.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cw_core/wallet_info.dart';
+import 'package:ew_core/wallet_info.dart';
 
 part 'wallet_restoration_from_seed_vm.g.dart';
 
@@ -21,8 +21,9 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromSeedVMBase(AppStore appStore,
       WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
-      {@required WalletType type, @required this.language, this.seed})
-      : super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+      {required WalletType type, required this.language, this.seed = ''})
+      : height = 0,
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   String seed;
@@ -40,13 +41,13 @@ abstract class WalletRestorationFromSeedVMBase extends WalletCreationVM
 
     switch (type) {
       case WalletType.monero:
-        return monero.createMoneroRestoreWalletFromSeedCredentials(
+        return monero!.createMoneroRestoreWalletFromSeedCredentials(
             name: name, height: height, mnemonic: seed, password: password);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+        return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name, mnemonic: seed, password: password);
       default:
-        return null;
+        throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 

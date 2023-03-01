@@ -1,11 +1,11 @@
 import 'package:elite_wallet/buy/buy_amount.dart';
 import 'package:elite_wallet/buy/buy_provider_description.dart';
 import 'package:elite_wallet/buy/order.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_type.dart';
 
 abstract class BuyProvider {
-  BuyProvider({this.wallet, this.isTestEnvironment});
+  BuyProvider({required this.wallet, required this.isTestEnvironment});
 
   final WalletBase wallet;
   final bool isTestEnvironment;

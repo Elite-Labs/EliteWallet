@@ -1,5 +1,5 @@
 import 'package:elite_wallet/entities/generate_name.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +14,10 @@ import 'package:elite_wallet/core/wallet_name_validator.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm(
-      {Key key,
-      @required this.displayLanguageSelector,
-      @required this.displayBlockHeightSelector,
-      @required this.type,
+      {Key? key,
+      required this.displayLanguageSelector,
+      required this.displayBlockHeightSelector,
+      required this.type,
       this.blockHeightFocusNode,
       this.onHeightOrDateEntered,
       this.onSeedChange,
@@ -27,10 +27,10 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final WalletType type;
   final bool displayLanguageSelector;
   final bool displayBlockHeightSelector;
-  final FocusNode blockHeightFocusNode;
-  final Function(bool) onHeightOrDateEntered;
-  final void Function(String) onSeedChange;
-  final void Function(String) onLanguageChange;
+  final FocusNode? blockHeightFocusNode;
+  final Function(bool)? onHeightOrDateEntered;
+  final void Function(String)? onSeedChange;
+  final void Function(String)? onLanguageChange;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -94,9 +94,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     child: Image.asset(
                       'assets/images/refresh_icon.png',
                       color: Theme.of(context)
-                          .primaryTextTheme
-                          .display1
-                          .decorationColor,
+                          .primaryTextTheme!
+                          .headline4!
+                          .decorationColor!,
                     ),
                   ),
                 ),
@@ -144,7 +144,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void _changeLanguage(String language) {
     setState(() {
       this.language = language;
-      seedWidgetStateKey.currentState.changeSeedLanguage(language);
+      seedWidgetStateKey.currentState!.changeSeedLanguage(language);
       _setLanguageLabel(language);
       widget.onLanguageChange?.call(language);
     });

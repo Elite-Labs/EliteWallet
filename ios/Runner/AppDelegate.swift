@@ -63,7 +63,7 @@ import UnstoppableDomainsResolution
         })
         
         let utilsChannel = FlutterMethodChannel(
-            name: "com.elite_wallet/native_utils",
+            name: "sc.elite_wallet/native_utils",
             binaryMessenger: controller.binaryMessenger)
         utilsChannel.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch call.method {

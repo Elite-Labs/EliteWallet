@@ -77,9 +77,9 @@
 # External libs
 monero_android/
 android/app/.externalNativeBuild/
-cw_monero/ios/External/
-cw_monero/cw_monero/android/.externalNativeBuild/
-cw_monero/cw_monero/android/.cxx/
+ew_monero/ios/External/
+ew_monero/ew_monero/android/.externalNativeBuild/
+ew_monero/ew_monero/android/.cxx/
 
 # Generated dart files
 **/*.g.dart
@@ -111,15 +111,15 @@ ios/build
 *.sublime-project
 
 shared_external/**
-cw_shared_external/ios/External/
-# cw_haven/**
-cw_haven/ios/External/
-cw_haven/android/.externalNativeBuild/
-cw_haven/android/.cxx/
-# cw_wownero/**
-cw_wownero/ios/External/
-cw_wownero/android/.externalNativeBuild/
-cw_wownero/android/.cxx/
+ew_shared_external/ios/External/
+# ew_haven/**
+ew_haven/ios/External/
+ew_haven/android/.externalNativeBuild/
+ew_haven/android/.cxx/
+# ew_wownero/**
+ew_wownero/ios/External/
+ew_wownero/android/.externalNativeBuild/
+ew_wownero/android/.cxx/
 
 lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart

@@ -13,17 +13,17 @@ part 'support_view_model.g.dart';
 class SupportViewModel = SupportViewModelBase with _$SupportViewModel;
 
 abstract class SupportViewModelBase with Store {
-  SupportViewModelBase() {
-    items = [
+  SupportViewModelBase()
+  : items = [
       LinkListItem(
           title: 'Email',
-          linkTitle: 'support@elitewallet.sc',
-          link: 'mailto:support@elitewallet.sc'),
+          linkTitle: 'info@elitewallet.sc',
+          link: 'mailto:info@elitewallet.sc'),
       if (!isMoneroOnly)
         LinkListItem(
             title: 'Website',
             linkTitle: 'elitewallet.sc',
-            link: 'elitewallet.sc'),
+            link: 'https://elitewallet.sc'),
       if (!isMoneroOnly)      
         LinkListItem(
             title: 'GitHub',
@@ -40,9 +40,14 @@ abstract class SupportViewModelBase with Store {
           title: 'Twitter',
           icon: 'assets/images/Twitter.png',
           linkTitle: '@EliteWallet',
-          link: 'https://twitter.com/EliteWallet')
+          link: 'https://twitter.com/EliteWallet'),
+      LinkListItem(
+          title: 'MajesticBank',
+          icon: 'assets/images/majesticbank.png',
+          linkTitle: S.current.help,
+          link: 'https://majesticbank.sc/')
     ];
-  }
+
   static const url = 'elitewallet.sc/guide/';
 
   List<SettingsListItem> items;

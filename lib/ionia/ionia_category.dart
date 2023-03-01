@@ -1,8 +1,12 @@
 class IoniaCategory {
-  const IoniaCategory({this.index, this.title, this.ids, this.iconPath});
+  const IoniaCategory({
+    required this.index,
+    required this.title,
+    required this.ids,
+    required this.iconPath});
 
   static const allCategories = <IoniaCategory>[all, apparel, onlineOnly, food, entertainment, delivery, travel];
-  static const all = IoniaCategory(index: 0, title: 'All', ids: [], iconPath: 'assets/images/category.png');
+  static const all = IoniaCategory(index: 0, title: 'All', ids: <int>[], iconPath: 'assets/images/category.png');
   static const apparel = IoniaCategory(index: 1, title: 'Apparel', ids: [1], iconPath: 'assets/images/tshirt.png');
   static const onlineOnly = IoniaCategory(index: 2, title: 'Online Only', ids: [13, 43], iconPath: 'assets/images/global.png');
   static const food = IoniaCategory(index: 3, title: 'Food', ids: [4], iconPath: 'assets/images/food.png');

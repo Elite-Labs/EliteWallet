@@ -1,25 +1,24 @@
 import 'dart:convert';
 import 'package:elite_wallet/buy/buy_exception.dart';
 import 'package:elite_wallet/store/settings_store.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/buy/buy_amount.dart';
 import 'package:elite_wallet/buy/buy_provider.dart';
 import 'package:elite_wallet/buy/buy_provider_description.dart';
 import 'package:elite_wallet/buy/order.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/exchange/trade_state.dart';
 import 'package:elite_wallet/.secrets.g.dart' as secrets;
 
 class WyreBuyProvider extends BuyProvider {
-  WyreBuyProvider({WalletBase wallet, bool isTestEnvironment = false,
-                   SettingsStore settingsStore})
-    : super(wallet: wallet, isTestEnvironment: isTestEnvironment) {
-    baseApiUrl = isTestEnvironment
+  WyreBuyProvider({required WalletBase wallet, bool isTestEnvironment = false,
+                   required SettingsStore settingsStore})
+    : baseApiUrl = isTestEnvironment
         ? _baseTestApiUrl
-        : _baseProductApiUrl;
-    _settingsStore = settingsStore;
-  }
+        : _baseProductApiUrl,
+      _settingsStore = settingsStore,
+     super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
   static const _baseProductApiUrl = 'https://api.sendwyre.com';
@@ -55,6 +54,7 @@ class WyreBuyProvider extends BuyProvider {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final url = baseApiUrl + _ordersSuffix + _reserveSuffix +
         _timeStampSuffix + timestamp;
+    final uri = Uri.parse(url);
     final body = {
       'amount': amount,
       'sourceCurrency': sourceCurrency,
@@ -63,8 +63,7 @@ class WyreBuyProvider extends BuyProvider {
       'referrerAccountId': _accountId,
       'lockFields': ['amount', 'sourceCurrency', 'destCurrency', 'dest']
     };
-
-    final response = await post(_settingsStore, url,
+    final response = await post(_settingsStore, uri,
         headers: {
           'Authorization': 'Bearer $_secretKey',
           'Content-Type': 'application/json',
@@ -94,8 +93,8 @@ class WyreBuyProvider extends BuyProvider {
       'accountId': _accountId,
       'country': _countryCode
     };
-
-    final response = await post(_settingsStore, quoteUrl,
+    final uri = Uri.parse(quoteUrl);
+    final response = await post(_settingsStore, uri,
         headers: {
           'Authorization': 'Bearer $_secretKey',
           'Content-Type': 'application/json',
@@ -120,7 +119,8 @@ class WyreBuyProvider extends BuyProvider {
   @override
   Future<Order> findOrderById(String id) async {
     final orderUrl = baseApiUrl + _ordersSuffix + '/$id';
-    final orderResponse = await get(_settingsStore, orderUrl);
+    final orderUri = Uri.parse(orderUrl);
+    final orderResponse = await get(_settingsStore, orderUri);
 
     if (orderResponse.statusCode != 200) {
       throw BuyException(
@@ -141,7 +141,8 @@ class WyreBuyProvider extends BuyProvider {
 
     final transferUrl =
         baseApiUrl + _transferSuffix + transferId + _trackSuffix;
-    final transferResponse = await get(_settingsStore, transferUrl);
+    final transferUri = Uri.parse(transferUrl);
+    final transferResponse = await get(_settingsStore, transferUri);
 
     if (transferResponse.statusCode != 200) {
       throw BuyException(

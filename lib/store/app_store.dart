@@ -1,8 +1,8 @@
-import 'package:cw_core/transaction_info.dart';
+import 'package:ew_core/transaction_info.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/transaction_history.dart';
+import 'package:ew_core/balance.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/transaction_history.dart';
 import 'package:elite_wallet/store/wallet_list_store.dart';
 import 'package:elite_wallet/store/authentication_store.dart';
 import 'package:elite_wallet/store/settings_store.dart';
@@ -14,15 +14,15 @@ class AppStore = AppStoreBase with _$AppStore;
 
 abstract class AppStoreBase with Store {
   AppStoreBase(
-      {this.authenticationStore,
-      this.walletList,
-      this.settingsStore,
-      this.nodeListStore});
+      {required this.authenticationStore,
+      required this.walletList,
+      required this.settingsStore,
+      required this.nodeListStore});
 
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
       wallet;
 
   WalletListStore walletList;

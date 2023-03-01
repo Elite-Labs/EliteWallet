@@ -14,55 +14,49 @@ class ProxySettingsViewModel =
   ProxySettingsViewModelBase with _$ProxySettingsViewModel;
 
 abstract class ProxySettingsViewModelBase with Store {
-  ProxySettingsViewModelBase(this._settingsStore) {
-    currentVersion = '';
-    PackageInfo.fromPlatform().then(
-        (PackageInfo packageInfo) => currentVersion = packageInfo.version);
-
-    sections = [
-      [
-        SwitcherListItem(
-            title: S.current.proxy_enabled,
-            value: () => proxyEnabled,
-            onValueChange: (_, bool value) => setProxyEnabled(value)),
-        ProxyInputListItem(
-            type: ProxyInputType.ipAddress,
-            value: () => proxyIPAddress,
-            onValueChange: (_, String value) => setProxyIPAddress(value)),
-        ProxyInputListItem(
-            type: ProxyInputType.port,
-            value: () => proxyPort,
-            onValueChange: (_, String value) => setProxyPort(value))
-      ],
-      [
-        SwitcherListItem(
-            title: S.current.proxy_authentication_enabled,
-            value: () => proxyAuthenticationEnabled,
-            onValueChange:
-              (_, bool value) => setProxyAuthenticationEnabled(value)),
-        ProxyInputListItem(
-            type: ProxyInputType.username,
-            value: () => proxyUsername,
-            onValueChange: (_, String value) => setProxyUsername(value)),
-        ProxyInputListItem(
-            type: ProxyInputType.password,
-            value: () => proxyPassword,
-            onValueChange: (_, String value) => setProxyPassword(value)),
-      ],
-      [
-        SwitcherListItem(
-            title: S.current.proxy_local_port_scan_enabled,
-            value: () => portScanEnabled,
-            onValueChange: (_, bool value) => setPortScanEnabled(value))
-      ]
-    ];
-  }
+  ProxySettingsViewModelBase(this._settingsStore)
+    : sections = <List<SettingsListItem>>[] {
+      sections = [
+        [
+          SwitcherListItem(
+              title: S.current.proxy_enabled,
+              value: () => proxyEnabled,
+              onValueChange: (_, bool value) => setProxyEnabled(value)),
+          ProxyInputListItem(
+              type: ProxyInputType.ipAddress,
+              value: () => proxyIPAddress,
+              onValueChange: (_, String value) => setProxyIPAddress(value)),
+          ProxyInputListItem(
+              type: ProxyInputType.port,
+              value: () => proxyPort,
+              onValueChange: (_, String value) => setProxyPort(value))
+        ],
+        [
+          SwitcherListItem(
+              title: S.current.proxy_authentication_enabled,
+              value: () => proxyAuthenticationEnabled,
+              onValueChange:
+                (_, bool value) => setProxyAuthenticationEnabled(value)),
+          ProxyInputListItem(
+              type: ProxyInputType.username,
+              value: () => proxyUsername,
+              onValueChange: (_, String value) => setProxyUsername(value)),
+          ProxyInputListItem(
+              type: ProxyInputType.password,
+              value: () => proxyPassword,
+              onValueChange: (_, String value) => setProxyPassword(value)),
+        ],
+        [
+          SwitcherListItem(
+              title: S.current.proxy_local_port_scan_enabled,
+              value: () => portScanEnabled,
+              onValueChange: (_, bool value) => setPortScanEnabled(value))
+        ]
+      ];
+    }
 
   List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
-
-  @observable
-  String currentVersion;
 
   @computed
   bool get proxyEnabled => _settingsStore.proxyEnabled;

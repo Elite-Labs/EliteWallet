@@ -1,7 +1,7 @@
 // import 'package:hive/hive.dart';
 // import 'package:mobx/mobx.dart';
 // import 'package:elite_wallet/entities/contact.dart';
-// import 'package:cw_core/crypto_currency.dart';
+// import 'package:ew_core/crypto_currency.dart';
 
 // part 'contact_model.g.dart';
 

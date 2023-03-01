@@ -20,7 +20,7 @@ class DisclaimerPage extends BasePage {
   String get title => 'Terms of Use';
 
   @override
-  Widget leading(BuildContext context) =>
+  Widget? leading(BuildContext context) =>
       isReadOnly ? super.leading(context) : null;
 
   @override
@@ -29,7 +29,7 @@ class DisclaimerPage extends BasePage {
 }
 
 class DisclaimerPageBody extends StatefulWidget {
-  DisclaimerPageBody({this.isReadOnly});
+  DisclaimerPageBody({required this.isReadOnly});
 
   final bool isReadOnly;
 
@@ -46,7 +46,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   Future getFileLines() async {
     _fileText = await rootBundle.loadString(
       isMoneroOnly
-      ? 'assets/text/Monerocom_Terms_of_Use.txt'
+      ? 'assets/text/Moneroso_Terms_of_Use.txt'
       : 'assets/text/Terms_of_Use.txt' );
     setState(() {});
   }
@@ -83,9 +83,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color),
+                                        .primaryTextTheme!
+                                        .headline6!
+                                        .color!),
                               ),
                             )
                           ],
@@ -103,9 +103,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .title
-                                        .color),
+                                        .primaryTextTheme!
+                                        .headline6!
+                                        .color!),
                               ),
                             )
                           ],
@@ -122,9 +122,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.normal,
                                   color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .title
-                                      .color),
+                                      .primaryTextTheme!
+                                      .headline6!
+                                      .color!),
                             ))
                           ],
                         ),
@@ -143,9 +143,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .title
-                                          .color),
+                                          .primaryTextTheme!
+                                          .headline6!
+                                          .color!),
                                 ),
                               )
                             ],
@@ -231,9 +231,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .caption
-                                              .color,
+                                              .primaryTextTheme!
+                                              .caption!
+                                              .color!,
                                           width: 1.0),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(8.0)),
@@ -252,9 +252,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.0,
                                       color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .title
-                                          .color),
+                                          .primaryTextTheme!
+                                          .headline6!
+                                          .color!),
                                 )
                               ],
                             ),
@@ -272,13 +272,13 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                           : null,
                       text: 'Accept',
                       color: Theme.of(context)
-                          .accentTextTheme
-                          .subtitle
-                          .decorationColor,
+                          .accentTextTheme!
+                          .subtitle2!
+                          .decorationColor!,
                       textColor: Theme.of(context)
-                          .accentTextTheme
-                          .headline
-                          .decorationColor),
+                          .accentTextTheme!
+                          .headline5!
+                          .decorationColor!),
                 ),
               ],
             ],

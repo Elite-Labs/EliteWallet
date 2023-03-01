@@ -14,6 +14,7 @@ ZLIB_COMMIT_HASH="cacf7f1d4e3d44d871b605da3b647f07d718623f"
 rm -rf $ZLIB_DIR
 git clone -b $ZLIB_TAG --depth 1 ${LOCAL_GIT_REPOS}/zlib $ZLIB_DIR
 cd $ZLIB_DIR
+git fetch
 git reset --hard $ZLIB_COMMIT_HASH
 CC=clang CXX=clang++ ./configure --static
 make

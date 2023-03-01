@@ -1,13 +1,13 @@
+import 'package:elite_wallet/core/auth_service.dart';
 import 'package:elite_wallet/core/wallet_loading_service.dart';
-import 'package:elite_wallet/view_model/wallet_new_vm.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_service.dart';
+import 'package:ew_core/wallet_service.dart';
 import 'package:elite_wallet/view_model/wallet_list/wallet_list_item.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/wallet_types.g.dart';
 
 part 'wallet_list_view_model.g.dart';
@@ -15,9 +15,12 @@ part 'wallet_list_view_model.g.dart';
 class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
-  WalletListViewModelBase(this._walletInfoSource, this._appStore,
-      this._walletLoadingService) {
-    wallets = ObservableList<WalletListItem>();
+  WalletListViewModelBase(
+    this._walletInfoSource,
+    this._appStore,
+    this._walletLoadingService,
+    this._authService,
+  ) : wallets = ObservableList<WalletListItem>() {
     _updateList();
   }
 
@@ -27,8 +30,9 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
+  final AuthService _authService;
 
-  WalletType get currentWalletType => _appStore.wallet.type;
+  WalletType get currentWalletType => _appStore.wallet!.type;
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
@@ -47,12 +51,20 @@ abstract class WalletListViewModelBase with Store {
 
   void _updateList() {
     wallets.clear();
-    wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
-        name: info.name,
-        type: info.type,
-        key: info.key,
-        isCurrent: info.name == _appStore.wallet.name &&
-            info.type == _appStore.wallet.type,
-        isEnabled: availableWalletTypes.contains(info.type))));
+    wallets.addAll(
+      _walletInfoSource.values.map(
+        (info) => WalletListItem(
+          name: info.name,
+          type: info.type,
+          key: info.key,
+          isCurrent: info.name == _appStore.wallet!.name && info.type == _appStore.wallet!.type,
+          isEnabled: availableWalletTypes.contains(info.type),
+        ),
+      ),
+    );
+  }
+
+  bool checkIfAuthRequired() {
+    return _authService.requireAuth();
   }
 }

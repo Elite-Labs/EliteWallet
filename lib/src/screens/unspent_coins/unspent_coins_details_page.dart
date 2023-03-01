@@ -5,14 +5,14 @@ import 'package:elite_wallet/src/widgets/standard_list.dart';
 import 'package:elite_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
 import 'package:elite_wallet/view_model/unspent_coins/unspent_coins_switch_item.dart';
 import 'package:flutter/material.dart';
-import 'package:elite_wallet/src/widgets/standart_list_row.dart';
+import 'package:elite_wallet/src/widgets/list_row.dart';
 import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 
 class UnspentCoinsDetailsPage extends BasePage {
-  UnspentCoinsDetailsPage({this.unspentCoinsDetailsViewModel});
+  UnspentCoinsDetailsPage({required this.unspentCoinsDetailsViewModel});
 
   @override
   String get title => S.current.unspent_coins_details_title;
@@ -21,14 +21,16 @@ class UnspentCoinsDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    // FIX-ME: Added `context` it was not used here before, maby bug ?
     return SectionStandardList(
+        context: context,
         sectionCount: 1,
         itemCounter: (int _) => unspentCoinsDetailsViewModel.items.length,
         itemBuilder: (_, __, index) {
           final item = unspentCoinsDetailsViewModel.items[index];
 
           if (item is StandartListItem) {
-            return StandartListRow(
+            return ListRow(
                 title: '${item.title}:',
                 value: item.value);
           }
@@ -49,7 +51,7 @@ class UnspentCoinsDetailsPage extends BasePage {
             ));
           }
 
-          return null;
+          return Container();
         });
   }
 }

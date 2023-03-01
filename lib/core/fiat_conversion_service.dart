@@ -1,10 +1,10 @@
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
-import 'package:cw_core/proxy_settings_store.dart';
+import 'package:ew_core/proxy_settings_store.dart';
 
 
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
@@ -30,13 +30,16 @@ Future<double> _fetchCoinGeckoPrice(Map<String, dynamic> args) async {
 
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;
-  final proxySettingsStore = args['settings'] as ProxySettingsStore;
-  final settingsStore = ProxySettingsStore.toSettingsStore(proxySettingsStore);
+  final settingsStore = args['settings'] as SettingsStore;
+
+  final congeckoId = cryptoTickerToCoingeckoId[crypto.title] ?? "";
+  if (congeckoId == "") {
+    return 0.0;
+  }
 
   try {
-    final uri = Uri.https(
-      fiatApiAuthority, fiatApiPath + cryptoTickerToCoingeckoId[crypto.title]);
-    final response = await get(settingsStore, uri.toString());
+    final uri = Uri.https(fiatApiAuthority, fiatApiPath + congeckoId);
+    final response = await get(settingsStore, uri);
 
     if (response.statusCode != 200) {
       return 0.0;
@@ -64,8 +67,7 @@ Future<double> _fetchMajesticBankPrice(Map<String, dynamic> args) async {
 
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;
-  final proxySettingsStore = args['settings'] as ProxySettingsStore;
-  final settingsStore = ProxySettingsStore.toSettingsStore(proxySettingsStore);
+  final settingsStore = args['settings'] as SettingsStore;
 
   try {
     final uri = Uri.https(
@@ -93,10 +95,8 @@ Future<double> _fetchPriceAsync(
         CryptoCurrency crypto,
         FiatCurrency fiat,
         SettingsStore settingsStore) async =>
-    compute(_fetchPrice,
-            {'fiat': fiat, 'crypto': crypto,
-             'settings': ProxySettingsStore.fromSettingsStore(settingsStore),
-             'provider': settingsStore.cryptoPriceProvider});
+    _fetchPrice({'fiat': fiat, 'crypto': crypto, 'settings': settingsStore,
+                 'provider': settingsStore.cryptoPriceProvider});
 
 class FiatConversionService {
   static List<String> get services => ["CoinGecko", "MajesticBank"];

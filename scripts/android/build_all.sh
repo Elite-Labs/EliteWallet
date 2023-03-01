@@ -8,7 +8,7 @@ fi
 DIR=$(dirname "$0")
 
 case $APP_ANDROID_TYPE in
-"monero.com") $DIR/build_monero_all.sh ;;
+"monero.so") $DIR/build_monero_all.sh ;;
 "elitewallet")
   $DIR/build_monero_all.sh
   $DIR/build_haven.sh

@@ -1,11 +1,11 @@
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:ew_core/transaction_history.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/balance.dart';
+import 'package:ew_core/transaction_info.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'dart:convert';
 import 'package:elite_wallet/store/yat/yat_exception.dart';
 import 'dart:async';
@@ -14,7 +14,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 part 'yat_store.g.dart';
 
 class YatLink {
-  static const partnerId = ''; // 'CW';
+  static const partnerId = ''; // 'EW';
   static const baseDevUrl = ''; // 'https://yat.fyi';
   static const baseReleaseUrl = ''; // 'https://y.at';
   static const signInSuffix = ''; // '/partner/$partnerId/link-email';
@@ -67,7 +67,7 @@ Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
   //});
 
   //return addresses;
-  return [];
+  return <String>[];
 }
 
 Future<String> fetchYatAccessToken(String refreshToken) async {
@@ -99,7 +99,7 @@ Future<String> fetchYatApiKey(String accessKey) async {
   throw Exception();
   //try {
   //  final url = YatLink.apiUrl + '/api_keys';
-  //  final bodyJson = json.encode({'name': 'CW'});
+  //  final bodyJson = json.encode({'name': 'EW'});
   //  final response = await post(
   //    url,
   //    headers: <String, String>{
@@ -168,13 +168,18 @@ Future<String> visualisationForEmojiId(String emojiId) async {
 class YatStore = YatStoreBase with _$YatStore;
 
 abstract class YatStoreBase with Store {
-  YatStoreBase({@required this.appStore, @required this.secureStorage}) {
-    _wallet ??= appStore.wallet;
-    emoji = _wallet?.walletInfo?.yatEmojiId ?? '';
+  YatStoreBase({
+    required this.appStore,
+    required this.secureStorage})
+  : _wallet = appStore.wallet,
+    emoji = appStore.wallet?.walletInfo?.yatEmojiId ?? '',
+    refreshToken = '',
+    accessToken = '',
+    apiKey = '',
+    emojiIncommingSC = StreamController<String>.broadcast() {
     //reaction((_) => appStore.wallet, _onWalletChange);
     //reaction((_) => emoji, (String _) => _onEmojiChange());
     //reaction((_) => refreshToken, (String _) => _onRefreshTokenChange());
-    emojiIncommingSC = StreamController<String>.broadcast();
   }
 
   static const yatRefreshTokenKeyBase = 'yat_refresh_token';
@@ -206,17 +211,17 @@ abstract class YatStoreBase with Store {
   Stream<String> get emojiIncommingStream => emojiIncommingSC.stream;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
-  _wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
+    _wallet;
 
   Future<void> init() async {
     if (_wallet == null) {
       return;
     }
 
-    refreshToken = await secureStorage.read(key: yatRefreshTokenKey(_wallet.walletInfo.name));
-    accessToken = await secureStorage.read(key: yatAccessTokenKey(_wallet.walletInfo.name));
-    apiKey = await secureStorage.read(key: yatApiKey(_wallet.walletInfo.name));
+    refreshToken = await secureStorage.read(key: yatRefreshTokenKey(_wallet!.walletInfo.name)) ?? '';
+    accessToken = await secureStorage.read(key: yatAccessTokenKey(_wallet!.walletInfo.name)) ?? '';
+    apiKey = await secureStorage.read(key: yatApiKey(_wallet!.walletInfo.name)) ?? '';
   }
  
   @action
@@ -232,16 +237,16 @@ abstract class YatStoreBase with Store {
   @action
   void _onEmojiChange() {
     try {
-      final walletInfo = _wallet.walletInfo;
+      final walletInfo = _wallet?.walletInfo;
 
       if (walletInfo == null) {
         return;
       }
 
-      walletInfo.yatEid = emoji;
+      walletInfo!.yatEid = emoji;
 
-      if (walletInfo.isInBox) {
-        walletInfo.save();
+      if (walletInfo!.isInBox) {
+        walletInfo!.save();
       }
     } catch (e) {
       print(e.toString());

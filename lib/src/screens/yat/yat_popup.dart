@@ -13,7 +13,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 
 class YatPopup extends StatelessWidget {
-  YatPopup({this.dashboardViewModel, this.onClose})
+  YatPopup({required this.dashboardViewModel, required this.onClose})
       : baseUrl = YatLink.isDevMode
           ? YatLink.baseDevUrl
           : YatLink.baseReleaseUrl;

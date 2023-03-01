@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/exchange/exchange_pair.dart';
 import 'package:elite_wallet/exchange/exchange_provider.dart';
 import 'package:elite_wallet/exchange/limits.dart';
@@ -35,7 +35,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   static Future<bool> _checkIsAvailable(SettingsStore settingsStore) async {
     const url = originalApiUri + _orderParameterUriSuffix;
-    final response = await get(settingsStore, url, headers: _headers);
+    final uri = Uri.parse(url);
+    final response = await get(settingsStore, uri, headers: _headers);
     return !(response.statusCode == 403);
   }
 
@@ -47,6 +48,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => true;
+
+  @override
+  bool get supportsFixedRate => false;
 
   @override
   ExchangeProviderDescription get description =>
@@ -64,9 +68,13 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode}) async {
     final url = originalApiUri + _orderParameterUriSuffix;
-    final response = await get(settingsStore, url);
+    final uri = Uri.parse(url);
+    final response = await get(settingsStore, uri);
     final correction = 0.001;
 
     if (response.statusCode != 200) {
@@ -97,16 +105,14 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final _request = request as XMRTOTradeRequest;
     final url = originalApiUri + _orderCreateUriSuffix;
     final _amount =
         _request.isBTCRequest ? _request.receiveAmount : _request.amount;
-
     final _amountCurrency = _request.isBTCRequest
         ? _request.to.toString()
         : _request.from.toString();
-
     final pattern = '^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$';
     final isValid = RegExp(pattern).hasMatch(_amount);
 
@@ -118,11 +124,11 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     final body = {
       'amount': _amount,
       'amount_currency': _amountCurrency,
-      'btc_dest_address': _request.address
-    };
+      'btc_dest_address': _request.address};
+    final uri = Uri.parse(url);
     final response =
         await post(
-          settingsStore, url, headers: _headers, body: json.encode(body));
+          settingsStore, uri, headers: _headers, body: json.encode(body));
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -149,12 +155,13 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({@required String id}) async {
+  Future<Trade> findTradeById({required String id}) async {
     final url = originalApiUri + _orderStatusUriSuffix;
+    final uri = Uri.parse(url);
     final body = {'uuid': id};
     final response =
         await post(
-          settingsStore, url, headers: _headers, body: json.encode(body));
+          settingsStore, uri, headers: _headers, body: json.encode(body));
 
     if (response.statusCode != 200) {
       if (response.statusCode == 400) {
@@ -192,17 +199,17 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> calculateAmount(
-      {CryptoCurrency from,
-      CryptoCurrency to,
-      double amount,
-      bool isFixedRateMode,
-      bool isReceiveAmount}) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     if (from != CryptoCurrency.xmr && to != CryptoCurrency.btc) {
       return 0;
     }
 
-    if (_rate == null || _rate == 0) {
+    if (_rate == 0) {
       _rate = await _fetchRates();
     }
 
@@ -218,7 +225,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   Future<double> _fetchRates() async {
     try {
       final url = originalApiUri + _orderParameterUriSuffix;
-      final response = await get(settingsStore, url, headers: _headers);
+      final uri = Uri.parse(url);
+      final response = await get(settingsStore, uri, headers: _headers);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final price = double.parse(responseJSON['price'] as String);
 

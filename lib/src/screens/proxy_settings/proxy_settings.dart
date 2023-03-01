@@ -33,6 +33,7 @@ class ProxySettingsPage extends BasePage {
 
     return SectionStandardList(
         sectionCount: proxySettingsViewModel.sections.length,
+        context: context,
         itemCounter: (int sectionIndex) {
           if (sectionIndex < proxySettingsViewModel.sections.length) {
             return proxySettingsViewModel.sections[sectionIndex].length;
@@ -70,8 +71,8 @@ class ProxySettingsPage extends BasePage {
                 text: S.of(context).save,
                 color: Theme.of(context)
                     .accentTextTheme
-                    .body2
-                    .color,
+                    .bodyText1!
+                    .color!,
                 textColor: Colors.white);
             });
           }

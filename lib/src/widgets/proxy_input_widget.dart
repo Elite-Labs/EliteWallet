@@ -3,10 +3,10 @@ import 'package:elite_wallet/src/widgets/base_text_form_field.dart';
 import 'package:elite_wallet/src/screens/proxy_settings/proxy_input_type.dart';
 
 class ProxyInputWidget extends StatefulWidget {
-  ProxyInputWidget({@required this.type,
-                   @required this.value,
-                   @required this.onTextChange,
-                   @required this.enabled});
+  ProxyInputWidget({required this.type,
+                   required this.value,
+                   required this.onTextChange,
+                   required this.enabled});
 
   final ProxyInputType type;
   final String value;

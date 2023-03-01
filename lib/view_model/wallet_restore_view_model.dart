@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:ew_core/wallet_base.dart';
 import 'package:elite_wallet/core/generate_wallet_password.dart';
 import 'package:elite_wallet/core/wallet_creation_service.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_type.dart';
+import 'package:ew_core/wallet_info.dart';
 import 'package:elite_wallet/view_model/wallet_creation_vm.dart';
 import 'package:elite_wallet/monero/monero.dart';
 import 'package:elite_wallet/haven/haven.dart';
@@ -25,16 +25,17 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
-      {@required WalletType type})
+      {required WalletType type})
       : availableModes = (type == WalletType.monero || type == WalletType.haven)
             ? WalletRestoreMode.values
             : [WalletRestoreMode.seed],
         hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
+        isButtonEnabled = false,
+        mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
     isButtonEnabled =
         !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
-    mode = WalletRestoreMode.seed;
     walletCreationService.changeWalletType(type: type);
   }
 
@@ -56,7 +57,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @override
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
-    final height = options['height'] as int;
+    final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
 
     if (mode == WalletRestoreMode.seed) {
@@ -64,31 +65,31 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
       switch (type) {
         case WalletType.monero:
-          return monero.createMoneroRestoreWalletFromSeedCredentials(
+          return monero!.createMoneroRestoreWalletFromSeedCredentials(
               name: name,
-              height: height ?? 0,
+              height: height,
               mnemonic: seed,
               password: password);
         case WalletType.bitcoin:
-          return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password);
         case WalletType.litecoin:
-          return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password);
         case WalletType.haven:
-          return haven.createHavenRestoreWalletFromSeedCredentials(
+          return haven!.createHavenRestoreWalletFromSeedCredentials(
               name: name,
-              height: height ?? 0,
+              height: height,
               mnemonic: seed,
               password: password);
         case WalletType.wownero:
-          return wownero.createWowneroRestoreWalletFromSeedCredentials(
+          return wownero!.createWowneroRestoreWalletFromSeedCredentials(
               name: name,
-              height: height ?? 0,
+              height: height,
               mnemonic: seed,
               password: password);
         default:
@@ -102,7 +103,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       final address = options['address'] as String;
 
       if (type == WalletType.monero) {
-        return monero.createMoneroRestoreWalletFromKeysCredentials(
+        return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey,
@@ -113,7 +114,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
 
       if (type == WalletType.haven) {
-        return haven.createHavenRestoreWalletFromKeysCredentials(
+        return haven!.createHavenRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey,
@@ -124,7 +125,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
 
       if (type == WalletType.wownero) {
-        return wownero.createWowneroRestoreWalletFromKeysCredentials(
+        return wownero!.createWowneroRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey,
@@ -135,7 +136,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
     }
 
-    return null;
+    throw Exception('Unexpected type: ${type.toString()}');
   }
 
   @override

@@ -15,7 +15,7 @@ import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 
 class TransactionsPage extends StatelessWidget {
-  TransactionsPage({@required this.dashboardViewModel});
+  TransactionsPage({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
 
@@ -57,7 +57,9 @@ class TransactionsPage extends StatelessWidget {
                               formattedDate: DateFormat('HH:mm')
                                   .format(transaction.date),
                               formattedAmount: item.formattedCryptoAmount,
-                              formattedFiatAmount: item.formattedFiatAmount,
+                              formattedFiatAmount:
+                              dashboardViewModel.balanceViewModel.isFiatDisabled
+                                  ? '' : item.formattedFiatAmount,
                               isPending: transaction.isPending));
                         }
 
@@ -72,7 +74,9 @@ class TransactionsPage extends StatelessWidget {
                               from: trade.from,
                               to: trade.to,
                               createdAtFormattedDate:
-                              DateFormat('HH:mm').format(trade.createdAt),
+                              trade.createdAt != null
+                                ? DateFormat('HH:mm').format(trade.createdAt!)
+                                : null,
                               formattedAmount: item.tradeFormattedAmount
                           ));
                         }
@@ -85,8 +89,8 @@ class TransactionsPage extends StatelessWidget {
                                 Routes.orderDetails,
                                 arguments: order),
                             provider: order.provider,
-                            from: order.from,
-                            to: order.to,
+                            from: order.from!,
+                            to: order.to!,
                             createdAtFormattedDate:
                             DateFormat('HH:mm').format(order.createdAt),
                             formattedAmount: item.orderFormattedAmount,
@@ -103,8 +107,8 @@ class TransactionsPage extends StatelessWidget {
                       S.of(context).placeholder_transactions,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).primaryTextTheme
-                            .overline.decorationColor
+                        color: Theme.of(context).primaryTextTheme!
+                            .overline!.decorationColor!
                       ),
                     ),
                   );

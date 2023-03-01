@@ -1,12 +1,13 @@
 #!/bin/sh
 
 . ./config.sh
-HAVEN_VERSION=tags/v2.2.2
+HAVEN_VERSION=tags/v3.0.7
 HAVEN_SRC_DIR=${WORKDIR}/haven
 
 rm -rf ${HAVEN_SRC_DIR}
 git clone ${LOCAL_GIT_REPOS}/haven ${HAVEN_SRC_DIR}
 cd $HAVEN_SRC_DIR
+git fetch
 git checkout ${HAVEN_VERSION}
 
 LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 export IOS_SCRIPTS_DIR=`pwd`
-export CW_ROOT=${IOS_SCRIPTS_DIR}/../..
-export EXTERNAL_DIR=${CW_ROOT}/cw_shared_external/ios/External
+export EW_ROOT=${IOS_SCRIPTS_DIR}/../..
+export EXTERNAL_DIR=${EW_ROOT}/ew_shared_external/ios/External
 export EXTERNAL_IOS_DIR=${EXTERNAL_DIR}/ios
 export EXTERNAL_IOS_SOURCE_DIR=${EXTERNAL_IOS_DIR}/sources
 export EXTERNAL_IOS_LIB_DIR=${EXTERNAL_IOS_DIR}/lib
@@ -12,7 +12,7 @@ export LOCAL_GIT_REPOS=${ELITEWALLET_DATA_DIR}/repos
 export LOCAL_GIT_DEPS=${ELITEWALLET_DATA_DIR}/deps
 export BUILD_TYPE="release"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
-export LAST_DEPS_CHANGE_GITHASH="024832"
+export LAST_DEPS_CHANGE_GITHASH="cac696"
 export CURRENT_DEPS=${LOCAL_GIT_DEPS_SUBDIR}/${LAST_DEPS_CHANGE_GITHASH}
 
 mkdir -p $EXTERNAL_IOS_LIB_DIR

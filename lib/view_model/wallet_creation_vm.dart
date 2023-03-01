@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/core/execution_state.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/pathForWallet.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/entities/generate_name.dart';
 
@@ -17,10 +17,9 @@ class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
   WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
-      {@required this.type, @required this.isRecovery}) {
-    state = InitialExecutionState();
-    name = '';
-  }
+      {required this.type, required this.isRecovery})
+      : state = InitialExecutionState(),
+        name = '';
 
   @observable
   String name;
@@ -43,7 +42,7 @@ abstract class WalletCreationVMBase with Store {
   Future<void> create({dynamic options}) async {
     try {
       state = IsExecutingState();
-      if (name?.isEmpty ?? true) {
+      if (name.isEmpty) {
             name = await generateName();
       }
 
@@ -60,6 +59,7 @@ abstract class WalletCreationVMBase with Store {
           date: DateTime.now(),
           path: path,
           dirPath: dirPath,
+          address: '',
           showIntroElitePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
       credentials.walletInfo = walletInfo;
       final wallet = await process(credentials);

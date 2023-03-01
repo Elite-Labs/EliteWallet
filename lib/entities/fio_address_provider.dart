@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cw_core/http_port_redirector.dart' as http;
+import 'package:ew_core/http_port_redirector.dart' as http;
 import 'package:elite_wallet/store/settings_store.dart';
 
 class FioAddressProvider {
@@ -53,7 +53,7 @@ class FioAddressProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected response http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;

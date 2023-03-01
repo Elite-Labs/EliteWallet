@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/src/screens/restore/widgets/restore_button.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 
 class RestoreWalletOptionsPage extends BasePage {
   RestoreWalletOptionsPage(
-      {@required this.type,
-      @required this.onRestoreFromSeed,
-      @required this.onRestoreFromKeys});
+      {required this.type,
+      required this.onRestoreFromSeed,
+      required this.onRestoreFromKeys});
 
   final WalletType type;
   final Function(BuildContext context) onRestoreFromSeed;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:elite_wallet/entities/yat_record.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 
 class YatService {

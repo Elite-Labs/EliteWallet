@@ -1,5 +1,5 @@
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/core/execution_state.dart';
@@ -15,7 +15,7 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._havenAccountList, this._wowneroAccountList,
-      {@required WalletBase wallet, AccountListItem accountListItem})
+      {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
         label = accountListItem?.label??'',
@@ -31,9 +31,9 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   String label;
 
   final MoneroAccountList _moneroAccountList;
-  final HavenAccountList _havenAccountList;
-  final WowneroAccountList _wowneroAccountList;
-  final AccountListItem _accountListItem;
+  final HavenAccountList? _havenAccountList;
+  final WowneroAccountList? _wowneroAccountList;
+  final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
   Future<void> save() async {
@@ -57,7 +57,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       if (_accountListItem != null) {
         await _moneroAccountList.setLabelAccount(
             _wallet,
-            accountIndex: _accountListItem.id,
+            accountIndex: _accountListItem!.id,
             label: label);
       } else {
         await _moneroAccountList.addAccount(
@@ -81,12 +81,12 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = IsExecutingState();
 
       if (_accountListItem != null) {
-        await _havenAccountList.setLabelAccount(
+        await _havenAccountList!.setLabelAccount(
             _wallet,
-            accountIndex: _accountListItem.id,
+            accountIndex: _accountListItem!.id,
             label: label);
       } else {
-        await _havenAccountList.addAccount(
+        await _havenAccountList!.addAccount(
           _wallet,
           label: label);
       }
@@ -103,12 +103,12 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = IsExecutingState();
 
       if (_accountListItem != null) {
-        await _wowneroAccountList.setLabelAccount(
+        await _wowneroAccountList!.setLabelAccount(
             _wallet,
-            accountIndex: _accountListItem.id,
+            accountIndex: _accountListItem!.id,
             label: label);
       } else {
-        await _wowneroAccountList.addAccount(
+        await _wowneroAccountList!.addAccount(
             _wallet,
             label: label);
       }

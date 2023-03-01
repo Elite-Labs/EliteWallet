@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:elite_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/.secrets.g.dart' as secrets;
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/exchange/exchange_pair.dart';
 import 'package:elite_wallet/exchange/exchange_provider.dart';
 import 'package:elite_wallet/exchange/limits.dart';
@@ -32,7 +32,8 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
           ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.wow),]);
 
   static const referralCode = 'BVIQmf';
-  static const apiAuthorityDirect = 'majesticbank.is';
+  static const apiAuthorityDirect = 'majesticbank.sc';
+  static const apiAuthorityDirectAlt = 'majesticbank.ru';
   static const apiAuthorityOnion =
     'majestictfvnfjgo5hqvmuzynak4kjl5tjs3j5zdabawe6n2aaebldad.onion';
   static const createTradePath = '/api/v1/exchange';
@@ -51,6 +52,9 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
+  bool get supportsFixedRate => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.majesticBank;
 
@@ -59,31 +63,31 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
 
   SettingsStore settingsStore;
 
-  int calculateAmountSequenceId = 0;
+  int fetchRateSequenceId = 0;
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to,
-    bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from, required CryptoCurrency to,
+    required bool isFixedRateMode}) async {
 
-    Limits t;
-    bool error = false;
-    try {
-      t = await _fetchLimitsInternal(
-      from: from, to: to, isFixedRateMode: isFixedRateMode,
-      apiAuthority: apiAuthorityOnion);
-    } catch (_) {
-      error = true;
+    Object? exception;
+    for (final apiAuthority in
+           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+      try {
+        return await _fetchLimitsInternal(
+          from: from, to: to, isFixedRateMode: isFixedRateMode,
+          apiAuthority: apiAuthority);
+      } catch (e) {
+        exception = e;
+      }
     }
-    if (error || t == null) {
-      return _fetchLimitsInternal(
-        from: from, to: to, isFixedRateMode: isFixedRateMode,
-        apiAuthority: apiAuthorityDirect);
-    }
-    return t;
+    throw exception!;
   }
 
-  Future<Limits> _fetchLimitsInternal({CryptoCurrency from, CryptoCurrency to,
-    bool isFixedRateMode, String apiAuthority}) async {
+  Future<Limits> _fetchLimitsInternal({required CryptoCurrency from,
+    required CryptoCurrency to, required bool isFixedRateMode,
+    required String apiAuthority}) async {
+
     final normalizedFrom = normalizeCryptoCurrency(from);
     final params = <String, String>{
       'from_currency': normalizedFrom};
@@ -98,7 +102,7 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -109,28 +113,25 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({
-    TradeRequest request, bool isFixedRateMode}) async {
+    required TradeRequest request, required bool isFixedRateMode}) async {
 
-    Trade t;
-    bool error = false;
-    try {
-      t = await _createTradeInternal(
-      request: request, isFixedRateMode: isFixedRateMode,
-      apiAuthority: apiAuthorityOnion);
-    } catch (_) {
-      error = true;
+    Object? exception;
+    for (final apiAuthority in
+           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+      try {
+        return await _createTradeInternal(
+          request: request, isFixedRateMode: isFixedRateMode,
+          apiAuthority: apiAuthority);
+      } catch (e) {
+        exception = e;
+      }
     }
-    if (error || t == null) {
-      return _createTradeInternal(
-        request: request, isFixedRateMode: isFixedRateMode,
-        apiAuthority: apiAuthorityDirect);
-    }
-    return t;
+    throw exception!;
   }
 
   Future<Trade> _createTradeInternal({
-    TradeRequest request, bool isFixedRateMode,
-    String apiAuthority}) async {
+    required TradeRequest request, required bool isFixedRateMode,
+    required String apiAuthority}) async {
 
     final _request = request as MajesticBankRequest;
     final headers = <String, String>{
@@ -163,7 +164,7 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -189,26 +190,23 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({
-    @required String id}) async {
-
-    Trade t;
-    bool error = false;
-    try {
-      t = await _findTradeByIdInternal(
-      id: id, apiAuthority: apiAuthorityOnion);
-    } catch (_) {
-      error = true;
+    required String id}) async {
+    Object? exception;
+    for (final apiAuthority in
+           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+      try {
+        return await _findTradeByIdInternal(
+          id: id, apiAuthority: apiAuthority);
+      } catch (e) {
+        exception = e;
+      }
     }
-    if (error || t == null) {
-      return _findTradeByIdInternal(
-        id: id, apiAuthority: apiAuthorityDirect);
-    }
-    return t;
+    throw exception!;
   }
 
   Future<Trade> _findTradeByIdInternal({
-    @required String id,
-    String apiAuthority}) async {
+    required String id,
+    required String apiAuthority}) async {
 
     final params = <String, String>{'trx': id};
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params);
@@ -227,41 +225,43 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      return null;
+      throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
-    CryptoCurrency from;
-    if (responseJSON.containsKey('from_currency')) {
-      final fromCurrency = responseJSON['from_currency'] as String;
-      from = CryptoCurrency.fromString(fromCurrency);
+    if (!responseJSON.containsKey('from_currency')) {
+      throw Exception('from_currency invalid!');
     }
 
-    CryptoCurrency to;
-    if (responseJSON.containsKey('receive_currency')) {
-      final toCurrency = responseJSON['receive_currency'] as String;
-      to = CryptoCurrency.fromString(toCurrency);
+    final fromCurrency = responseJSON['from_currency'] as String;
+    CryptoCurrency from = CryptoCurrency.fromString(fromCurrency);
+
+    if (!responseJSON.containsKey('receive_currency')) {
+      throw Exception('receive_currency invalid!');
     }
+
+    final toCurrency = responseJSON['receive_currency'] as String;
+    CryptoCurrency to = CryptoCurrency.fromString(toCurrency);
 
     final inputAddress = responseJSON['address'] as String;
 
-    String expectedSendAmount;
+    String expectedSendAmount = "";
     if (responseJSON.containsKey('from_amount')) {
       expectedSendAmount = responseJSON['from_amount'].toString();
     }
 
-    double confirmed;
+    double confirmed = 0;
     if (responseJSON.containsKey('confirmed')) {
       confirmed = _toDouble(responseJSON['confirmed']);
     }
 
-    double receiveAmount;
+    double receiveAmount = 0;
     if (responseJSON.containsKey('receive_amount')) {
       receiveAmount = _toDouble(responseJSON['receive_amount']);
     }
 
-    double received;
+    double received = 0;
     if (responseJSON.containsKey('received')) {
       received = _toDouble(responseJSON['received']);
     }
@@ -283,75 +283,55 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> calculateAmount(
-      {CryptoCurrency from,
-      CryptoCurrency to,
-      double amount,
-      bool isFixedRateMode,
-      bool isReceiveAmount}) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
 
-    int currentCalculateAmountSequenceId = ++calculateAmountSequenceId;
+    int currentfetchRateSequenceId = ++fetchRateSequenceId;
 
-    double t;
-    bool error = false;
-    try {
-      t = await _calculateAmountInternal(
-        from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthorityOnion);
-    } catch (_) {
-      error = true;
+    for (final apiAuthority in
+           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+      try {
+        double t = await _fetchRateInternal(
+          from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
+          isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthority);
+        if (currentfetchRateSequenceId != fetchRateSequenceId) {
+          return 0.0;
+        }
+        return t;
+      } catch (_) {}
     }
-    if (currentCalculateAmountSequenceId != calculateAmountSequenceId) {
-      throw "Stale calculateAmount request!";
-    }
-    if (error || t == null || t == 0.0) {
-      t = await _calculateAmountInternal(
-        from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthorityDirect);
-    }
-    if (currentCalculateAmountSequenceId != calculateAmountSequenceId) {
-      throw "Stale calculateAmount request!";
-    }
-    return t;
+    return 0.0;
   }
 
-  Future<double> _calculateAmountInternal(
-      {CryptoCurrency from,
-      CryptoCurrency to,
-      double amount,
-      bool isFixedRateMode,
-      bool isReceiveAmount,
-      String apiAuthority}) async {
-    try {
-      if (amount == 0) {
-        return 0.0;
-      }
+  Future<double> _fetchRateInternal(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount,
+      required String apiAuthority}) async {
 
-      final isReverse = isReceiveAmount;
-      final params = <String, String>{
-        'from_currency':isReverse ? normalizeCryptoCurrency(to) :
-                                    normalizeCryptoCurrency(from),
-        'receive_currency': isReverse ? normalizeCryptoCurrency(from) :
-                                        normalizeCryptoCurrency(to),
-        };
-
-      if (isReverse) {
-        params['receive_amount'] = amount.toString();
-      } else {
-        params['from_amount'] = amount.toString();
-      }
-
-      final uri = Uri.https(apiAuthority, calculatePath, params);
-      final response = await get(settingsStore, uri);
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final fromAmount = _toDouble(responseJSON['from_amount']);
-      final toAmount = _toDouble(responseJSON['receive_amount']);
-
-      return isReverse ? fromAmount : toAmount;
-    } catch(e) {
-      print(e.toString());
+    if (amount == 0) {
       return 0.0;
     }
+
+    final isReverse = isReceiveAmount;
+    final params = <String, String>{
+      'from_currency': normalizeCryptoCurrency(from),
+      'receive_currency': normalizeCryptoCurrency(to),
+      };
+
+    params['from_amount'] = "1";
+
+    final uri = Uri.https(apiAuthority, calculatePath, params);
+    final response = await get(settingsStore, uri);
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    return _toDouble(responseJSON['receive_amount']);
   }
 
   static String _parseStatus(String input) {

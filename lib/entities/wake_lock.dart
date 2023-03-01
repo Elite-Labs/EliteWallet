@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 class WakeLock {
-  static const _utils = const MethodChannel('com.elite_wallet/native_utils');
+  static const _utils = const MethodChannel('sc.elite_wallet/native_utils');
 
   Future<void> enableWake() async {
     try {

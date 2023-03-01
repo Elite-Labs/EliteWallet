@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class IoniaCreateAccountPage extends BasePage {
   IoniaCreateAccountPage(this._authViewModel)
@@ -32,15 +31,15 @@ class IoniaCreateAccountPage extends BasePage {
   final FocusNode _emailFocus;
   final TextEditingController _emailController;
 
-  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jaqsmbq9w7dzvnqf';
-  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/hi9awnwxr6mqgiqj';
+  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jhjvdn7qq7k3ukwt';
+  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/uceirymz2ijacq5g';
 
   @override
   Widget middle(BuildContext context) {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+        color: Theme.of(context).accentTextTheme!.headline1!.backgroundColor!,
       ),
     );
   }
@@ -78,13 +77,13 @@ class IoniaCreateAccountPage extends BasePage {
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).create_account,
                   onPressed: () async {
-                    if (!_formKey.currentState.validate()) {
+                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                       return;
                     }
                     await _authViewModel.createUser(_emailController.text);
                   },
                   isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
-                  color: Theme.of(context).accentTextTheme.body2.color,
+                  color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
                 ),
               ),
@@ -104,24 +103,24 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                       text: S.of(context).settings_terms_and_conditions,
                       style: TextStyle(
-                        color: Theme.of(context).accentTextTheme.body2.color,
+                        color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                         fontWeight: FontWeight.w700,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
-                          if (await canLaunch(termsAndConditionsUrl)) await launch(termsAndConditionsUrl);
+                          // if (await canLaunch(termsAndConditionsUrl)) await launch(termsAndConditionsUrl);
                         },
                     ),
                     TextSpan(text: ' ${S.of(context).and} '),
                     TextSpan(
                         text: S.of(context).privacy_policy,
                         style: TextStyle(
-                          color: Theme.of(context).accentTextTheme.body2.color,
+                          color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                           fontWeight: FontWeight.w700,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {
-                            if (await canLaunch(privacyPolicyUrl)) await launch(privacyPolicyUrl);
+                            // if (await canLaunch(privacyPolicyUrl)) await launch(privacyPolicyUrl);
                           }),
                     TextSpan(text: ' ${S.of(context).by_elite_pay}'),
                   ],

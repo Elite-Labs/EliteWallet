@@ -1,67 +1,65 @@
 import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/src/screens/dashboard/wallet_menu_item.dart';
-import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/src/screens/auth/auth_page.dart';
-import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:elite_wallet/wallet_type_utils.dart';
 
 // FIXME: terrible design
 
 class WalletMenu {
-  WalletMenu(this.context, this.reconnect, this.hasRescan) : items = [] {
+  WalletMenu(this.context, this.reconnect, this.hasRescan) : items = 
+  <WalletMenuItem>[] {
     items.addAll([
-      WalletMenuItem(
-          title: S.current.reconnect,
-          image: Image.asset('assets/images/reconnect_menu.png',
-              height: 16, width: 16),
-	  handler: () => _presentReconnectAlert(context)),
-      if (hasRescan)
-        WalletMenuItem(
-            title: S.current.rescan,
-            image: Image.asset('assets/images/filter_icon.png',
-                height: 16, width: 16, color: Palette.darkBlue),
-	    handler: () => Navigator.of(context).pushNamed(Routes.rescan)),
-      WalletMenuItem(
-          title: S.current.wallets,
-          image: Image.asset('assets/images/wallet_menu.png',
-              height: 16, width: 16),
-	  handler: () => Navigator.of(context).pushNamed(Routes.walletList)),
-      WalletMenuItem(
-          title: S.current.nodes,
-          image: Image.asset('assets/images/nodes_menu.png',
-              height: 16, width: 16),
-	  handler: () => Navigator.of(context).pushNamed(Routes.nodeList)),
-      WalletMenuItem(
-          title: S.current.show_keys,
-          image:
-              Image.asset('assets/images/key_menu.png', height: 16, width: 16),
-	  handler: () {
-	  Navigator.of(context).pushNamed(Routes.auth,
-            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (isAuthenticatedSuccessfully) {
-             auth.close();
-		Navigator.of(auth.context).pushNamed(Routes.showKeys);
-            }
-          });
-	}),
-      WalletMenuItem(
-          title: S.current.address_book_menu,
-          image: Image.asset('assets/images/open_book_menu.png',
-              height: 16, width: 16),
-	  handler: () => Navigator.of(context).pushNamed(Routes.addressBook)),
-      WalletMenuItem(
-          title: S.current.settings_title,
-          image: Image.asset('assets/images/settings_menu.png',
-              height: 16, width: 16),
-	  handler: () => Navigator.of(context).pushNamed(Routes.settings)),
-      WalletMenuItem(
-          title: S.current.settings_support,
-          image: Image.asset('assets/images/question_mark.png',
-              height: 16, width: 16, color: Palette.darkBlue),
-	  handler: () => Navigator.of(context).pushNamed(Routes.support)),
+    WalletMenuItem(
+      title: S.current.connection_sync,
+      image: Image.asset('assets/images/nodes_menu.png',
+          height: 16, width: 16),
+      handler: () => Navigator.of(context).pushNamed(Routes.connectionSync),
+    ),
+    WalletMenuItem(
+      title: S.current.wallets,
+      image: Image.asset('assets/images/wallet_menu.png',
+          height: 16, width: 16),
+      handler: () => Navigator.of(context).pushNamed(Routes.walletList),
+    ),
+    WalletMenuItem(
+      title: S.current.address_book_menu,
+      image: Image.asset('assets/images/open_book_menu.png',
+      height: 16, width: 16),
+      handler: () => Navigator.of(context).pushNamed(Routes.addressBook),
+    ),
+    WalletMenuItem(
+      title: S.current.security_and_backup,
+      image:
+          Image.asset('assets/images/key_menu.png', height: 16, width: 16),
+      handler: () {
+      Navigator.of(context).pushNamed(Routes.securityBackupPage);
+	  }),
+    WalletMenuItem(
+      title: S.current.privacy_settings,
+      image:
+          Image.asset('assets/images/privacy_menu.png', height: 16, width: 16),
+      handler: () {
+      Navigator.of(context).pushNamed(Routes.privacyPage);
+	  }),
+    WalletMenuItem(
+      title: S.current.display_settings,
+      image: Image.asset('assets/images/eye_menu.png',
+      height: 16, width: 16),
+      handler: () => Navigator.of(context).pushNamed(Routes.displaySettingsPage),
+    ),
+    WalletMenuItem(
+      title: S.current.other_settings,
+      image: Image.asset('assets/images/settings_menu.png',
+      height: 16, width: 16),
+      handler: () => Navigator.of(context).pushNamed(Routes.otherSettingsPage),
+    ),
+    WalletMenuItem(
+      title: S.current.settings_support,
+      image: Image.asset('assets/images/question_mark.png',
+      height: 16, width: 16, color: Palette.darkBlue),
+      handler: () => Navigator.of(context).pushNamed(Routes.support),
+    ),
     ]);
   }
 
@@ -72,23 +70,6 @@ class WalletMenu {
 
   void action(int index) {
     final item = items[index];
-    item?.handler();
-  }
-
-  Future<void> _presentReconnectAlert(BuildContext context) async {
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithTwoActions(
-              alertTitle: S.of(context).reconnection,
-              alertContent: S.of(context).reconnect_alert_text,
-              rightButtonText: S.of(context).ok,
-              leftButtonText: S.of(context).cancel,
-              actionRightButton: () async {
-                Navigator.of(context).pop();
-                await reconnect?.call();
-              },
-              actionLeftButton: () => Navigator.of(context).pop());
-        });
+    item.handler();
   }
 }

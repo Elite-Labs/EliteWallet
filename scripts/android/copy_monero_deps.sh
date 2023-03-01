@@ -3,9 +3,9 @@
 . ./config.sh
 
 WORKDIR=/opt/android
-CW_WOWNERO_EXTERNAL_DIR=${CW_DIR}/cw_wownero/ios/External/android
-CW_HAVEN_EXTERNAL_DIR=${CW_DIR}/cw_haven/ios/External/android
-CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
+ew_wownero_EXTERNAL_DIR=${EW_DIR}/ew_wownero/ios/External/android
+ew_haven_EXTERNAL_DIR=${EW_DIR}/ew_haven/ios/External/android
+ew_monero_EXTERNAL_DIR=${EW_DIR}/ew_monero/ios/External/android
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 
@@ -23,8 +23,8 @@ case $arch in
 		ABI="x86_64";;
 esac
 
-LIB_DIR=${CW_EXRTERNAL_DIR}/${ABI}/lib
-INCLUDE_DIR=${CW_EXRTERNAL_DIR}/${ABI}/include
+LIB_DIR=${EW_EXRTERNAL_DIR}/${ABI}/lib
+INCLUDE_DIR=${EW_EXRTERNAL_DIR}/${ABI}/include
 LIBANBOUND_PATH=${PREFIX}/lib/libunbound.a
 
 mkdir -p $LIB_DIR
@@ -39,11 +39,11 @@ fi
 
 done
 
-mkdir -p ${CW_HAVEN_EXTERNAL_DIR}/include
-mkdir -p ${CW_MONERO_EXTERNAL_DIR}/include
-mkdir -p ${CW_WOWNERO_EXTERNAL_DIR}/include
+mkdir -p ${ew_haven_EXTERNAL_DIR}/include
+mkdir -p ${ew_monero_EXTERNAL_DIR}/include
+mkdir -p ${ew_wownero_EXTERNAL_DIR}/include
 
-cp $CW_EXRTERNAL_DIR/x86/include/monero/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include
-cp $CW_EXRTERNAL_DIR/x86/include/haven/wallet2_api.h ${CW_HAVEN_EXTERNAL_DIR}/include
-cp $CW_EXRTERNAL_DIR/x86/include/wownero/wallet2_api.h ${CW_WOWNERO_EXTERNAL_DIR}/include
-cp -R $CW_EXRTERNAL_DIR/x86/include/wownero_seed ${CW_WOWNERO_EXTERNAL_DIR}/include
+cp $EW_EXRTERNAL_DIR/x86/include/monero/wallet2_api.h ${ew_monero_EXTERNAL_DIR}/include
+cp $EW_EXRTERNAL_DIR/x86/include/haven/wallet2_api.h ${ew_haven_EXTERNAL_DIR}/include
+cp $EW_EXRTERNAL_DIR/x86/include/wownero/wallet2_api.h ${ew_wownero_EXTERNAL_DIR}/include
+cp -R $EW_EXRTERNAL_DIR/x86/include/wownero_seed ${ew_wownero_EXTERNAL_DIR}/include

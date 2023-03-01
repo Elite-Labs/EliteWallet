@@ -6,10 +6,10 @@ ICON_1024_PATH=""
 DEST_DIR_PATH=`pwd`/../../ios/Runner/Assets.xcassets/AppIcon.appiconset
 
 case $APP_IOS_TYPE in
-	"monero.com")
-	ICON_120_PATH=`pwd`/../../assets/images/monero.com_icon_120.png
-	ICON_180_PATH=`pwd`/../../assets/images/monero.com_icon_180.png
-	ICON_1024_PATH=`pwd`/../../assets/images/monero.com_icon_1024.png;;
+	"monero.so")
+	ICON_120_PATH=`pwd`/../../assets/images/monero.so_icon_120.png
+	ICON_180_PATH=`pwd`/../../assets/images/monero.so_icon_180.png
+	ICON_1024_PATH=`pwd`/../../assets/images/monero.so_icon_1024.png;;
 	"elitewallet")
 	ICON_120_PATH=`pwd`/../../assets/images/elitewallet_icon_120.png
     ICON_180_PATH=`pwd`/../../assets/images/elitewallet_icon_180.png

@@ -1,9 +1,9 @@
 import 'package:elite_wallet/core/validator.dart';
 import 'package:elite_wallet/generated/i18n.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 
 class AmountValidator extends TextValidator {
-  AmountValidator({WalletType type, bool isAutovalidate = false})
+  AmountValidator({required WalletType type, bool isAutovalidate = false})
       : super(
             errorMessage: S.current.error_text_amount,
             pattern: _pattern(type),

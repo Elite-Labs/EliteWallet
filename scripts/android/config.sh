@@ -9,17 +9,17 @@ export TOOLCHAIN_DIR="${WORKDIR}/toolchain"
 export TOOLCHAIN_BASE_DIR=$TOOLCHAIN_DIR
 export ORIGINAL_PATH=$PATH
 export THREADS=4
-export CW_DIR=${WORKDIR}/elite_wallet
-export CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
+export EW_DIR=${WORKDIR}/elite_wallet
+export EW_EXRTERNAL_DIR=${EW_DIR}/ew_shared_external/ios/External/android
 export ELITEWALLET_DATA_DIR=~/elite_wallet_data
 export LOCAL_GIT_REPOS=${WORKDIR}/local_repos
 export LOCAL_GIT_DEPS=${WORKDIR}/local_deps
 export BUILD_TYPE="release"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
-export LAST_DEPS_CHANGE_GITHASH="024832"
+export LAST_DEPS_CHANGE_GITHASH="cac696"
 export CURRENT_DEPS=${LOCAL_GIT_DEPS_SUBDIR}/${LAST_DEPS_CHANGE_GITHASH}
 
-mkdir -p $CW_EXRTERNAL_DIR
+mkdir -p $EW_EXRTERNAL_DIR
 mkdir -p $ELITEWALLET_DATA_DIR
 mkdir -p $LOCAL_GIT_REPOS
 mkdir -p $LOCAL_GIT_DEPS

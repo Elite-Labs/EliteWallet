@@ -8,7 +8,7 @@ import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:elite_wallet/src/screens/trade_details/track_trade_list_item.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:ew_core/wallet_base.dart';
 import 'package:elite_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:elite_wallet/buy/wyre/wyre_buy_provider.dart';
 
@@ -18,10 +18,12 @@ class OrderDetailsViewModel = OrderDetailsViewModelBase
     with _$OrderDetailsViewModel;
 
 abstract class OrderDetailsViewModelBase with Store {
-  OrderDetailsViewModelBase({WalletBase wallet, Order orderForDetails,
-                             SettingsStore settingsStore}) {
-    order = orderForDetails;
-
+  OrderDetailsViewModelBase({
+    required WalletBase wallet,
+    required Order orderForDetails,
+    required SettingsStore settingsStore})
+  : items = ObservableList<StandartListItem>(), 
+    order = orderForDetails {
     if (order.provider != null) {
       switch (order.provider) {
         case BuyProviderDescription.wyre:
@@ -35,12 +37,8 @@ abstract class OrderDetailsViewModelBase with Store {
       }
     }
 
-    items = ObservableList<StandartListItem>();
-
     _updateItems();
-
     _updateOrder();
-
     timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateOrder());
   }
 
@@ -50,15 +48,15 @@ abstract class OrderDetailsViewModelBase with Store {
   @observable
   ObservableList<StandartListItem> items;
 
-  BuyProvider _provider;
+  BuyProvider? _provider;
 
-  Timer timer;
+  Timer? timer;
 
   @action
   Future<void> _updateOrder() async {
     try {
       if (_provider != null) {
-        final updatedOrder = await _provider.findOrderById(order.id);
+        final updatedOrder = await _provider!.findOrderById(order.id);
         updatedOrder.from = order.from;
         updatedOrder.to = order.to;
         updatedOrder.receiveAddress = order.receiveAddress;
@@ -76,9 +74,7 @@ abstract class OrderDetailsViewModelBase with Store {
 
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal();
-
-    items?.clear();
-
+    items.clear();
     items.addAll([
       StandartListItem(
           title: 'Transfer ID',
@@ -98,8 +94,8 @@ abstract class OrderDetailsViewModelBase with Store {
       );
     }
 
-    if (_provider?.trackUrl?.isNotEmpty ?? false) {
-      final buildURL = _provider.trackUrl + '${order.transferId}';
+    if (_provider!.trackUrl?.isNotEmpty ?? false) {
+      final buildURL = _provider!.trackUrl + '${order.transferId}';
       items.add(
         TrackTradeListItem(
             title: 'Track',

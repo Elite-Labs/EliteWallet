@@ -21,6 +21,8 @@ cd $WORKDIR
 rm -rf $SODIUM_SRC_DIR
 git clone ${LOCAL_GIT_REPOS}/libsodium $SODIUM_SRC_DIR -b $SODIUM_BRANCH
 cd $SODIUM_SRC_DIR
+git fetch
+git reset --hard $SODIUM_BRANCH
 ./autogen.sh
 CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
 make -j$THREADS

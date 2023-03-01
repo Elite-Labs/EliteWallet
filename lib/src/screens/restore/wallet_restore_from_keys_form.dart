@@ -1,5 +1,5 @@
 import 'package:elite_wallet/view_model/wallet_restore_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +12,13 @@ import 'package:elite_wallet/core/wallet_name_validator.dart';
 import 'package:elite_wallet/entities/generate_name.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
-  WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered, this.walletRestoreViewModel})
+  WalletRestoreFromKeysFrom({
+    required this.walletRestoreViewModel,
+    Key? key,
+    this.onHeightOrDateEntered,})
       : super(key: key);
 
-  final Function(bool) onHeightOrDateEntered;
+  final Function(bool)? onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
 
   @override
@@ -87,9 +90,9 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                       child: Image.asset(
                         'assets/images/refresh_icon.png',
                         color: Theme.of(context)
-                            .primaryTextTheme
-                            .display1
-                            .decorationColor,
+                            .primaryTextTheme!
+                            .headline4!
+                            .decorationColor!,
                       ),
                     ),
                   ),

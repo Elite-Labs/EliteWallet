@@ -122,4 +122,4 @@ Changes to Our Privacy Policy
 Contact Us
 ----------
 
-	If you have any questions about this Privacy Policy, you are encouraged to contact us by email at support@elitewallet.sc.
+	If you have any questions about this Privacy Policy, you are encouraged to contact us by email at info@elitewallet.sc.

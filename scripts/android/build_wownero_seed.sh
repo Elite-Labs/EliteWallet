@@ -55,6 +55,7 @@ cd $WORKDIR
 rm -rf $SEED_DIR
 git clone -b $SEED_TAG --depth 1 ${LOCAL_GIT_REPOS}/wownero-seed $SEED_DIR
 cd $SEED_DIR
+git fetch
 git reset --hard $SEED_COMMIT_HASH
 
 sed -i -e "s/finalize/finalize_/g" src/argon2/argon2.c

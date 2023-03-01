@@ -5,7 +5,7 @@ import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/main.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/core/backup_service.dart';
-import 'package:cw_core/node.dart';
+import 'package:ew_core/node.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/store/authentication_store.dart';
 
@@ -15,15 +15,17 @@ class RestoreFromBackupViewModel = RestoreFromBackupViewModelBase
     with _$RestoreFromBackupViewModel;
 
 abstract class RestoreFromBackupViewModelBase with Store {
-  RestoreFromBackupViewModelBase(this.backupService);
+  RestoreFromBackupViewModelBase(this.backupService)
+  : state = InitialExecutionState(),
+    filePath = '';
+
+  final BackupService backupService;
 
   @observable
   String filePath;
 
   @observable
   ExecutionState state;
-
-  final BackupService backupService;
 
   @action
   void reset() => filePath = '';
@@ -33,7 +35,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
     try {
       state = IsExecutingState();
 
-      if (filePath?.isEmpty ?? true) {
+      if (filePath.isEmpty) {
         state = FailureState('Backup file is not selected.');
         return;
       }
@@ -45,7 +47,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       await main();
 
       final store = getIt.get<AppStore>();
-      ReactionDisposer reaction;
+      ReactionDisposer? reaction;
       await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
 
       reaction = autorun((_) {
@@ -53,7 +55,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
         if (wallet != null) {
           store.authenticationStore.state = AuthenticationState.allowed;
-          reaction?.reaction?.dispose();
+          reaction?.reaction.dispose();
         }
       });
 
@@ -61,7 +63,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
     } catch (e) {
       var msg = e.toString();
 
-      if (msg == 'Message authentication code (MAC) is invalid') {
+      if (msg.toLowerCase().contains("message authentication code (mac)")) {
         msg = 'Incorrect backup password';
       }
 

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:elite_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -12,12 +13,11 @@ import 'package:elite_wallet/src/widgets/elite_scrollbar.dart';
 import 'package:elite_wallet/src/widgets/alert_close_button.dart';
 
 class MoneroAccountListPage extends StatelessWidget {
-  MoneroAccountListPage({@required this.accountListViewModel}) {
-    backgroundHeight = 194;
-    thumbHeight = 72;
-    isAlwaysShowScrollThumb = false;
-    controller = ScrollController();
-
+  MoneroAccountListPage({required this.accountListViewModel})
+    : backgroundHeight = 194,
+      thumbHeight = 72,
+      isAlwaysShowScrollThumb = false,
+      controller = ScrollController() {
     controller.addListener(() {
       final scrollOffsetFromTop = controller.hasClients
           ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
@@ -67,7 +67,7 @@ class MoneroAccountListPage extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(14)),
                     child: Container(
                       height: 296,
-                      color: Theme.of(context).textTheme.display4.decorationColor,
+                      color: Theme.of(context).textTheme!.headline1!.decorationColor!,
                       child: Column(
                         children: <Widget>[
                           Expanded(
@@ -85,10 +85,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                           padding: EdgeInsets.zero,
                                           controller: controller,
                                           separatorBuilder: (context, index) =>
-                                          Container(
-                                            height: 1,
-                                            color: Theme.of(context).dividerColor,
-                                          ),
+                                          const SectionDivider(),
                                           itemCount: accounts.length ?? 0,
                                           itemBuilder: (context, index) {
                                             final account = accounts[index];

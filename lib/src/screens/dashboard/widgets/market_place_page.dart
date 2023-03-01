@@ -3,13 +3,13 @@ import 'package:elite_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:elite_wallet/src/widgets/market_place_item.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 
 class MarketPlacePage extends StatelessWidget {
 
-  MarketPlacePage({@required this.dashboardViewModel});
+  MarketPlacePage({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
   final _scrollController = ScrollController();
@@ -35,7 +35,7 @@ class MarketPlacePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                  color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
                 ),
               ),
               Expanded(
@@ -47,6 +47,12 @@ class MarketPlacePage extends StatelessWidget {
                       onTap: () =>_navigatorToGiftCardsPage(context),
                       title: S.of(context).elite_pay_title,
                       subTitle: S.of(context).elite_pay_subtitle,
+                    ),
+                    SizedBox(height: 20),
+                    MarketPlaceItem(
+                      onTap: () => {},
+                      title: S.of(context).elite_pay_web_cards_title,
+                      subTitle: S.of(context).elite_pay_web_cards_subtitle,
                     ),
                   ],
                 ),
@@ -72,7 +78,7 @@ class MarketPlacePage extends StatelessWidget {
                   buttonAction: () => Navigator.of(context).pop());
             });
         break;
-        default:        
+        default:
          Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
     }
   }

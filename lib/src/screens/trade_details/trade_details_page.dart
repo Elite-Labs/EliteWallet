@@ -1,6 +1,6 @@
 import 'package:elite_wallet/src/widgets/standard_list.dart';
-import 'package:elite_wallet/src/widgets/standart_list_card.dart';
-import 'package:elite_wallet/src/widgets/standart_list_status_row.dart';
+import 'package:elite_wallet/src/widgets/standard_list_card.dart';
+import 'package:elite_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
-import 'package:elite_wallet/src/widgets/standart_list_row.dart';
+import 'package:elite_wallet/src/widgets/list_row.dart';
 import 'package:elite_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:elite_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:elite_wallet/src/screens/trade_details/trade_details_status_item.dart';
@@ -51,7 +51,9 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
+      // FIX-ME: Added `context` it was not used here before, maby bug ?
       return SectionStandardList(
+          context: context,
           sectionCount: 1,
           itemCounter: (int _) => tradeDetailsViewModel.items.length,
           itemBuilder: (_, __, index) {
@@ -60,18 +62,18 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
             if (item is TrackTradeListItem) {
               return GestureDetector(
                   onTap: item.onTap,
-                  child: StandartListRow(
+                  child: ListRow(
                       title: '${item.title}', value: '${item.value}'));
             }
 
             if (item is DetailsListStatusItem) {
-              return StandartListStatusRow(
+              return StandardListStatusRow(
                   title: item.title,
                   value: item.value);
             }
 
             if (item is TradeDetailsListCardItem) {
-              return TradeDatailsStandartListCard(
+              return TradeDetailsStandardListCard(
                   id: item.id,
                   create: item.createdAt,
                   pair: item.pair,
@@ -84,7 +86,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                     Clipboard.setData(ClipboardData(text: '${item.value}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
-                  child: StandartListRow(
+                  child: ListRow(
                       title: '${item.title}', value: '${item.value}'));
           });
     });

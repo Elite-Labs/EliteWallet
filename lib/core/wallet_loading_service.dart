@@ -1,9 +1,9 @@
 import 'package:elite_wallet/core/generate_wallet_password.dart';
 import 'package:elite_wallet/core/key_service.dart';
 import 'package:elite_wallet/entities/preferences_key.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_service.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
@@ -17,18 +17,15 @@ class WalletLoadingService {
 	final WalletService Function(WalletType type) walletServiceFactory;
 
 	Future<WalletBase> load(WalletType type, String name) async {
-		if (walletServiceFactory == null) {
-			throw Exception('WalletLoadingService.walletServiceFactory is not set');
-		}
-		final walletService = walletServiceFactory?.call(type);
+		final walletService = walletServiceFactory.call(type);
 		final password = await keyService.getWalletPassword(walletName: name);
-  		final wallet = await walletService.openWallet(name, password);
+  	final wallet = await walletService.openWallet(name, password);
 
-  		if (type == WalletType.monero) {
-  			await upateMoneroWalletPassword(wallet);
-  		}
+  	if (type == WalletType.monero) {
+  		await upateMoneroWalletPassword(wallet);
+  	}
 
-  		return wallet;
+  	return wallet;
 	}
 
 	Future<void> upateMoneroWalletPassword(WalletBase wallet) async {

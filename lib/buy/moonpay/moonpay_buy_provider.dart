@@ -2,16 +2,16 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:elite_wallet/buy/buy_exception.dart';
 import 'package:elite_wallet/store/settings_store.dart';
-import 'package:cw_core/http_port_redirector.dart';
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/buy/buy_amount.dart';
 import 'package:elite_wallet/buy/buy_provider.dart';
 import 'package:elite_wallet/buy/buy_provider_description.dart';
 import 'package:elite_wallet/buy/order.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/exchange/trade_state.dart';
 import 'package:elite_wallet/.secrets.g.dart' as secrets;
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 
 class MoonPaySellProvider {
   MoonPaySellProvider({this.isTest = false})
@@ -24,7 +24,7 @@ class MoonPaySellProvider {
   final bool isTest;
   final String baseUrl;
 
-  Future<String> requestUrl({CryptoCurrency currency, String refundWalletAddress}) async {
+  Future<String> requestUrl({required CryptoCurrency currency, required String refundWalletAddress}) async {
     final originalUri = Uri.https(
       baseUrl, '', <String, dynamic>{
         'apiKey': _apiKey,
@@ -49,12 +49,10 @@ class MoonPaySellProvider {
 }
 
 class MoonPayBuyProvider extends BuyProvider {
-  MoonPayBuyProvider({WalletBase wallet, bool isTestEnvironment = false,
-                      SettingsStore settingsStore})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment) {
-      baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl;
-      _settingsStore = settingsStore;
-  }
+  MoonPayBuyProvider({required WalletBase wallet, bool isTestEnvironment = false, required SettingsStore settingsStore})
+      : baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
+        _settingsStore = settingsStore,
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseTestUrl = 'https://buy-staging.moonpay.com';
   static const _baseProductUrl = 'https://buy.moonpay.com';
@@ -114,8 +112,8 @@ class MoonPayBuyProvider extends BuyProvider {
         _quoteSuffix + '/?apiKey=' + _apiKey +
         '&baseCurrencyAmount=' + amount +
         '&baseCurrencyCode=' + sourceCurrency.toLowerCase();
-
-    final response = await get(_settingsStore, url);
+    final uri = Uri.parse(url);
+    final response = await get(_settingsStore, uri);
 
     if (response.statusCode != 200) {
       throw BuyException(
@@ -138,8 +136,8 @@ class MoonPayBuyProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' +
         '?apiKey=' + _apiKey;
-
-    final response = await get(_settingsStore, url);
+    final uri = Uri.parse(url);
+    final response = await get(_settingsStore, uri);
 
     if (response.statusCode != 200) {
       throw BuyException(
@@ -166,11 +164,11 @@ class MoonPayBuyProvider extends BuyProvider {
     );
   }
 
-  static Future<bool> onEnabled({SettingsStore settingsStore}) async {
+  static Future<bool> onEnabled({required SettingsStore settingsStore}) async {
     final url = _apiUrl + _ipAddressSuffix + '?apiKey=' + _apiKey;
     var isBuyEnable = false;
-
-    final response = await get(settingsStore, url);
+    final uri = Uri.parse(url);
+    final response = await get(settingsStore, uri);
 
     try {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;

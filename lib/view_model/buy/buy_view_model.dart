@@ -1,17 +1,16 @@
 import 'package:elite_wallet/buy/buy_provider.dart';
 import 'package:elite_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:elite_wallet/buy/wyre/wyre_buy_provider.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/view_model/buy/buy_item.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:elite_wallet/buy/order.dart';
 import 'package:elite_wallet/store/dashboard/orders_store.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:ew_core/wallet_base.dart';
 import 'buy_amount_view_model.dart';
 
 part 'buy_view_model.g.dart';
@@ -20,13 +19,12 @@ class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 
 abstract class BuyViewModelBase with Store {
   BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore,
-      this.buyAmountViewModel, {@required this.wallet}) {
-
+      this.buyAmountViewModel, {required this.wallet})
+  : isRunning = false,
+    isDisabled = true,
+    isShowProviderButtons = false,
+    items = <BuyItem>[] {
     _fetchBuyItems();
-
-    isRunning = false;
-    isDisabled = true;
-    isShowProviderButtons = false;
   }
 
   final Box<Order> ordersSource;
@@ -36,7 +34,7 @@ abstract class BuyViewModelBase with Store {
   final WalletBase wallet;
 
   @observable
-  BuyProvider selectedProvider;
+  BuyProvider? selectedProvider;
 
   @observable
   List<BuyItem> items;
@@ -64,7 +62,7 @@ abstract class BuyViewModelBase with Store {
 
     try {
       _url = await selectedProvider
-            ?.requestUrl(doubleAmount?.toString(), fiatCurrency.title);
+            !.requestUrl(doubleAmount.toString(), fiatCurrency.title);
     } catch (e) {
       print(e.toString());
     }
@@ -74,7 +72,7 @@ abstract class BuyViewModelBase with Store {
 
   Future<void> saveOrder(String orderId) async {
     try {
-      final order = await selectedProvider?.findOrderById(orderId);
+      final order = await selectedProvider!.findOrderById(orderId);
       order.from = fiatCurrency.title;
       order.to = cryptoCurrency.title;
       await ordersSource.add(order);
@@ -90,7 +88,7 @@ abstract class BuyViewModelBase with Store {
   }
 
   Future<void> _fetchBuyItems() async {
-    final List<BuyProvider> _providerList = [];
+    final List<BuyProvider> _providerList = <BuyProvider>[];
 
     if (wallet.type == WalletType.bitcoin) {
       _providerList.add(WyreBuyProvider(wallet: wallet,
@@ -106,7 +104,7 @@ abstract class BuyViewModelBase with Store {
       print(e.toString());
     }
 
-    if (isMoonPayEnabled ?? false) {
+    if (isMoonPayEnabled) {
       _providerList.add(MoonPayBuyProvider(wallet: wallet,
                                            settingsStore: settingsStore));
     }

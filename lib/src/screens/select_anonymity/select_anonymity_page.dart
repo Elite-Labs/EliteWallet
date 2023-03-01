@@ -18,7 +18,7 @@ class SelectAnonymityPage extends BasePage {
 
   String appDescription(BuildContext context) {
     if (isMoneroOnly) {
-      return S.of(context).monero_com_wallet_text;
+      return S.of(context).monero_so_wallet_text;
     }
 
     if (isHaven) {
@@ -52,8 +52,8 @@ class SelectAnonymityPage extends BasePage {
         color: Theme
             .of(context)
             .accentTextTheme
-            .headline
-            .decorationColor);
+            .headline5!
+            .decorationColor!);
     final advancedAnonymity = Image.asset(
         'assets/images/advanced_anonymity.png',
         height: 32,
@@ -61,16 +61,16 @@ class SelectAnonymityPage extends BasePage {
         color: Theme
             .of(context)
             .accentTextTheme
-            .headline
-            .decorationColor);
+            .headline5!
+            .decorationColor!);
     final eliteAnonymity = Image.asset('assets/images/elite_anonymity.png',
         height: 32,
         width: 32,
         color: Theme
             .of(context)
             .accentTextTheme
-            .headline
-            .decorationColor);
+            .headline5!
+            .decorationColor!);
 
     void Function() showWelcomePage = () {
         Navigator.of(context).pop();
@@ -107,8 +107,8 @@ class SelectAnonymityPage extends BasePage {
                                 color: Theme
                                     .of(context)
                                     .primaryTextTheme
-                                    .title
-                                    .color,
+                                    .headline6!
+                                    .color!,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -129,8 +129,8 @@ class SelectAnonymityPage extends BasePage {
                                 color: Theme
                                     .of(context)
                                     .accentTextTheme
-                                    .display3
-                                    .color,
+                                    .headline2!
+                                    .color!,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -147,8 +147,8 @@ class SelectAnonymityPage extends BasePage {
                                 color: Theme
                                     .of(context)
                                     .accentTextTheme
-                                    .display3
-                                    .color,
+                                    .headline2!
+                                    .color!,
                               ),
                               textAlign: TextAlign.center,
                             )
@@ -170,13 +170,13 @@ class SelectAnonymityPage extends BasePage {
                                 color: Theme
                                     .of(context)
                                     .accentTextTheme
-                                    .caption
-                                    .color,
+                                    .caption!
+                                    .color!,
                                 textColor: Theme
                                     .of(context)
                                     .primaryTextTheme
-                                    .title
-                                    .color),
+                                    .headline6!
+                                    .color!),
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 10),
@@ -196,13 +196,13 @@ class SelectAnonymityPage extends BasePage {
                                 color: Theme
                                     .of(context)
                                     .accentTextTheme
-                                    .caption
-                                    .color,
+                                    .caption!
+                                    .color!,
                                 textColor: Theme
                                     .of(context)
                                     .primaryTextTheme
-                                    .title
-                                    .color),
+                                    .headline6!
+                                    .color!),
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 10),
@@ -219,13 +219,13 @@ class SelectAnonymityPage extends BasePage {
                                 color: Theme
                                     .of(context)
                                     .accentTextTheme
-                                    .caption
-                                    .color,
+                                    .caption!
+                                    .color!,
                                 textColor: Theme
                                     .of(context)
                                     .primaryTextTheme
-                                    .title
-                                    .color),
+                                    .headline6!
+                                    .color!),
                           )
                         ],
                       )
