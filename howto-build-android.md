@@ -28,6 +28,25 @@ $ ./scripts/build_deps.sh
 $ ./scripts/build.sh
 ```
 
+## Building EliteWallet on Android with prebuilt dependencies (Automatic build)
+
+Instead of building dependencies, it will be downloaded from elite wallet github repository.
+
+Automatic builds on MAC OSX will create 1 new directory in the home directory 'local_deps'.
+It will be used for storing dependencies necessary for building a project.
+
+To build Elite Wallet:
+
+```
+$ mkdir /opt/android/
+$ sudo chown $USER /opt/android
+$ cd /opt/android
+$ git clone https://github.com/Elite-Labs/EliteWallet.git elite_wallet --branch master
+$ cd elite_wallet
+$ ./scripts/download_deps.sh
+$ ./scripts/build.sh
+```
+
 ## Building EliteWallet on Android (Manual build)
 
 These steps will help you configure and execute a build of EliteWallet from its source code.

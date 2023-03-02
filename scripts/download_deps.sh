@@ -1,5 +1,3 @@
-# This file is not intended to be used to build a project. It is only meant for
-# developer use.
 
 TYPES=("android" "ios")
 
