@@ -11,7 +11,24 @@ Android NDK 17c
 Flutter 2 or above
 ```
 
-## Building EliteWallet on Android
+## Building EliteWallet on Android (Automatic build)
+
+Automatic builds on MAC OSX will create 2 new directories in the home directory 'local_deps' and 'local_repos'.
+These will be used for storing dependencies and repositories necessary for building a project.
+
+To build Elite Wallet automatically:
+
+```
+$ mkdir /opt/android/
+$ sudo chown $USER /opt/android
+$ cd /opt/android
+$ git clone https://github.com/Elite-Labs/EliteWallet.git elite_wallet --branch master
+$ cd elite_wallet
+$ ./scripts/build_deps.sh
+$ ./scripts/build.sh
+```
+
+## Building EliteWallet on Android (Manual build)
 
 These steps will help you configure and execute a build of EliteWallet from its source code.
 
