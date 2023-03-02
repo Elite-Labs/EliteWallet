@@ -39,7 +39,7 @@ configure_and_download_deps () {
   source ./app_env.sh elitewallet
   ./app_config.sh
   . ./config.sh
-  DEPS_URL=https://elitewallet.sc/archive/${1}/${BUILD_TYPE}/${LAST_DEPS_CHANGE_GITHASH}.tar.gz
+  DEPS_URL=https://github.com/Elite-Labs/EliteWallet/releases/download/v${ELITEWALLET_VERSION}/${LAST_DEPS_CHANGE_GITHASH}-${1}-${BUILD_TYPE}.tar.gz
   if [ ! -d $CURRENT_DEPS ]; then
     wget $DEPS_URL -P $LOCAL_GIT_DEPS_SUBDIR
     cd $LOCAL_GIT_DEPS_SUBDIR
