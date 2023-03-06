@@ -241,8 +241,7 @@ class EWWownero extends Wownero {
   @override
 	Object createWowneroTransactionCreationCredentials({
     required List<Output> outputs,
-    required TransactionPriority priority,
-    required String assetType}) {
+    required TransactionPriority priority}) {
 		return WowneroTransactionCreationCredentials(
 			outputs: outputs.map((out) => OutputInfo(
 					fiatAmount: out.fiatAmount,
@@ -254,8 +253,7 @@ class EWWownero extends Wownero {
 					isParsedAddress: out.isParsedAddress,
 					formattedCryptoAmount: out.formattedCryptoAmount))
 				.toList(),
-			priority: priority as MoneroTransactionPriority,
-			assetType: assetType);
+			priority: priority as MoneroTransactionPriority);
 	}
 
   @override
