@@ -181,6 +181,7 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
         to: _request.to,
         provider: description,
         inputAddress: inputAddress,
+        payoutAddress: _request.address,
         refundAddress: _request.refundAddress,
         createdAt: now,
         expiredAt: expiredAt,
@@ -325,13 +326,13 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
       'receive_currency': normalizeCryptoCurrency(to),
       };
 
-    params['from_amount'] = "1";
+    params['from_amount'] = amount.toString();
 
     final uri = Uri.https(apiAuthority, calculatePath, params);
     final response = await get(settingsStore, uri);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
-    return _toDouble(responseJSON['receive_amount']);
+    return _toDouble(responseJSON['receive_amount']) / amount;
   }
 
   static String _parseStatus(String input) {

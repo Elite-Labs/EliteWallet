@@ -166,6 +166,8 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['uuid'] as String;
     final inputAddress = responseJSON['send_address'] as String;
+    final payoutAddress = responseJSON['receive_address'] as String;
+    final refundAddress = responseJSON['refund_address'] as String;
     final fromAmount = responseJSON['from_amount'].toString();
     final minAmount = responseJSON['minimum_payment'].toString();
     if (_toDouble(fromAmount) < _toDouble(minAmount)) {
@@ -181,7 +183,8 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
         to: _request.to,
         provider: description,
         inputAddress: inputAddress,
-        refundAddress: _request.refundAddress,
+        payoutAddress: payoutAddress,
+        refundAddress: refundAddress,
         createdAt: now,
         expiredAt: expiredAt,
         amount: fromAmount,
@@ -237,6 +240,8 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
     CryptoCurrency to = CryptoCurrency.fromString(toCurrency);
 
     final inputAddress = responseJSON['send_address'] as String;
+    final payoutAddress = responseJSON['receive_address'] as String;
+    final refundAddress = responseJSON['refund_address'] as String;
 
     String expectedSendAmount = "";
     if (responseJSON.containsKey('from_amount')) {
@@ -257,6 +262,8 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
         to: to,
         provider: description,
         inputAddress: inputAddress,
+        payoutAddress: payoutAddress,
+        refundAddress: refundAddress,
         amount: expectedSendAmount,
         receiveAmount: receiveAmount,
         state: state);

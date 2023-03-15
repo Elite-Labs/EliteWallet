@@ -556,7 +556,8 @@ Future setup(
       wallet: getIt.get<AppStore>().wallet!,
       trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
-      sendViewModel: getIt.get<SendViewModel>()));
+      sendViewModel: getIt.get<SendViewModel>(),
+      settingsStore: getIt.get<AppStore>().settingsStore));
 
   getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
 
