@@ -8,6 +8,7 @@ git fetch
 git checkout -f 3.3.9
 cd -
 
+git config --global protocol.file.allow always
 
 if [[ ! "$PATH" == *"flutter"* ]]; then
 
