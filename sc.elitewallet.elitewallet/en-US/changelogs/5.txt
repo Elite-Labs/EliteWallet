@@ -1,3 +1,0 @@
-- Update Wownero version to 0.11
-- Exchange page bugfix
-- MajesticBank fetch rate bugfix

@@ -1,0 +1,4 @@
+- Update flutter to 3.7.11
+- Update wownero version to 0.11.0.1
+- Update helper scripts used for building a project
+- Bugfixes
