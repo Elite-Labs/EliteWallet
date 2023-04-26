@@ -14,6 +14,7 @@ import 'package:elite_wallet/exchange/trade_state.dart';
 import 'package:elite_wallet/exchange/xchangeme/xchangeme_request.dart';
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
 import 'package:elite_wallet/exchange/trade_not_created_exeption.dart';
+import 'package:elite_wallet/entities/exchange_api_mode.dart';
 
 class XchangeMeExchangeProvider extends ExchangeProvider {
   XchangeMeExchangeProvider(this.settingsStore)
@@ -91,6 +92,9 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsOnionAddress => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.xchangeme;
 
@@ -98,8 +102,6 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   SettingsStore settingsStore;
-
-  int fetchRateSequenceId = 0;
 
   @override
   Future<Limits> fetchLimits({
@@ -113,14 +115,17 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({
     required TradeRequest request, required bool isFixedRateMode}) async {
 
-    try {
-      return await _createTradeInternal(
-        request: request, isFixedRateMode: isFixedRateMode,
-        apiAuthority: apiAuthorityOnion);
-    } catch (_) {}
-    return _createTradeInternal(
-      request: request, isFixedRateMode: isFixedRateMode,
-      apiAuthority: apiAuthorityDirect);
+    Object? exception;
+    for (final apiAuthority in getApiAuthorities()) {
+      try {
+        return await _createTradeInternal(
+          request: request, isFixedRateMode: isFixedRateMode,
+          apiAuthority: apiAuthority);
+      } catch (e) {
+        exception = e;
+      }
+    }
+    throw exception!;
   }
 
   Future<Trade> _createTradeInternal({
@@ -194,12 +199,16 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({
     required String id}) async {
-
-    try {
-      return await _findTradeByIdInternal(
-        id: id, apiAuthority: apiAuthorityOnion);
-    } catch (_) {}
-    return _findTradeByIdInternal(id: id, apiAuthority: apiAuthorityDirect);
+    Object? exception;
+    for (final apiAuthority in getApiAuthorities()) {
+      try {
+        return await _findTradeByIdInternal(
+          id: id, apiAuthority: apiAuthority);
+      } catch (e) {
+        exception = e;
+      }
+    }
+    throw exception!;
   }
 
   Future<Trade> _findTradeByIdInternal({
@@ -277,26 +286,14 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
 
-    int currentfetchRateSequenceId = ++fetchRateSequenceId;
-
-    try {
-      double t = await _fetchRateInternal(
-        from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthorityOnion);
-      if (currentfetchRateSequenceId != fetchRateSequenceId) {
-        throw "Stale fetchRate request!";
-      }
-      return t;
-    } catch (_) {}
-    try {
-      double t = await _fetchRateInternal(
-        from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthorityDirect);
-      if (currentfetchRateSequenceId != fetchRateSequenceId) {
-        throw "Stale fetchRate request!";
-      }
-      return t;
-    } catch (_) {}
+    for (final apiAuthority in getApiAuthorities()) {
+      try {
+        double t = await _fetchRateInternal(
+          from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
+          isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthority);
+        return t;
+      } catch (_) {}
+    }
     return 0.0;
   }
 
@@ -327,7 +324,14 @@ class XchangeMeExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final toAmount = _toDouble(responseJSON['estimate']);
 
-    return toAmount;
+    return toAmount / amount;
+  }
+
+  List<String> getApiAuthorities() {
+    if (settingsStore.exchangeStatus == ExchangeApiMode.torOnly) {
+      return [apiAuthorityOnion];
+    }
+    return [apiAuthorityOnion, apiAuthorityDirect];
   }
 
   static String _parseStatus(String input) {

@@ -27,8 +27,6 @@ sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTE
 sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
 sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/RandomWOW/g" .gitmodules
-sed -i -e "s/transaction->m_unsigned_tx_set.transfers.second/std::get<2>(transaction->m_unsigned_tx_set.transfers)/g" src/wallet/api/wallet.cpp
-sed -i -e "s/        true,//g" src/wallet/api/wallet.cpp
 
 git submodule update --init --force
 mkdir -p build
@@ -63,19 +61,14 @@ cmake -D IOS=ON \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DSTATIC=ON \
 	-DBUILD_GUI_DEPS=ON \
-	-DINSTALL_VENDORED_LIBUNBOUND=ON \
+	-DUNBOUND_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR} \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
 	../..
-make -j4 && make install
-cp src/cryptonote_basic/libcryptonote_basic.a ${DEST_LIB}
-cp src/offshore/liboffshore.a ${DEST_LIB}
+make wallet_api -j4
+find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
+cp -r ./lib/* $DEST_LIB_DIR
+cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR
 popd
 
 done
-
-#only for arm64
-mkdir -p $DEST_LIB_DIR
-mkdir -p $DEST_INCLUDE_DIR
-cp ${WOWNERO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
-cp ${WOWNERO_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR

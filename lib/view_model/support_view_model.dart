@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/wallet_type_utils.dart';
-import 'package:elite_wallet/wallet_type_utils.dart';
 
 part 'support_view_model.g.dart';
 

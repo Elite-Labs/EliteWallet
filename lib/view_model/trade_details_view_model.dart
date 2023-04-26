@@ -9,6 +9,7 @@ import 'package:elite_wallet/exchange/morphtoken/morphtoken_exchange_provider.da
 import 'package:elite_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:elite_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:elite_wallet/exchange/trade.dart';
+import 'package:elite_wallet/exchange/trocador/trocador_exchange_provider.dart';
 import 'package:elite_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/utils/date_formatter.dart';
@@ -26,16 +27,15 @@ import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/format_amount.dart';
 part 'trade_details_view_model.g.dart';
 
-class TradeDetailsViewModel = TradeDetailsViewModelBase
-    with _$TradeDetailsViewModel;
+class TradeDetailsViewModel = TradeDetailsViewModelBase with _$TradeDetailsViewModel;
 
 abstract class TradeDetailsViewModelBase with Store {
   TradeDetailsViewModelBase({
     required Trade tradeForDetails,
     required this.trades,
-    required this.settingsStore})
-  : items = ObservableList<StandartListItem>(),
-    trade = tradeForDetails {
+    required this.settingsStore,
+  })  : items = ObservableList<StandartListItem>(),
+        trade = tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider(settingsStore);
@@ -58,8 +58,11 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider(settingsStore);
         break;
-      case  ExchangeProviderDescription.simpleSwap:
+      case ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider(settingsStore);
+        break;
+      case ExchangeProviderDescription.trocador:
+        _provider = TrocadorExchangeProvider(settingsStore);
         break;
     }
 
@@ -95,6 +98,10 @@ abstract class TradeDetailsViewModelBase with Store {
         updatedTrade.createdAt = trade.createdAt;
       }
 
+      if (updatedTrade.expiredAt == null && trade.expiredAt != null) {
+        updatedTrade.expiredAt = trade.expiredAt;
+      }
+
       trade = updatedTrade;
 
       _updateItems();
@@ -109,12 +116,7 @@ abstract class TradeDetailsViewModelBase with Store {
     items.clear();
 
     items.add(
-        DetailsListStatusItem(
-          title: S.current.trade_details_state,
-          value: trade.state != null
-              ? trade.state.toString()
-              : S.current.trade_details_fetching)
-    );
+        DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
@@ -127,15 +129,11 @@ abstract class TradeDetailsViewModelBase with Store {
       },
     ));
 
-    if (trade.provider != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_provider,
-          value: trade.provider.toString()));
-    }
+    items.add(StandartListItem(
+        title: S.current.trade_details_provider, value: trade.provider.toString()));
 
     if (trade.provider == ExchangeProviderDescription.changeNow) {
-      final buildURL =
-          'https://changenow.io/exchange/txs/${trade.id.toString()}';
+      final buildURL = 'https://changenow.io/exchange/txs/${trade.id.toString()}';
       items.add(TrackTradeListItem(
           title: 'Track',
           value: buildURL,
@@ -196,29 +194,6 @@ abstract class TradeDetailsViewModelBase with Store {
               {};
             }));
       }
-
-      if (trade.receiveAmount != null) {
-        items.add(TrackTradeListItem(
-            title: 'Receive amount',
-            value: '${formatAmount(trade.receiveAmount.toString())} '
-                   '${trade.to.toString()}',
-            onTap: () {
-              {};
-            }));
-      }
-    }
-
-    if (trade.provider == ExchangeProviderDescription.xchangeme) {
-      // TODO
-      if (trade.received != null) {
-        items.add(TrackTradeListItem(
-            title: 'Received',
-            value: '${formatAmount(trade.received.toString())} '
-                   '${trade.from.toString()}',
-            onTap: () {
-              {};
-            }));
-      }
     }
 
     if (trade.provider == ExchangeProviderDescription.sideShift) {
@@ -229,20 +204,20 @@ abstract class TradeDetailsViewModelBase with Store {
 
     if (trade.provider == ExchangeProviderDescription.simpleSwap) {
       final buildURL = 'https://simpleswap.io/exchange?id=${trade.id.toString()}';
-      items.add(TrackTradeListItem(
-          title: 'Track', value: buildURL, onTap: () => {}));
+      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => {}));
     }
 
-    if (trade.createdAt != null) {
-      items.add(StandartListItem(
-          title: S.current.trade_details_created_at,
-          value: trade.createdAt != null ? dateFormat.format(trade.createdAt!).toString() : ''));
-    }
+    if (trade.provider == ExchangeProviderDescription.trocador) {
+      final buildURL = 'https://trocador.app/en/checkout/${trade.id.toString()}';
+      items.add(TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => {}));
 
-    if (trade.from != null && trade.to != null) {
       items.add(StandartListItem(
-          title: S.current.trade_details_pair,
-          value: '${trade.from.toString()} → ${trade.to.toString()}'));
+          title: '${trade.providerName} ${S.current.id.toUpperCase()}',
+          value: trade.providerId ?? ''));
+
+      if (trade.password != null && trade.password!.isNotEmpty)
+        items.add(StandartListItem(
+            title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
     }
   }
 }

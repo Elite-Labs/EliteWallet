@@ -41,6 +41,7 @@ ln -f ./libboost.a ${EW_WOWNERO_EXTERNAL_LIB}/libboost.a
 ln -f ./libcrypto.a ${EW_WOWNERO_EXTERNAL_LIB}/libcrypto.a
 ln -f ./libssl.a ${EW_WOWNERO_EXTERNAL_LIB}/libssl.a
 ln -f ./libsodium.a ${EW_WOWNERO_EXTERNAL_LIB}/libsodium.a
+ln -f ./libunbound.a ${EW_WOWNERO_EXTERNAL_LIB}/libunbound.a
 cp ./libwownero.a $EW_WOWNERO_EXTERNAL_LIB
 cp ../include/wownero/* $EW_WOWNERO_EXTERNAL_INCLUDE
 ln -f ./libwownero-seed.a ${EW_WOWNERO_EXTERNAL_LIB}/libwownero-seed.a

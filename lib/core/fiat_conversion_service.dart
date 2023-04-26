@@ -6,7 +6,6 @@ import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/proxy_settings_store.dart';
 
-
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
   if (args['provider'] == 'CoinGecko') {
     return _fetchCoinGeckoPrice(args);

@@ -2,7 +2,6 @@
 
 . ./config.sh
 
-WORKDIR=/opt/android
 EW_WOWNERO_EXTERNAL_DIR=${EW_DIR}/ew_wownero/ios/External/android
 EW_HAVEN_EXTERNAL_DIR=${EW_DIR}/ew_haven/ios/External/android
 EW_MONERO_EXTERNAL_DIR=${EW_DIR}/ew_monero/ios/External/android

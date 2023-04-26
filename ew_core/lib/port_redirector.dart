@@ -116,7 +116,8 @@ class PortRedirector {
       invokeListenerIsolate,
       {"listenerHost": redirector.host, "serverHost": serverHost,
         "serverPort": serverPort, "timeout": timeout,
-        "sendPort": receivePort.sendPort});
+        "sendPort": receivePort.sendPort, "proxy_settings" :
+        ProxySettingsStore.fromSettingsStore(settingsStore)});
 
     dynamic received = await receivePort.first;
     if (received is List<dynamic>) {
@@ -124,7 +125,6 @@ class PortRedirector {
       settingsStore.proxySettingsListeners.add((dynamic settings) {
         received[1].send(ProxySettingsStore.fromSettingsStore(settings));
       });
-      received[1].send(ProxySettingsStore.fromSettingsStore(settingsStore));
     } else {
       throw received;
     }
@@ -134,23 +134,7 @@ class PortRedirector {
   static void invokeListenerIsolate(Map<String, dynamic> args) async {
     ServerSocket listenerSocket = await initializeListenerSocket(args);
 
-    ProxySettingsStore proxySettingsStore = ProxySettingsStore();
-    List<Socket> sockets = <Socket>[];
-    ReceivePort receivePort = ReceivePort();
-    receivePort.listen((dynamic data) {
-      proxySettingsStore = data;
-      for (var socket in sockets) {
-        socket.destroy();
-      }
-      sockets.clear();
-    });
-
-    args["sendPort"].send(
-      [listenerSocket.port, receivePort.sendPort] as List<dynamic>);
-
-    await _listen(
-      listenerSocket, proxySettingsStore, args["serverHost"],
-      args["serverPort"], args["timeout"], sockets);
+    await _listen(listenerSocket, args);
   }
 
   static Future<ServerSocket> initializeListenerSocket(
@@ -168,9 +152,25 @@ class PortRedirector {
   }
 
   static Future _listen(
-    ServerSocket listenerSocket, ProxySettingsStore proxySettingsStore,
-    String serverHost, int serverPort, Duration timeout,
-    List<Socket> sockets) async {
+    ServerSocket listenerSocket, Map<String, dynamic> args) async {
+
+    String serverHost = args["serverHost"];
+    int serverPort = args["serverPort"];
+    Duration timeout = args["timeout"];
+    List<Socket> sockets = <Socket>[];
+    ProxySettingsStore proxySettingsStore = args["proxy_settings"];
+
+    ReceivePort receivePort = ReceivePort();
+
+    receivePort.listen((dynamic data) {
+      proxySettingsStore = data;
+      for (var socket in sockets) {
+        socket.destroy();
+      }
+      sockets.clear();
+    });
+    args["sendPort"].send(
+      [listenerSocket.port, receivePort.sendPort] as List<dynamic>);
 
     await for (var clientSocket in listenerSocket) {
       ProxySettingsStore oldProxySettings = proxySettingsStore.copy();

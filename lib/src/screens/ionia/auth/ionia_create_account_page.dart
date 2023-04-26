@@ -65,6 +65,7 @@ class IoniaCreateAccountPage extends BasePage {
           validator: EmailValidator(),
           keyboardType: TextInputType.emailAddress,
           controller: _emailController,
+          onSubmit: (_) => _createAccount(),
         ),
       ),
       bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
@@ -76,12 +77,7 @@ class IoniaCreateAccountPage extends BasePage {
               Observer(
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).create_account,
-                  onPressed: () async {
-                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                      return;
-                    }
-                    await _authViewModel.createUser(_emailController.text);
-                  },
+                  onPressed: _createAccount,
                   isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
                   color: Theme.of(context).accentTextTheme!.bodyText1!.color!,
                   textColor: Colors.white,
@@ -150,4 +146,11 @@ class IoniaCreateAccountPage extends BasePage {
         Routes.ioniaVerifyIoniaOtpPage,
         arguments: [authViewModel.email, false],
       );
+
+  void _createAccount() async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+    await _authViewModel.createUser(_emailController.text);
+  }
 }

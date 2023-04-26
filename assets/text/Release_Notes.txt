@@ -1,0 +1,2 @@
+Keep screen awake while synchronizing
+Various bugfixes

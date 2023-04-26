@@ -17,8 +17,6 @@ sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTE
 sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
 sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/RandomWOW/g" .gitmodules
-sed -i -e "s/transaction->m_unsigned_tx_set.transfers.second/std::get<2>(transaction->m_unsigned_tx_set.transfers)/g" src/wallet/api/wallet.cpp
-sed -i -e "s/        true,//g" src/wallet/api/wallet.cpp
 
 git submodule init
 git submodule update

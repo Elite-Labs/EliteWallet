@@ -2,4 +2,4 @@
 
 This project is part of Elite Wallet app.
 
-Copyright (c) 2022 Elite Technologies.
+Copyright (c) 2023 Elite Technologies.

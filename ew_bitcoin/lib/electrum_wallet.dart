@@ -64,7 +64,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         _scripthashesUpdateSubject = {},
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(
           currency != null
-           ? {currency: initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0)}
+           ? {currency: initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0,
+          frozen: 0)}
            : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         super(walletInfo) {
@@ -134,8 +135,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       await walletAddresses.discoverAddresses();
       await updateTransactions();
       _subscribeForUpdates();
-      await _updateBalance();
       await updateUnspent();
+      await updateBalance();
       _feeRates = await electrumClient.feeRates();
 
       Timer.periodic(const Duration(minutes: 1),
@@ -346,7 +347,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         electrumClient: electrumClient, amount: amount, fee: fee)
       ..addListener((transaction) async {
         transactionHistory.addOne(transaction);
-        await _updateBalance();
+        await updateBalance();
       });
   }
 
@@ -500,7 +501,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         hash: coin.hash,
         isFrozen: coin.isFrozen,
         isSending: coin.isSending,
-        noteRaw: coin.note
+        noteRaw: coin.note,
+        address: coin.address.address,
+        value: coin.value,
+        vout: coin.vout,
     );
 
     await unspentCoinsInfo.add(newInfo);
@@ -536,8 +540,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final transactionHex = verboseTransaction['hex'] as String;
     final original = bitcoin.Transaction.fromHex(transactionHex);
     final ins = <bitcoin.Transaction>[];
-    final time = verboseTransaction['time'] as int;
-    final confirmations = verboseTransaction['confirmations'] as int ?? 0;
+    final time = verboseTransaction['time'] as int?;
+    final confirmations = verboseTransaction['confirmations'] as int? ?? 0;
 
     for (final vin in original.ins) {
       final id = HEX.encode(vin.hash!.reversed.toList());
@@ -637,8 +641,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       _scripthashesUpdateSubject[sh] = electrumClient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
-          await _updateBalance();
           await updateUnspent();
+          await updateBalance();
           await updateTransactions();
         } catch (e) {
           print(e.toString());
@@ -656,7 +660,17 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       final balanceFuture = electrumClient.getBalance(sh);
       balanceFutures.add(balanceFuture);
-    } 
+    }
+
+    var totalFrozen = 0;
+    unspentCoinsInfo.values.forEach((info) {
+      unspentCoins.forEach((element) {
+        if (element.hash == info.hash && info.isFrozen && element.address.address == info.address
+            && element.value == info.value) {
+          totalFrozen += element.value;
+        }
+      });
+    });
 
     final balances = await Future.wait(balanceFutures);
     var totalConfirmed = 0;
@@ -675,10 +689,11 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
     }
 
-    return ElectrumBalance(confirmed: totalConfirmed, unconfirmed: totalUnconfirmed);
+    return ElectrumBalance(confirmed: totalConfirmed, unconfirmed: totalUnconfirmed,
+    frozen: totalFrozen);
   }
 
-  Future<void> _updateBalance() async {
+  Future<void> updateBalance() async {
     balance[currency] = await _fetchBalances();
     await save();
   }

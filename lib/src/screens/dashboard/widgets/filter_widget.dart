@@ -16,7 +16,6 @@ class FilterWidget extends StatelessWidget {
   FilterWidget({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-  final closeIcon = Image.asset('assets/images/close.png', color: Palette.darkBlueCraiola);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,7 @@ class FilterWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 60),
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(24)),
                   child: Container(
@@ -101,7 +100,7 @@ class FilterWidget extends StatelessWidget {
               ),
             ],
           ),
-          AlertCloseButton(image: closeIcon)
+          AlertCloseButton()
         ],
       ),
     );

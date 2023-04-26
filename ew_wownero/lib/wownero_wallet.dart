@@ -125,6 +125,9 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   }
 
   @override
+  Future<void>? updateBalance() => null;
+
+  @override
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
@@ -196,14 +199,14 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll
           || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw WowneroTransactionCreationException('Wrong balance. Not enough WOW on your balance.');
+        throw WowneroTransactionCreationException('You do not have enough coins to send this amount.');
       }
 
       final int totalAmount = outputs.fold(0, (acc, value) =>
           acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
-        throw WowneroTransactionCreationException('Wrong balance. Not enough WOW on your balance.');
+        throw WowneroTransactionCreationException('You do not have enough coins to send this amount.');
       }
 
       final wowneroOutputs = outputs.map((output) {
@@ -238,7 +241,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
         final formattedBalance = wowneroAmountToString(amount: unlockedBalance);
 
         throw WowneroTransactionCreationException(
-            'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
       pendingTransactionDescription =

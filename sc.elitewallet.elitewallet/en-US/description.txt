@@ -1,0 +1,27 @@
+Elite Wallet respects your privacy and allows you to safely store, exchange, and spend your Monero, Bitcoin, Litecoin, and Haven. Elite Wallet is focused on high privacy standards.
+
+Features of Elite Wallet:
+
+-Completely noncustodial and open-source. Your keys, your coins
+-Easily exchange between BTC, LTC, XMR, and dozens of other cryptocurrencies
+-Buy Bitcoin/Litecoin with credit/debit/bank and sell Bitcoin by bank transfer
+-Create multiple Bitcoin, Litecoin, Monero, and Haven wallets
+-You control your own seed and keys, including your Monero private view key
+-Extremely simple interface
+-Easily pay invoices in other currencies with optional fixed exchange rates
+-Monero and Haven subaddresses
+-Supports many fiat currencies
+-Create multiple accounts within wallets (for Monero and Haven)
+-Address Book to save various crypto addresses
+-Restore existing wallets using seed or private keys
+-Restore wallets from blockheight or date for faster syncing
+-Backup/Restore app to iCloud and other locations
+-New BTC/LTC receive and change addresses are automatically generated
+-Rescan wallet
+-Adjustable transaction speeds and fees
+-Coin Control for BTC and LTC
+-Choose and save your daemon/node
+-3 Color Themes (Light, Dark, Colorful)
+-Convenient exchange and sending templates for recurring payments
+-Use SOCKS5 proxy server for internet access
+-In Mandarin, Russian, Spanish, German, Hindi, Korean, Japanese, Portuguese, Ukrainian, Polish and Dutch

@@ -67,11 +67,10 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await wallet.connectToNode(node: node, settingsStore: settingsStore);
 
       if (wallet.type == WalletType.haven) {
-        settingsStore.fiatCurrency = FiatCurrency.usd;
         await updateHavenRate(fiatConversionStore);
       }
 
-      if (wallet.walletInfo.address?.isEmpty ?? true) {
+      if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
         if (wallet.walletInfo.isInBox) {

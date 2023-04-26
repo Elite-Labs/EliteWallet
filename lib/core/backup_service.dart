@@ -216,6 +216,7 @@ class BackupService {
     final proxyUsername = data[PreferencesKey.proxyUsernameKey] as String?;
     final proxyPassword = data[PreferencesKey.proxyPasswordKey] as String?;
     final portScanEnabled = data[PreferencesKey.portScanEnabledKey] as bool?;
+    final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
     final currentTransactionPriorityKeyLegacy = data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
     final allowBiometricalAuthentication = data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
     final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
@@ -225,7 +226,7 @@ class BackupService {
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
-    final disableExchange = data[PreferencesKey.disableExchangeKey] as bool?;
+    final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
     final currentDefaultSettingsMigrationVersion = data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
@@ -288,6 +289,11 @@ class BackupService {
         PreferencesKey.portScanEnabledKey,
         portScanEnabled);
 
+    if (isAppSecure != null)
+      await _sharedPreferences.setBool(
+        PreferencesKey.isAppSecureKey,
+        isAppSecure);
+
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
         PreferencesKey.currentTransactionPriorityKeyLegacy,
@@ -327,9 +333,9 @@ class BackupService {
       await _sharedPreferences.setInt(
         PreferencesKey.currentTheme, currentTheme);
 
-    if (disableExchange != null)
-      await _sharedPreferences.setBool(
-        PreferencesKey.disableExchangeKey, disableExchange);
+    if (exchangeStatus != null)
+      await _sharedPreferences.setInt(
+        PreferencesKey.exchangeStatusKey, exchangeStatus);
 
     if (currentDefaultSettingsMigrationVersion != null)
       await _sharedPreferences.setInt(
@@ -494,8 +500,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
       PreferencesKey.currentTheme:
           _sharedPreferences.getInt(PreferencesKey.currentTheme),
-      PreferencesKey.disableExchangeKey:
-          _sharedPreferences.getBool(PreferencesKey.disableExchangeKey),
+      PreferencesKey.exchangeStatusKey:
+          _sharedPreferences.getInt(PreferencesKey.exchangeStatusKey),
       PreferencesKey.currentDefaultSettingsMigrationVersion: _sharedPreferences
           .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
       PreferencesKey.bitcoinTransactionPriority:

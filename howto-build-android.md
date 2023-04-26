@@ -19,9 +19,6 @@ These will be used for storing dependencies and repositories necessary for build
 To build Elite Wallet automatically:
 
 ```
-$ mkdir /opt/android/
-$ sudo chown $USER /opt/android
-$ cd /opt/android
 $ git clone https://github.com/Elite-Labs/EliteWallet.git elite_wallet --branch master
 $ cd elite_wallet
 $ ./scripts/build_deps.sh
@@ -38,9 +35,6 @@ It will be used for storing dependencies necessary for building a project.
 To build Elite Wallet:
 
 ```
-$ mkdir /opt/android/
-$ sudo chown $USER /opt/android
-$ cd /opt/android
 $ git clone https://github.com/Elite-Labs/EliteWallet.git elite_wallet --branch master
 $ cd elite_wallet
 $ ./scripts/download_deps.sh
@@ -91,7 +85,7 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `3.x.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
+Need to install flutter with version `3.7.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
 ### 4. Verify Installations
 
@@ -115,15 +109,7 @@ You will be prompted to create two passwords. First you will be prompted for the
 
 ### 6. Acquiring the EliteWallet Source Code
 
-Create the directory that will be use to store the EliteWallet source...
-
-```
-$ sudo mkdir -p /opt/android
-$ sudo chown $USER /opt/android
-$ cd /opt/android
-```
-
-..and download the source code into that directory.
+Download the source code.
 
 `$ git clone https://github.com/Elite-Labs/EliteWallet.git elite_wallet --branch master`
 
@@ -205,4 +191,4 @@ Finally build mobx models for the app:
 
 `$ flutter build apk --release`
 
-Copyright (c) 2022 Elite Technologies.
+Copyright (c) 2023 Elite Technologies.

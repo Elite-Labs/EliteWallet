@@ -1,24 +1,30 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:elite_wallet/entities/preferences_key.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/main.dart';
 import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
+  static const _coolDownDurationInDays = 7;
 
-  static void _saveException(String? error, StackTrace? stackTrace) async {
+  static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
     final appDocDir = await getApplicationDocumentsDirectory();
 
     final file = File('${appDocDir.path}/error.txt');
     final exception = {
       "${DateTime.now()}": {
-        "Error": error,
+        "Error": "$error\n\n",
+        "Library": "$library\n\n",
         "StackTrace": stackTrace.toString(),
       }
     };
@@ -26,8 +32,8 @@ class ExceptionHandler {
     const String separator = '''\n\n==========================================================
       ==========================================================\n\n''';
 
-    await file.writeAsString(
-      jsonEncode(exception) + separator,
+    file.writeAsStringSync(
+      "$exception $separator",
       mode: FileMode.append,
     );
   }
@@ -37,6 +43,8 @@ class ExceptionHandler {
       final appDocDir = await getApplicationDocumentsDirectory();
 
       final file = File('${appDocDir.path}/error.txt');
+
+      await _addDeviceInfo(file);
 
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
@@ -58,17 +66,36 @@ class ExceptionHandler {
     }
   }
 
-  static void onError(FlutterErrorDetails errorDetails) {
+  static void onError(FlutterErrorDetails errorDetails) async {
+    if (kDebugMode) {
+      FlutterError.presentError(errorDetails);
+      return;
+    }
+
     if (_ignoreError(errorDetails.exception.toString())) {
       return;
     }
 
-    _saveException(errorDetails.exception.toString(), errorDetails.stack);
+    _saveException(
+      errorDetails.exceptionAsString(),
+      errorDetails.stack,
+      library: errorDetails.library,
+    );
 
-    if (_hasError) {
+    final sharedPrefs = await SharedPreferences.getInstance();
+
+    final lastPopupDate =
+        DateTime.tryParse(sharedPrefs.getString(PreferencesKey.lastPopupDate) ?? '') ??
+            DateTime.now().subtract(Duration(days: _coolDownDurationInDays + 1));
+
+    final durationSinceLastReport = DateTime.now().difference(lastPopupDate).inDays;
+
+    if (_hasError || durationSinceLastReport < _coolDownDurationInDays) {
       return;
     }
     _hasError = true;
+
+    sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
@@ -98,8 +125,105 @@ class ExceptionHandler {
   }
 
   /// Ignore User related errors or system errors
-  static bool _ignoreError(String error) {
-    return error.contains("errno = 103") || // SocketException: Software caused connection abort
-        error.contains("errno = 9"); // SocketException: Bad file descriptor (iOS socket exception)
+  static bool _ignoreError(String error) =>
+      _ignoredErrors.any((element) => error.contains(element));
+
+  static const List<String> _ignoredErrors = const [
+    "errno = 9", // SocketException: Bad file descriptor
+    "errno = 28", // OS Error: No space left on device
+    "errno = 32", // SocketException: Write failed (OS Error: Broken pipe)
+    "errno = 49", // SocketException: Can't assign requested address
+    "errno = 54", // SocketException: Connection reset by peer
+    "errno = 57", // SocketException: Read failed (OS Error: Socket is not connected)
+    "errno = 60", // SocketException: Operation timed out
+    "errno = 65", // SocketException: No route to host
+    "errno = 103", // SocketException: Software caused connection abort
+    "errno = 104", // SocketException: Connection reset by peer
+    "errno = 110", // SocketException: Connection timed out
+    "HttpException: Connection reset by peer",
+    "HttpException: Connection closed before full header was received",
+    "HandshakeException: Connection terminated during handshake",
+    "PERMISSION_NOT_GRANTED",
+  ];
+
+  static Future<void> _addDeviceInfo(File file) async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    Map<String, dynamic> deviceInfo = {};
+
+    if (Platform.isAndroid) {
+      deviceInfo = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      deviceInfo["Platform"] = "Android";
+    } else if (Platform.isIOS) {
+      deviceInfo = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+      deviceInfo["Platform"] = "iOS";
+    } else if (Platform.isLinux) {
+      deviceInfo = _readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo);
+      deviceInfo["Platform"] = "Linux";
+    } else if (Platform.isMacOS) {
+      deviceInfo = _readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo);
+      deviceInfo["Platform"] = "MacOS";
+    } else if (Platform.isWindows) {
+      deviceInfo = _readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo);
+      deviceInfo["Platform"] = "Windows";
+    }
+
+    await file.writeAsString(
+      "App Version: $currentVersion\n\nDevice Info $deviceInfo",
+      mode: FileMode.append,
+    );
+  }
+
+  static Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'brand': build.brand,
+      'device': build.device,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+    };
+  }
+
+  static Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+    return <String, dynamic>{
+      'systemName': data.systemName,
+      'systemVersion': data.systemVersion,
+      'model': data.model,
+      'localizedModel': data.localizedModel,
+    };
+  }
+
+  static Map<String, dynamic> _readLinuxDeviceInfo(LinuxDeviceInfo data) {
+    return <String, dynamic>{
+      'name': data.name,
+      'version': data.version,
+      'versionCodename': data.versionCodename,
+      'versionId': data.versionId,
+      'prettyName': data.prettyName,
+      'buildId': data.buildId,
+      'variant': data.variant,
+      'variantId': data.variantId,
+    };
+  }
+
+  static Map<String, dynamic> _readMacOsDeviceInfo(MacOsDeviceInfo data) {
+    return <String, dynamic>{
+      'arch': data.arch,
+      'model': data.model,
+      'kernelVersion': data.kernelVersion,
+      'osRelease': data.osRelease,
+    };
+  }
+
+  static Map<String, dynamic> _readWindowsDeviceInfo(WindowsDeviceInfo data) {
+    return <String, dynamic>{
+      'majorVersion': data.majorVersion,
+      'minorVersion': data.minorVersion,
+      'buildNumber': data.buildNumber,
+      'productType': data.productType,
+      'productName': data.productName,
+    };
   }
 }

@@ -7,9 +7,9 @@ import 'package:elite_wallet/src/screens/settings/widgets/settings_picker_cell.d
 import 'package:elite_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/themes/theme_list.dart';
+import 'package:elite_wallet/utils/device_info.dart';
 import 'package:elite_wallet/view_model/settings/choices_list_item.dart';
 import 'package:elite_wallet/view_model/settings/display_settings_view_model.dart';
-import 'package:elite_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 

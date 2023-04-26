@@ -30,14 +30,15 @@ class AddressResolver {
     '888',
     'nft',
     'dao',
-    'blockchain'
+    'blockchain',
+    'polygon'
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
     final addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
-      throw 'Unexpected token: $type for getAddressFromStringPattern';
+      throw Exception('Unexpected token: $type for getAddressFromStringPattern');
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
@@ -48,12 +49,25 @@ class AddressResolver {
     try {
       // if (text.startsWith('@') && !text.substring(1).contains('@')) {
       //   final formattedName = text.substring(1);
-      //   final twitterUser = await TwitterApi.lookupUserByName(
-      //     userName: formattedName, settingsStore: settingsStore);
-      //   final address = extractAddressByType(
-      //       raw: twitterUser.description ?? '', type: CryptoCurrency.fromString(ticker));
-      //   if (address != null) {
-      //     return ParsedAddress.fetchTwitterAddress(address: address, name: text);
+      //   final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
+      //   final addressFromBio = extractAddressByType(
+      //       raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
+      //   if (addressFromBio != null) {
+      //     return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
+      //   }
+      //   final tweets = twitterUser.tweets;
+      //   if (tweets != null) {
+      //     var subString = StringBuffer();
+      //     tweets.forEach((item) {
+      //       subString.writeln(item.text);
+      //     });
+      //     final userTweetsText = subString.toString();
+      //     final addressFromPinnedTweet =
+      //     extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
+
+      //     if (addressFromPinnedTweet != null) {
+      //       return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+      //     }
       //   }
       // }
       if (text.contains('@') && !text.contains('.')) {

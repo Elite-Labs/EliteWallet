@@ -9,3 +9,6 @@ build/
 ios/External/
 android/.externalNativeBuild/
 android/.cxx/
+
+macos/ew_monero.podspec
+macos/External/

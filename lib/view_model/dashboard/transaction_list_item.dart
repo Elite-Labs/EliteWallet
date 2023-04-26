@@ -1,5 +1,7 @@
 import 'package:elite_wallet/entities/balance_display_mode.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
+import 'package:elite_wallet/generated/i18n.dart';
+import 'package:ew_core/transaction_direction.dart';
 import 'package:ew_core/transaction_info.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/view_model/dashboard/action_list_item.dart';
@@ -36,6 +38,31 @@ class TransactionListItem extends ActionListItem with Keyable {
         ? '---'
         : transaction.amountFormatted();
   }
+  String get formattedTitle {
+    if (transaction.direction == TransactionDirection.incoming) {
+      return S.current.received;
+    }
+
+    return S.current.sent;
+  }
+
+  String get formattedPendingStatus {
+    if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+      return ' (${transaction.confirmations}/10)';
+    }
+    return '';
+  }
+
+  String get formattedStatus {
+    if (transaction.direction == TransactionDirection.incoming) {
+      if (balanceViewModel.wallet.type == WalletType.monero ||
+          balanceViewModel.wallet.type == WalletType.haven ||
+          balanceViewModel.wallet.type == WalletType.wownero) {
+          return formattedPendingStatus;
+        }
+      }
+    return transaction.isPending ? S.current.pending : '';
+    }
 
   String get formattedFiatAmount {
     var amount = '';

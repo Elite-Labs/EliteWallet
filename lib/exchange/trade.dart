@@ -8,24 +8,28 @@ part 'trade.g.dart';
 
 @HiveType(typeId: Trade.typeId)
 class Trade extends HiveObject {
-  Trade(
-      {required this.id,
-      required this.amount,
-      ExchangeProviderDescription? provider,
-      CryptoCurrency? from,
-      CryptoCurrency? to,
-      TradeState? state,
-      this.createdAt,
-      this.expiredAt,
-      this.inputAddress,
-      this.extraId,
-      this.outputTransaction,
-      this.refundAddress,
-      this.walletId,
-      this.received,
-      this.confirmed,
-      this.receiveAmount,
-      this.payoutAddress}) {
+  Trade({
+    required this.id,
+    required this.amount,
+    ExchangeProviderDescription? provider,
+    CryptoCurrency? from,
+    CryptoCurrency? to,
+    TradeState? state,
+    this.createdAt,
+    this.expiredAt,
+    this.inputAddress,
+    this.extraId,
+    this.outputTransaction,
+    this.refundAddress,
+    this.walletId,
+    this.received,
+    this.confirmed,
+    this.receiveAmount,
+    this.payoutAddress,
+    this.password,
+    this.providerId,
+    this.providerName,
+  }) {
     if (provider != null) {
       providerRaw = provider.raw;
     }
@@ -104,16 +108,23 @@ class Trade extends HiveObject {
   @HiveField(16)
   String? payoutAddress;
 
+  @HiveField(17)
+  String? password;
+
+  @HiveField(18)
+  String? providerId;
+
+  @HiveField(19)
+  String? providerName;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
         id: map['id'] as String,
-        provider: ExchangeProviderDescription.deserialize(
-            raw: map['provider'] as int),
+        provider: ExchangeProviderDescription.deserialize(raw: map['provider'] as int),
         from: CryptoCurrency.deserialize(raw: map['input'] as int),
         to: CryptoCurrency.deserialize(raw: map['output'] as int),
-        createdAt: map['date'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int)
-            : null,
+        createdAt:
+            map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
         amount: map['amount'] as String,
         walletId: map['wallet_id'] as String);
   }

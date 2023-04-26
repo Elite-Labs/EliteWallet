@@ -150,7 +150,11 @@ abstract class TransactionDetailsViewModelBase with Store {
     // items.add(BlockExplorerListItem(
     //     title: S.current.view_in_block_explorer,
     //     value: _explorerDescription(type),
-    //     onTap: () => launch(_explorerUrl(type, tx.id))));
+    //     onTap: () {
+    //       try {
+    //         launch(_explorerUrl(type, tx.id));
+    //       } catch (e) {}
+    //     }));
 
     final description = transactionDescriptionBox.values.firstWhere(
         (val) => val.id == transactionInfo.id,

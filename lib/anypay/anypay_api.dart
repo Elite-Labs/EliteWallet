@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:elite_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:elite_wallet/utils/exception_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ew_core/http_port_redirector.dart';
 import 'package:ew_core/crypto_currency.dart';
@@ -61,6 +62,7 @@ class AnyPayApi {
 																body: utf8.encode(json.encode(body)));
 
     if (response.statusCode != 200) {
+			ExceptionHandler.onError(FlutterErrorDetails(exception: response));
       throw Exception('Unexpected response http code: ${response.statusCode}');
 		}
 

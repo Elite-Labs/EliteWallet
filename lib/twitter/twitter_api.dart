@@ -13,8 +13,7 @@ class TwitterApi {
   static Future<TwitterUser> lookupUserByName({
     required String userName,
     required SettingsStore settingsStore}) async {
-
-    final queryParams = {'user.fields': 'description'};
+    final queryParams = {'user.fields': 'description', 'expansions': 'pinned_tweet_id'};
 
     final headers = {'authorization': 'Bearer $twitterBearerToken'};
 
@@ -36,6 +35,6 @@ class TwitterApi {
       throw Exception(responseJSON['errors'][0]['detail']);
     }
 
-    return TwitterUser.fromJson(responseJSON['data'] as Map<String, dynamic>);
+    return TwitterUser.fromJson(responseJSON);
   }
 }

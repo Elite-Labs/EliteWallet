@@ -14,6 +14,7 @@ import 'package:elite_wallet/exchange/trade_state.dart';
 import 'package:elite_wallet/exchange/majesticbank/majesticbank_request.dart';
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
 import 'package:elite_wallet/exchange/trade_not_created_exeption.dart';
+import 'package:elite_wallet/entities/exchange_api_mode.dart';
 
 class MajesticBankExchangeProvider extends ExchangeProvider {
   MajesticBankExchangeProvider(this.settingsStore)
@@ -55,6 +56,9 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => true;
 
   @override
+  bool get supportsOnionAddress => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.majesticBank;
 
@@ -63,16 +67,13 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
 
   SettingsStore settingsStore;
 
-  int fetchRateSequenceId = 0;
-
   @override
   Future<Limits> fetchLimits({
     required CryptoCurrency from, required CryptoCurrency to,
     required bool isFixedRateMode}) async {
 
     Object? exception;
-    for (final apiAuthority in
-           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+    for (final apiAuthority in getApiAuthorities()) {
       try {
         return await _fetchLimitsInternal(
           from: from, to: to, isFixedRateMode: isFixedRateMode,
@@ -116,8 +117,7 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
     required TradeRequest request, required bool isFixedRateMode}) async {
 
     Object? exception;
-    for (final apiAuthority in
-           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+    for (final apiAuthority in getApiAuthorities()) {
       try {
         return await _createTradeInternal(
           request: request, isFixedRateMode: isFixedRateMode,
@@ -193,8 +193,7 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({
     required String id}) async {
     Object? exception;
-    for (final apiAuthority in
-           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+    for (final apiAuthority in getApiAuthorities()) {
       try {
         return await _findTradeByIdInternal(
           id: id, apiAuthority: apiAuthority);
@@ -231,38 +230,39 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
-    if (!responseJSON.containsKey('from_currency')) {
-      throw Exception('from_currency invalid!');
+    CryptoCurrency? from;
+    if (responseJSON.containsKey('from_currency')) {
+      final fromCurrency = responseJSON['from_currency'] as String;
+      from = CryptoCurrency.fromString(fromCurrency);
     }
 
-    final fromCurrency = responseJSON['from_currency'] as String;
-    CryptoCurrency from = CryptoCurrency.fromString(fromCurrency);
-
-    if (!responseJSON.containsKey('receive_currency')) {
-      throw Exception('receive_currency invalid!');
+    CryptoCurrency? to;
+    if (responseJSON.containsKey('receive_currency')) {
+      final toCurrency = responseJSON['receive_currency'] as String;
+      to = CryptoCurrency.fromString(toCurrency);
     }
 
-    final toCurrency = responseJSON['receive_currency'] as String;
-    CryptoCurrency to = CryptoCurrency.fromString(toCurrency);
-
-    final inputAddress = responseJSON['address'] as String;
+    String? inputAddress;
+    if (responseJSON.containsKey('address')) {
+      inputAddress = responseJSON['address'] as String;
+    }
 
     String expectedSendAmount = "";
     if (responseJSON.containsKey('from_amount')) {
       expectedSendAmount = responseJSON['from_amount'].toString();
     }
 
-    double confirmed = 0;
+    double? confirmed;
     if (responseJSON.containsKey('confirmed')) {
       confirmed = _toDouble(responseJSON['confirmed']);
     }
 
-    double receiveAmount = 0;
+    double? receiveAmount;
     if (responseJSON.containsKey('receive_amount')) {
       receiveAmount = _toDouble(responseJSON['receive_amount']);
     }
 
-    double received = 0;
+    double? received;
     if (responseJSON.containsKey('received')) {
       received = _toDouble(responseJSON['received']);
     }
@@ -291,21 +291,22 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
 
-    int currentfetchRateSequenceId = ++fetchRateSequenceId;
-
-    for (final apiAuthority in
-           [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt]) {
+    for (final apiAuthority in getApiAuthorities()) {
       try {
         double t = await _fetchRateInternal(
           from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode,
           isReceiveAmount: isReceiveAmount, apiAuthority: apiAuthority);
-        if (currentfetchRateSequenceId != fetchRateSequenceId) {
-          return 0.0;
-        }
         return t;
       } catch (_) {}
     }
     return 0.0;
+  }
+
+  List<String> getApiAuthorities() {
+    if (settingsStore.exchangeStatus == ExchangeApiMode.torOnly) {
+      return [apiAuthorityOnion];
+    }
+    return [apiAuthorityOnion, apiAuthorityDirect, apiAuthorityDirectAlt];
   }
 
   Future<double> _fetchRateInternal(
@@ -340,6 +341,9 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
       return "waitingPayment";
     }
     if (input == "Completed") {
+      return "complete";
+    }
+    if (input == "Not found") {
       return "complete";
     }
     return input;

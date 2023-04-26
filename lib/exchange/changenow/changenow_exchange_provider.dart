@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:elite_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:flutter/foundation.dart';
+import 'package:elite_wallet/utils/device_info.dart';
 import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/.secrets.g.dart' as secrets;
@@ -13,7 +14,6 @@ import 'package:elite_wallet/exchange/trade_request.dart';
 import 'package:elite_wallet/exchange/trade_state.dart';
 import 'package:elite_wallet/exchange/changenow/changenow_request.dart';
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
-import 'package:elite_wallet/exchange/trade_not_created_exeption.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider(this.settingsStore)
@@ -27,7 +27,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
                 .expand((i) => i)
                 .toList());
 
-  static const apiKey = secrets.changeNowApiKey;
+  static final apiKey = DeviceInfo.instance.isMobile ? secrets.changeNowApiKey : secrets.changeNowApiKeyDesktop;
   static const apiAuthority = 'api.changenow.io';
   static const createTradePath = '/v2/exchange';
   static const findTradeByIdPath = '/v2/exchange/by-id';
@@ -275,6 +275,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
             : currency.title.toLowerCase();
       }
     }
+
   }
 
    String normalizeCryptoCurrency(CryptoCurrency currency) {

@@ -1,10 +1,12 @@
 import 'dart:io' show File, Platform;
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
+import 'package:elite_wallet/entities/exchange_api_mode.dart';
 import 'package:ew_core/pathForWallet.dart';
 import 'package:elite_wallet/entities/secret_store_key.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elite_wallet/entities/preferences_key.dart';
 import 'package:ew_core/wallet_type.dart';
@@ -37,6 +39,15 @@ Future defaultSettingsMigration(
   if (Platform.isIOS) {
     await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
   }
+
+  // check current nodes for nullability regardless of the version
+  await checkCurrentNodes(nodes, sharedPreferences);
+
+  final isNewInstall = sharedPreferences
+      .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
+
+  await sharedPreferences.setBool(
+      PreferencesKey.isNewInstall, isNewInstall);
 
   final currentVersion = sharedPreferences
           .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ??
@@ -150,7 +161,9 @@ Future defaultSettingsMigration(
         case 20:
           await validateBitcoinSavedTransactionPriority(sharedPreferences);
           break;
-
+        case 21:
+          await migrateExchangeStatus(sharedPreferences);
+          break;
         default:
           break;
       }
@@ -543,4 +556,16 @@ Future<void> changeDefaultHavenNode(
     node.uriRaw = havenDefaultNodeUri;
     await node.save();
   });
+}
+
+Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
+  final isExchangeDisabled = sharedPreferences.getBool(PreferencesKey.disableExchangeKey);
+  if (isExchangeDisabled == null) {
+    return;
+  }
+
+  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled 
+      ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
+      
+  await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:elite_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:elite_wallet/core/auth_service.dart';
 import 'package:elite_wallet/entities/language_service.dart';
 import 'package:elite_wallet/buy/order.dart';
@@ -100,6 +101,10 @@ Future<void> main() async {
       Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
 
+    if (!Hive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
+      Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
+    }
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -120,6 +125,7 @@ Future<void> main() async {
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+    final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
     
     if (!isMoneroOnly) {
@@ -139,7 +145,8 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 20);
+        anonpayInvoiceInfo: anonpayInvoiceInfo,
+        initialMigrationVersion: 21);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
@@ -158,8 +165,9 @@ Future<void> initialSetup(
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptions,
     required FlutterSecureStorage secureStorage,
+    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    int initialMigrationVersion = 15}) async {
+    int initialMigrationVersion = 21}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -178,8 +186,8 @@ Future<void> initialSetup(
       exchangeTemplates: exchangeTemplates,
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      );
+      anonpayInvoiceInfoSource: anonpayInvoiceInfo,
+      unspentCoinsInfoSource: unspentCoinsInfoSource);
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }

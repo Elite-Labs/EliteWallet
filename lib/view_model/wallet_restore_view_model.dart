@@ -1,5 +1,6 @@
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
 import 'package:elite_wallet/core/mnemonic_length.dart';
+import 'package:elite_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -14,10 +15,10 @@ import 'package:elite_wallet/view_model/wallet_creation_vm.dart';
 import 'package:elite_wallet/monero/monero.dart';
 import 'package:elite_wallet/haven/haven.dart';
 import 'package:elite_wallet/wownero/wownero.dart';
+import 'package:elite_wallet/view_model/restore/restore_mode.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
-enum WalletRestoreMode { seed, keys }
 
 class WalletRestoreViewModel = WalletRestoreViewModelBase
     with _$WalletRestoreViewModel;
