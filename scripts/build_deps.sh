@@ -54,7 +54,7 @@ fi
 
 git config --global protocol.file.allow always
 
-#./scripts/get_repos.sh
+./scripts/get_repos.sh
 
 cd scripts/android
 
