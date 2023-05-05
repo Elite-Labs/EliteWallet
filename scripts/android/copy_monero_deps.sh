@@ -24,7 +24,7 @@ esac
 
 LIB_DIR=${EW_EXRTERNAL_DIR}/${ABI}/lib
 INCLUDE_DIR=${EW_EXRTERNAL_DIR}/${ABI}/include
-LIBANBOUND_PATH=${PREFIX}/lib/libunbound.a
+LIBUNBOUND_PATH=${PREFIX}/lib/libunbound.a
 
 mkdir -p $LIB_DIR
 mkdir -p $INCLUDE_DIR
@@ -32,8 +32,9 @@ mkdir -p $INCLUDE_DIR
 cp -r ${PREFIX}/lib/* $LIB_DIR
 cp -r ${PREFIX}/include/* $INCLUDE_DIR
 
-if [ -f "$LIBANBOUND_PATH" ]; then
- cp $LIBANBOUND_PATH ${LIB_DIR}/monero
+if [ -f "$LIBUNBOUND_PATH" ]; then
+ cp $LIBUNBOUND_PATH ${LIB_DIR}/monero
+ cp $LIBUNBOUND_PATH ${LIB_DIR}/wownero
 fi
 
 done
