@@ -10,10 +10,8 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
       : selectedReceiveOption = initialPageOption ?? ReceivePageOption.mainnet,
-        _options = [] {
+        _options = [ReceivePageOption.mainnet] {
     final walletType = _wallet.type;
-    _options =
-        walletType == WalletType.haven ? [ReceivePageOption.mainnet] : ReceivePageOption.values;
   }
 
   final WalletBase _wallet;
