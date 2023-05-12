@@ -54,7 +54,8 @@ class ReceivePage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Color get titleColor => Colors.white;
+  Color? get titleColor =>
+      currentTheme.type == ThemeType.bright ? Colors.white : null;
 
   @override
   Widget middle(BuildContext context) {
@@ -161,8 +162,13 @@ class ReceivePage extends BasePage {
 
                             if (item is WalletAddressListHeader) {
                               cell = HeaderTile(
-                                  onTap: () =>
-                                      Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                  onTap: () {
+                                    WalletAddressEditOrCreateViewModel view_model =
+                                      getIt.get<WalletAddressEditOrCreateViewModel>(param1: null);
+                                    view_model.label = "#" +
+                                      (addressListViewModel.addressList.length + 1).toString();
+                                    view_model.save();
+                                  },
                                   title: S.of(context).addresses,
                                   icon: Icon(
                                     Icons.add,

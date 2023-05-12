@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:elite_wallet/generated/i18n.dart';
+import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:elite_wallet/view_model/proxy_settings/proxy_input_list_item.dart';
 import 'package:elite_wallet/view_model/proxy_settings/proxy_settings_view_model.dart';
 import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
@@ -15,13 +16,21 @@ import 'package:elite_wallet/src/screens/base_page.dart';
 
 class ProxySettingsPage extends BasePage {
   ProxySettingsPage(this.proxySettingsViewModel,
+                    this.dashboardViewModel,
                     this.additionalItems);
 
   final ProxySettingsViewModel proxySettingsViewModel;
+  final DashboardViewModel dashboardViewModel;
   final List<List<SettingsListItem>> additionalItems;
 
   @override
   String get title => S.current.settings_proxy_settings;
+
+  @override
+  void onClose(BuildContext context) async {
+    dashboardViewModel.reconnect();
+    Navigator.of(context).pop();
+  }
 
   @override
   Widget body(BuildContext context) {

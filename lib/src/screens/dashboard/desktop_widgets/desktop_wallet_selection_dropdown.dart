@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:elite_wallet/core/auth_service.dart';
-import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/entities/desktop_dropdown_item.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/routes.dart';

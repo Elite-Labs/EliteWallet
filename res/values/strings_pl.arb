@@ -111,7 +111,7 @@
   "exchange_result_confirm" : "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} na adres podany poniżej. Lub możesz wysłać z zewnętrznego portfela na poniższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.",
   "exchange_result_description" : "Musisz wysłać co najmniej ${fetchingLabel} ${from} na adres podany na następnej stronie. Jeśli wyślesz kwotę niższą niż ${fetchingLabel} ${from}, może ona nie zostać uwzględniona i może nie zostać zwrócona.",
   "exchange_result_write_down_ID" : "*Skopiuj lub zanotuj identyfikator transakcji pokazany powyżej.",
-  "confirm" : "Potwierdzać",
+  "confirm" : "Potwierdź",
   "confirm_sending" : "Potwierdź wysłanie",
   "commit_transaction_amount_fee" : "Zatwierdź transakcję\nIlość: ${amount}\nOpłata: ${fee}",
   "sending" : "Wysyłanie",
@@ -161,7 +161,7 @@
 
 
   "share_address" : "Udostępnij adres",
-  "receive_amount" : "Ilość",
+  "receive_amount" : "Otrzymaj kwotę",
   "subaddresses" : "Podadresy",
   "addresses" : "Adresy",
   "scan_qr_code_to_get_address" : "Zeskanuj kod QR, aby uzyskać adres",
@@ -230,7 +230,7 @@
   "send_creating_transaction" : "Tworzenie transakcji",
   "send_templates" : "Szablony",
   "send_new" : "Nowy",
-  "send_amount" : "Ilość:",
+  "send_amount" : "Wyślij kwotę",
   "send_fee" : "Opłata:",
   "send_name" : "Imię",
   "send_got_it" : "Wysłano",

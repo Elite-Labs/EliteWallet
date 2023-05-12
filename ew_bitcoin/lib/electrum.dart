@@ -9,6 +9,8 @@ import 'package:ew_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:ew_core/port_redirector.dart';
+import 'package:ew_core/proxy_settings_store.dart';
+import 'package:ew_core/socks5.dart';
 import 'package:collection/collection.dart';
 
 String jsonrpcparams(List<Object> params) {
@@ -46,6 +48,7 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket? socket;
+  SocksSocket? socksSocket;
   PortRedirector? _portRedirector;
   void Function(bool)? onConnectionStatusChange;
   int _id;
@@ -67,17 +70,20 @@ class ElectrumClient {
       await socket?.close();
     } catch (_) {}
 
-    PortRedirector portRedirector = await PortRedirector.start(
-      settingsStore, host, port, timeout: connectionTimeout);
-    host = portRedirector.host;
-    port = portRedirector.port;
-    _portRedirector = portRedirector;
-
-    socket = await SecureSocket.connect(
-      host,
-      port,
-      timeout: connectionTimeout,
-      onBadCertificate: (_) => true);
+    if (settingsStore.proxyEnabled) {
+      SocksSocket newSocksSocket = await PortRedirector.connectToProxy(
+        ProxySettingsStore.fromSettingsStore(settingsStore), host,
+          port, Duration(seconds: 1));
+      socket = await SecureSocket.secure(newSocksSocket.socket,
+        onBadCertificate: (_) => true);
+      socksSocket = newSocksSocket;
+    } else {
+      socket = await SecureSocket.connect(
+        host,
+        port,
+        timeout: connectionTimeout,
+        onBadCertificate: (_) => true);
+    }
 
     _setIsConnected(true);
 
@@ -106,7 +112,7 @@ class ElectrumClient {
           unterminatedString = '';
         }
       } on TypeError catch (e) {
-        if (!e.toString().contains('Map<String, Object>') || !e.toString().contains('Map<String, dynamic>')) {
+        if (!e.toString().contains('Map<String, Object>') && !e.toString().contains('Map<String, dynamic>')) {
           return;
         }
 

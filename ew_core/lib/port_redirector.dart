@@ -50,7 +50,7 @@ class PortRedirector {
 
         bool error = false;
         try {
-          _connectToProxy(
+          connectToProxy(
             ProxySettingsStore.fromSettingsStore(settingsStore), serverHost,
             serverPort, Duration(seconds: 1));
         } catch(_) {
@@ -78,7 +78,7 @@ class PortRedirector {
       return redirector;
   }
 
-  static Future<SocksSocket> _connectToProxy(
+  static Future<SocksSocket> connectToProxy(
     ProxySettingsStore proxySettingsStore,
     String host,
     int port,
@@ -211,7 +211,7 @@ class PortRedirector {
 
     if (proxySettingsStore.proxyEnabled) {
       try {
-        SocksSocket proxySocket = await _connectToProxy(
+        SocksSocket proxySocket = await connectToProxy(
           proxySettingsStore, serverHost, serverPort, timeout);
 
         StreamSubscription<Uint8List>? sub = proxySocket.subscription;

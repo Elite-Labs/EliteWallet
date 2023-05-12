@@ -1,2 +1,5 @@
-Keep screen awake while synchronizing
+Fix Bitcoin and Litecoin connection issues
+Fix Polish translation
+Reliability fixes for PIN login, transaction appearance, keyboard inputs, and QR codes
+Show amount received by each Monero account in account overview
 Various bugfixes

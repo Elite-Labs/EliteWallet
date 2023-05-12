@@ -2,9 +2,9 @@
 
 . ./config.sh
 
-WOWNERO_VERSION=v0.11.0.1
+WOWNERO_VERSION=v0.11.0.3
 WOWNERO_SRC_DIR=${WORKDIR}/wownero
-WOWNERO_SHA_HEAD="a21819cc22587e16af00e2c3d8f70156c11310a0"
+WOWNERO_SHA_HEAD="e921c3b8a35bc497ef92c4735e778e918b4c4f99"
 
 git clone ${LOCAL_GIT_REPOS}/wownero ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
 cd $WOWNERO_SRC_DIR
@@ -12,7 +12,7 @@ git fetch
 git reset --hard $WOWNERO_SHA_HEAD
 
 LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/monero-project\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp-haven/g" .gitmodules
+sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules

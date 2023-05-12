@@ -1,11 +1,8 @@
-import 'package:elite_wallet/core/address_validator.dart';
 import 'package:elite_wallet/core/seed_validator.dart';
-import 'package:elite_wallet/entities/mnemonic_item.dart';
 import 'package:elite_wallet/entities/parse_address_from_domain.dart';
 import 'package:elite_wallet/entities/qr_scanner.dart';
 import 'package:elite_wallet/view_model/restore/restore_mode.dart';
 import 'package:elite_wallet/view_model/restore/restore_wallet.dart';
-import 'package:ew_bitcoin/bitcoin_mnemonic.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -54,6 +51,7 @@ class WalletRestoreFromQRCode {
 
   static String getFormattedUri(String code) {
     final index = code.indexOf(':');
+    if (index == -1) return throw Exception('Unexpected wallet type: $code, try to scan again');
     final scheme = code.substring(0, index).replaceAll('_', '-');
     final query = code.substring(index + 1).replaceAll('?', '&');
     final formattedUri = '$scheme:?$query';

@@ -2,6 +2,7 @@ import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:elite_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:elite_wallet/src/widgets/add_template_button.dart';
+import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/utils/debounce.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:ew_core/sync_status.dart';
@@ -108,7 +109,37 @@ class ExchangePage extends BasePage {
       });
 
   @override
-  bool get canUseCloseIcon => true;
+  Widget? leading(BuildContext context) {
+    final _backButton = Icon(Icons.arrow_back_ios,
+      color: titleColor,
+      size: 16,
+    );
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme : closeButtonImage;
+
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child: !isMobileView ? _closeButton : _backButton,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -249,8 +280,8 @@ class ExchangePage extends BasePage {
                     return TemplateTile(
                       key: UniqueKey(),
                       amount: template.amount,
-                      from: template.depositCurrency,
-                      to: template.receiveCurrency,
+                      from: template.depositCurrencyTitle,
+                      to: template.receiveCurrencyTitle,
                       onTap: () {
                         applyTemplate(context, exchangeViewModel, template);
                       },

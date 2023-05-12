@@ -17,7 +17,7 @@ abstract class SupportViewModelBase with Store {
       LinkListItem(
           title: 'Email',
           linkTitle: 'info@elitewallet.sc',
-          link: 'mailto:info@elitewallet.sc'),
+          link: 'info@elitewallet.sc'),
       if (!isMoneroOnly)
         LinkListItem(
             title: 'Website',
@@ -28,7 +28,7 @@ abstract class SupportViewModelBase with Store {
             title: 'GitHub',
             icon: 'assets/images/github.png',
             hasIconColor: true,
-            linkTitle: S.current.apk_update,
+            linkTitle: 'github.com/Elite-Labs/EliteWallet',
             link: 'https://github.com/Elite-Labs/EliteWallet/releases'),
       LinkListItem(
           title: 'Telegram',
@@ -43,7 +43,7 @@ abstract class SupportViewModelBase with Store {
       LinkListItem(
           title: 'MajesticBank',
           icon: 'assets/images/majesticbank.png',
-          linkTitle: S.current.help,
+          linkTitle: 'majesticbank.sc',
           link: 'https://majesticbank.sc/')
     ];
 

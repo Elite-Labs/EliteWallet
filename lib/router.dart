@@ -41,17 +41,15 @@ import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:elite_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:elite_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:elite_wallet/view_model/advanced_privacy_settings_view_model.dart';
-import 'package:elite_wallet/view_model/restore/restore_from_qr_vm.dart';
-import 'package:elite_wallet/view_model/restore/restore_wallet.dart';
+import 'package:elite_wallet/wallet_type_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/di.dart';
-import 'package:elite_wallet/utils/language_list.dart';
+import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/view_model/wallet_new_vm.dart';
 import 'package:elite_wallet/view_model/wallet_restoration_from_seed_vm.dart';
-import 'package:elite_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/exchange/trade.dart';
 import 'package:ew_core/transaction_info.dart';
@@ -66,12 +64,11 @@ import 'package:elite_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:elite_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:elite_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:elite_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:elite_wallet/src/screens/restore/restore_wallet_options_page.dart';
-import 'package:elite_wallet/src/screens/restore/restore_wallet_from_seed_page.dart';
-import 'package:elite_wallet/src/screens/restore/restore_wallet_from_keys_page.dart';
 import 'package:elite_wallet/src/screens/send/send_page.dart';
+import 'package:elite_wallet/src/screens/proxy_settings/proxy_settings.dart';
 import 'package:elite_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:elite_wallet/src/screens/seed_language/seed_language_page.dart';
+import 'package:elite_wallet/src/screens/select_anonymity/select_anonymity_page.dart';
 import 'package:elite_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:elite_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:elite_wallet/src/screens/contact/contact_list_page.dart';
@@ -79,10 +76,8 @@ import 'package:elite_wallet/src/screens/contact/contact_page.dart';
 import 'package:elite_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:elite_wallet/src/screens/restore/restore_wallet_from_seed_details.dart';
 import 'package:elite_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:elite_wallet/src/screens/proxy_settings/proxy_settings.dart';
 import 'package:elite_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:elite_wallet/src/screens/faq/faq_page.dart';
-import 'package:elite_wallet/src/screens/select_anonymity/select_anonymity_page.dart';
 import 'package:elite_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:elite_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:elite_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
@@ -152,14 +147,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(param1: callback));
 
-    case Routes.moneroRestoreWalletFromWelcome:
-     return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(
-                      context.context, Routes.restoreWallet, arguments: WalletType.monero)),
-          fullscreenDialog: true);
-
     case Routes.restoreWalletType:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
@@ -172,46 +159,36 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<RestoreOptionsPage>(param1: isNewInstall));
 
-    case Routes.restoreWalletOptions:
-      final type = WalletType.monero; //settings.arguments as WalletType;
-
-      return CupertinoPageRoute<void>(
-          builder: (_) => RestoreWalletOptionsPage(
-              type: type,
-              onRestoreFromSeed: (context) {
-                final route = type == WalletType.monero
-                    ? Routes.seedLanguage
-                    : Routes.restoreWalletFromSeed;
-                final args = type == WalletType.monero
-                    ? [type, Routes.restoreWalletFromSeed]
-                    : [type];
-
-                Navigator.of(context).pushNamed(route, arguments: args);
-              },
-              onRestoreFromKeys: (context) {
-                final route = type == WalletType.monero
-                    ? Routes.seedLanguage
-                    : Routes.restoreWalletFromKeys;
-                final args = type == WalletType.monero
-                    ? [type, Routes.restoreWalletFromKeys]
-                    : [type];
-
-                Navigator.of(context).pushNamed(route, arguments: args);
-              }));
-
-    case Routes.restoreWalletOptionsFromWelcome:
+    case Routes.restoreWalletFromSeedKeys:
       final isNewInstall = settings.arguments as bool;
-      return isNewInstall ? CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(
-                      context.context, Routes.restoreWalletType)),
-          fullscreenDialog: true) : CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NewWalletTypePage>(
-              param1: (BuildContext context, WalletType type) =>
-                  Navigator.of(context)
-                      .pushNamed(Routes.restoreWallet, arguments: type),
-              param2: false));
+
+      if (isNewInstall) {
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<SetupPinCodePage>(
+                param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+                  if (isSingleCoin) {
+                    return Navigator.of(context.context)
+                        .pushNamed(Routes.restoreWallet, arguments: availableWalletTypes.first);
+                  }
+
+                  return Navigator.pushNamed(
+                        context.context, Routes.restoreWalletType);
+                }),
+            fullscreenDialog: true);
+      } else if (isSingleCoin) {
+        return MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (_) => getIt.get<WalletRestorePage>(
+                param1: availableWalletTypes.first
+            ));
+      } else {
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<NewWalletTypePage>(
+                param1: [(BuildContext context, WalletType type) =>
+                    Navigator.of(context)
+                        .pushNamed(Routes.restoreWallet, arguments: type),
+                    false]));
+      }
 
     case Routes.seed:
       return MaterialPageRoute<void>(
@@ -220,26 +197,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
+          fullscreenDialog: true,
           builder: (_) => getIt.get<WalletRestorePage>(
               param1: settings.arguments as WalletType));
-
-    case Routes.restoreWalletFromSeed:
-      final type = settings.arguments as WalletType;
-      return CupertinoPageRoute<void>(
-          builder: (_) => RestoreWalletFromSeedPage(type: type));
-
-    case Routes.restoreWalletFromKeys:
-      final args = settings.arguments as List<dynamic>;
-      final type = args.first as WalletType;
-      final language =
-          type == WalletType.monero ? args[1] as String : LanguageList.english;
-
-      final walletRestorationFromKeysVM =
-          getIt.get<WalletRestorationFromKeysVM>(param1: [type, language]);
-
-      return CupertinoPageRoute<void>(
-          builder: (_) => RestoreWalletFromKeysPage(
-              walletRestorationFromKeysVM: walletRestorationFromKeysVM));
 
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(
@@ -565,7 +525,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:
         final anonInvoiceViewData = settings.arguments as AnonpayInfoBase;

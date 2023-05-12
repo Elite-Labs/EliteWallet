@@ -15,7 +15,7 @@ class AlertCloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: bottom ?? 10,
+      bottom: bottom ?? 60,
       child: GestureDetector(
         onTap: () => Navigator.of(context).pop(),
         child: Container(

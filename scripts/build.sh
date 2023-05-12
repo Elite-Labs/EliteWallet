@@ -1,3 +1,10 @@
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  cd scripts/android
+  source ./app_env.sh elitewallet
+  ./app_config.sh
+  cd ../..
+fi
+
 flutter pub get
 flutter packages pub run tool/generate_new_secrets.dart
 cp ~/.secrets.g.dart lib

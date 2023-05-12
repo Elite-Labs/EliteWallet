@@ -4,8 +4,8 @@
 
 WOWNERO_URL="${LOCAL_GIT_REPOS}/wownero"
 WOWNERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/wownero"
-WOWNERO_VERSION=v0.11.0.1
-WOWNERO_SHA_HEAD="a21819cc22587e16af00e2c3d8f70156c11310a0"
+WOWNERO_VERSION=v0.11.0.3
+WOWNERO_SHA_HEAD="e921c3b8a35bc497ef92c4735e778e918b4c4f99"
 
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
@@ -22,7 +22,7 @@ git reset --hard HEAD
 git checkout $WOWNERO_VERSION
 
 LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/monero-project\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp-haven/g" .gitmodules
+sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
 sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules

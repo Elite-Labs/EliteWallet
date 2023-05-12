@@ -585,7 +585,7 @@ Future setup(
   getIt.registerFactoryParam<ProxySettingsPage, List<List<SettingsListItem>>, void>(
       (List<List<SettingsListItem>> additionalItems, _) => 
         ProxySettingsPage(
-            getIt.get<ProxySettingsViewModel>(), additionalItems));
+            getIt.get<ProxySettingsViewModel>(), getIt.get<DashboardViewModel>(), additionalItems));
 
   getIt.registerFactory(() {
     return SelectAnonymityPage(getIt.get<AppStore>().settingsStore);

@@ -1,11 +1,11 @@
 #include <stdint.h>
 
-struct CWMoneroWalletListener;
+struct EWMoneroWalletListener;
 
 typedef int8_t (*on_new_block_callback)(uint64_t height);
 typedef int8_t (*on_need_to_refresh_callback)();
 
-typedef struct CWMoneroWalletListener
+typedef struct EWMoneroWalletListener
 {
     // on_money_spent_callback *on_money_spent;
     // on_money_received_callback *on_money_received;
@@ -15,7 +15,7 @@ typedef struct CWMoneroWalletListener
     // on_refreshed_callback *on_refreshed;
 
     on_new_block_callback on_new_block;
-} CWMoneroWalletListener;
+} EWMoneroWalletListener;
 
 struct TestListener {
     // int8_t x;

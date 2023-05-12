@@ -6,6 +6,7 @@ import 'package:elite_wallet/src/screens/dashboard/widgets/present_receive_optio
 import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:elite_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
+import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:elite_wallet/utils/share_util.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -59,14 +60,46 @@ class AddressPage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  Color get titleColor => Colors.white;
+  Widget? leading(BuildContext context) {
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: Theme.of(context).accentTextTheme!.headline2!.backgroundColor!,
+      size: 16,
+    );
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme
+        : closeButtonImage;
 
-  @override
-  bool get canUseCloseIcon => true;
+    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: !isMobileView ? 'Close' : 'Back',
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.transparent),
+              ),
+              onPressed: () => onClose(context),
+              child: !isMobileView ? _closeButton : _backButton,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget middle(BuildContext context) =>
-      PresentReceiveOptionPicker(receiveOptionViewModel: receiveOptionViewModel);
+      PresentReceiveOptionPicker(
+        receiveOptionViewModel: receiveOptionViewModel,
+        hasWhiteBackground: currentTheme.type == ThemeType.light,
+      );
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>

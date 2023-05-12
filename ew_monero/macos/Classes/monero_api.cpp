@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <mutex>
 #include "thread"
-#include "CwWalletListener.h"
+#include "EwWalletListener.h"
 #if __APPLE__
 // Fix for randomx on ios
 void __clear_cache(void* start, void* end) { }

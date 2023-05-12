@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "CwWalletListener.h"
+#include "EwWalletListener.h"
 
 #ifdef __cplusplus
 extern "C" {
