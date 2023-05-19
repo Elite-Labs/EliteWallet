@@ -49,6 +49,7 @@ abstract class SettingsStoreBase with Store {
       required int initialPinLength,
       required String initialLanguageCode,
       required String initialCryptoPriceProvider,
+      required bool initialSelectNodeAutomatically,
       // required String initialCurrentLocale,
       required this.appVersion,
       required Map<WalletType, Node> nodes,
@@ -83,6 +84,7 @@ abstract class SettingsStoreBase with Store {
     pinCodeLength = initialPinLength,
     languageCode = initialLanguageCode,
     cryptoPriceProvider = initialCryptoPriceProvider,
+    selectNodeAutomatically = initialSelectNodeAutomatically,
     priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -256,6 +258,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.pinTimeOutDuration, pinCodeInterval.value));
 
     reaction(
+        (_) => selectNodeAutomatically,
+        (bool selectNodeAutomatically) => sharedPreferences.setBool(
+            PreferencesKey.selectNodeAutomatically, selectNodeAutomatically));
+
+    reaction(
         (_) => balanceDisplayMode,
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
@@ -346,6 +353,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   String cryptoPriceProvider;
+
+  @observable
+  bool selectNodeAutomatically;
 
   @observable
   ObservableMap<WalletType, TransactionPriority> priority;
@@ -476,6 +486,9 @@ abstract class SettingsStoreBase with Store {
     final savedCryptoPriceProvider =
         sharedPreferences.getString(PreferencesKey.cryptoPriceProvider) ??
             "CoinGecko";
+    final savedSelectNodeAutomatically =
+        sharedPreferences.getBool(PreferencesKey.selectNodeAutomatically) ??
+            true;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId = sharedPreferences
         .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -542,6 +555,7 @@ abstract class SettingsStoreBase with Store {
         pinTimeOutDuration: pinCodeTimeOutDuration,
         initialLanguageCode: savedLanguageCode,
         initialCryptoPriceProvider: savedCryptoPriceProvider,
+        initialSelectNodeAutomatically: savedSelectNodeAutomatically,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,

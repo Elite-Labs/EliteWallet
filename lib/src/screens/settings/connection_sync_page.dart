@@ -9,6 +9,7 @@ import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/src/screens/nodes/widgets/node_list_row.dart';
+import 'package:elite_wallet/src/screens/proxy_settings/widgets/settings_switcher_cell.dart';
 import 'package:elite_wallet/src/widgets/standard_list.dart';
 import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:elite_wallet/view_model/node_list/node_list_view_model.dart';
@@ -51,6 +52,11 @@ class ConnectionSyncPage extends BasePage {
                   await Navigator.of(context).pushNamed(Routes.newNode),
             ),
           ),
+          SettingsSwitcherCell(
+            title: S.of(context).select_node_automatically,
+            value: settingsStore.selectNodeAutomatically,
+            onValueChange: (_, bool value) =>
+              { settingsStore.selectNodeAutomatically = value }),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SizedBox(height: 100),
           Observer(
