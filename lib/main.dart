@@ -146,7 +146,7 @@ Future<void> main() async {
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
         anonpayInvoiceInfo: anonpayInvoiceInfo,
-        initialMigrationVersion: 21);
+        initialMigrationVersion: 22);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
@@ -167,7 +167,7 @@ Future<void> initialSetup(
     required FlutterSecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    int initialMigrationVersion = 21}) async {
+    int initialMigrationVersion = 22}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,

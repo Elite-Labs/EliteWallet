@@ -23,7 +23,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
 
 const newEliteWalletMoneroUri = 'node.community.rino.io:18081';
-const eliteWalletBitcoinElectrumUri = 'electrum.bitcoinlizard.net:50002';
+const eliteWalletBitcoinElectrumUri = 'fortress.qtornado.com:443';
 const eliteWalletLitecoinElectrumUri = 'electrum.ltc.xurious.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const wowneroDefaultNodeUri = 'eu-west-2.wow.xmr.pm:34568';
@@ -161,9 +161,16 @@ Future defaultSettingsMigration(
         case 20:
           await validateBitcoinSavedTransactionPriority(sharedPreferences);
           break;
+
         case 21:
           await migrateExchangeStatus(sharedPreferences);
           break;
+
+        case 22:
+          await addBitcoinElectrumServerList(nodes: nodes);
+          await removeUnreliableBitcoinElectrumNodes(nodes: nodes);
+          break;
+
         default:
           break;
       }
@@ -568,4 +575,15 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
       ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
       
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
+}
+
+Future<void> removeUnreliableBitcoinElectrumNodes({required Box<Node> nodes}) async {
+  nodes.values.forEach((node) async {
+    if (node.type == WalletType.bitcoin &&
+        (node.uri.toString().contains('electrum.bitcoinlizard.net:50002') ||
+         node.uri.toString().contains('electrumx-btc.cryptonermal.net:50002') ||
+         node.uri.toString().contains('ulrichard.ch:50002'))) {
+      await node.delete();
+    }
+  });
 }
