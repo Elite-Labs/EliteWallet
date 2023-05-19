@@ -10,11 +10,15 @@ import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/wallet_type_utils.dart';
 
 class SelectAnonymityPage extends BasePage {
-  SelectAnonymityPage(this.settingsStore);
+  SelectAnonymityPage(this.settingsStore, this.fromWelcome);
 
   static const aspectRatioImage = 1.25;
   final welcomeImage = Image.asset('assets/images/elitewallet_logo.png');
   SettingsStore settingsStore;
+  bool fromWelcome;
+
+  @override
+  String get title => fromWelcome ? "" : S.current.settings_select_anonymity;
 
   String appDescription(BuildContext context) {
     if (isMoneroOnly) {
@@ -72,16 +76,23 @@ class SelectAnonymityPage extends BasePage {
             .headline5!
             .decorationColor!);
 
-    void Function() showWelcomePage = () {
+    void Function() action = () {
+      if (fromWelcome) {
+        Navigator.of(context).popAndPushNamed(Routes.welcome);
+      } else {
         Navigator.of(context).pop();
+      }
+    };
+
+    void Function() saveButtonAction = () {
         Navigator.of(context).pop();
-        Navigator.of(context).pushNamed(Routes.welcome);
+        action();
     };
 
     List<List<SettingsListItem>> saveButton =
-      [[SaveButtonistItem(showWelcomePage)]];
+      [[SaveButtonistItem(saveButtonAction)]];
 
-    return WillPopScope(onWillPop: () async => false, child: Container(
+    return WillPopScope(onWillPop: () async => !fromWelcome, child: Container(
         padding: EdgeInsets.only(top: 14, bottom: 14, left: 24, right: 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,46 +106,48 @@ class SelectAnonymityPage extends BasePage {
                     children: <Widget>[
                       Column(
                         children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: 24),
-                            child: Text(
-                              S
-                                  .of(context)
-                                  .welcome,
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w500,
-                                color: Theme
+                          if (fromWelcome)
+                            Padding(
+                              padding: EdgeInsets.only(top: 24),
+                              child: Text(
+                                S
                                     .of(context)
-                                    .primaryTextTheme
-                                    .headline6!
-                                    .color!,
+                                    .welcome,
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme
+                                      .of(context)
+                                      .primaryTextTheme
+                                      .headline6!
+                                      .color!,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                          ),
                           AspectRatio(
                             aspectRatio: aspectRatioImage,
                             child: FittedBox(
                               child: welcomeImage,
                               fit: BoxFit.contain)
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Text(
-                              appDescription(context),
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme
-                                    .of(context)
-                                    .accentTextTheme
-                                    .headline2!
-                                    .color!,
+                          if (fromWelcome)
+                            Padding(
+                              padding: EdgeInsets.only(top: 10),
+                              child: Text(
+                                appDescription(context),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme
+                                      .of(context)
+                                      .accentTextTheme
+                                      .headline2!
+                                      .color!,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                          ),
                           Padding(
                             padding: EdgeInsets.only(top: 10),
                             child: Text(
@@ -160,8 +173,7 @@ class SelectAnonymityPage extends BasePage {
                                   settingsStore.proxyEnabled = false;
                                   settingsStore.proxyIPAddress = "";
                                   settingsStore.proxyPort = "";
-                                  Navigator.of(context).popAndPushNamed(
-                                    Routes.welcome);
+                                  action();
                                 },
                                 image: standardAnonymity,
                                 text: S
@@ -186,8 +198,7 @@ class SelectAnonymityPage extends BasePage {
                                   settingsStore.proxyIPAddress = "proxy.elitewallet.sc";
                                   settingsStore.proxyPort = "9999";
                                   settingsStore.proxyAuthenticationEnabled = false;
-                                  Navigator.of(context).popAndPushNamed(
-                                    Routes.welcome);
+                                  action();
                                 },
                                 image: advancedAnonymity,
                                 text: S

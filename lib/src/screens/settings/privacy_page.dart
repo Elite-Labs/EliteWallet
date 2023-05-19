@@ -53,6 +53,12 @@ class PrivacyPage extends BasePage {
                   _privacySettingsViewModel.setIsAppSecure(value);
                 }),
             SettingsCellWithArrow(
+                title: S.current.settings_select_anonymity,
+                handler: (BuildContext context) =>
+                  Navigator.of(context).pushNamed(
+                    Routes.selectAnonymity,
+                    arguments: false)),
+            SettingsCellWithArrow(
                 title: S.current.settings_proxy_settings,
                 handler: (BuildContext context) =>
                   Navigator.of(context).pushNamed(

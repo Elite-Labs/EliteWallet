@@ -587,9 +587,9 @@ Future setup(
         ProxySettingsPage(
             getIt.get<ProxySettingsViewModel>(), getIt.get<DashboardViewModel>(), additionalItems));
 
-  getIt.registerFactory(() {
-    return SelectAnonymityPage(getIt.get<AppStore>().settingsStore);
-  });
+  getIt.registerFactoryParam<SelectAnonymityPage, bool, void>(
+      (bool fromWelcome, _) => 
+        SelectAnonymityPage(getIt.get<SettingsStore>(), fromWelcome));
 
   getIt
       .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));

@@ -107,7 +107,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.selectAnonymity: {
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<SelectAnonymityPage>());
+          builder: (_) => getIt.get<SelectAnonymityPage>(param1: settings.arguments as bool));
     }
 
     case Routes.newWalletFromWelcome:

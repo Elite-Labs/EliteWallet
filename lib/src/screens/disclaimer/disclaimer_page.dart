@@ -267,8 +267,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                       EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: PrimaryButton(
                       onPressed: _checked
-                          ? () => Navigator.of(context)
-                              .popAndPushNamed(Routes.selectAnonymity)
+                          ? () => Navigator.of(context).popAndPushNamed(
+                              Routes.selectAnonymity,arguments: true)
                           : null,
                       text: 'Accept',
                       color: Theme.of(context)

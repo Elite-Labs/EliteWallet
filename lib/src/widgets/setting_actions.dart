@@ -72,7 +72,7 @@ class SettingActions {
   );
 
   static SettingActions privacySettingAction = SettingActions._(
-    name: S.current.privacy,
+    name: S.current.privacy_settings,
     image: 'assets/images/privacy_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
