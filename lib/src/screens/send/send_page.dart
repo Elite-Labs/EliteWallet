@@ -7,7 +7,6 @@ import 'package:elite_wallet/src/widgets/picker.dart';
 import 'package:elite_wallet/src/widgets/template_tile.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/utils/payment_request.dart';
-import 'package:elite_wallet/utils/request_review_handler.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:elite_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
@@ -417,7 +416,6 @@ class SendPage extends BasePage {
                                     buttonText: S.of(context).ok,
                                     buttonAction: () {
                                       Navigator.of(context).pop();
-                                      RequestReviewHandler.requestReview();
                                   });
                                 }
 
