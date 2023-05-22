@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 import 'package:elite_wallet/entities/preferences_key.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/entities/main_actions.dart';
@@ -256,6 +257,12 @@ class _DashboardPageView extends BasePage {
       if (!dashboardViewModel.isOutdatedElectrumWallet) {
         return;
       }
+
+      if (dashboardViewModel.nextDisplayTime.isAfter(DateTime.now())) {
+        return;
+      }
+      dashboardViewModel.nextDisplayTime =
+        DateTime.now().add(Duration(hours: 5));
 
       await Future<void>.delayed(Duration(seconds: 1));
       if (context.mounted) {

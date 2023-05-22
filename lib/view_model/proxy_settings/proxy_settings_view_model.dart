@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
 import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/store/settings_store.dart';
+import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/view_model/proxy_settings/proxy_input_list_item.dart';
 import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/view_model/proxy_settings/switcher_list_item.dart';
@@ -14,7 +14,7 @@ class ProxySettingsViewModel =
   ProxySettingsViewModelBase with _$ProxySettingsViewModel;
 
 abstract class ProxySettingsViewModelBase with Store {
-  ProxySettingsViewModelBase(this._settingsStore)
+  ProxySettingsViewModelBase(this._appStore)
     : sections = <List<SettingsListItem>>[] {
       sections = [
         [
@@ -56,64 +56,74 @@ abstract class ProxySettingsViewModelBase with Store {
     }
 
   List<List<SettingsListItem>> sections;
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
 
   @computed
-  bool get proxyEnabled => _settingsStore.proxyEnabled;
+  bool get proxyEnabled => _appStore.settingsStore.proxyEnabled;
 
   @computed
-  String get proxyIPAddress => _settingsStore.proxyIPAddress;
+  String get proxyIPAddress => _appStore.settingsStore.proxyIPAddress;
 
   @computed
-  String get proxyPort => _settingsStore.proxyPort;
+  String get proxyPort => _appStore.settingsStore.proxyPort;
 
   @computed
   bool get proxyAuthenticationEnabled =>
-    _settingsStore.proxyAuthenticationEnabled;
+    _appStore.settingsStore.proxyAuthenticationEnabled;
 
   @computed
-  String get proxyUsername => _settingsStore.proxyUsername;
+  String get proxyUsername => _appStore.settingsStore.proxyUsername;
 
   @computed
-  String get proxyPassword => _settingsStore.proxyPassword;
+  String get proxyPassword => _appStore.settingsStore.proxyPassword;
 
   @computed
-  bool get portScanEnabled => _settingsStore.portScanEnabled;
+  bool get portScanEnabled => _appStore.settingsStore.portScanEnabled;
 
   @action
-  void setProxyEnabled(bool value) => _settingsStore.proxyEnabled = value;
+  void setProxyEnabled(bool value) =>
+    _appStore.settingsStore.proxyEnabled = value;
 
   @action
   void setProxyIPAddress(String value) =>
-    _settingsStore.proxyIPAddress = value;
+    _appStore.settingsStore.proxyIPAddress = value;
 
   @action
   void setProxyPort(String value) {
     if (value == "") {
-      _settingsStore.proxyPort = value;
+      _appStore.settingsStore.proxyPort = value;
       return;
     }
     try {
       int intValue = int.parse(value);
-      _settingsStore.proxyPort = intValue.toString();
+      _appStore.settingsStore.proxyPort = intValue.toString();
     } catch (_) {
     }
   }
 
   @action
   void setProxyAuthenticationEnabled(bool value) {
-    _settingsStore.proxyAuthenticationEnabled = value;
+    _appStore.settingsStore.proxyAuthenticationEnabled = value;
   }
 
   @action
   void setProxyUsername(String value) =>
-    _settingsStore.proxyUsername = value;
+    _appStore.settingsStore.proxyUsername = value;
 
   @action
   void setProxyPassword(String value) =>
-    _settingsStore.proxyPassword = value;
+    _appStore.settingsStore.proxyPassword = value;
 
   @action
   void setPortScanEnabled(bool value) =>
-    _settingsStore.portScanEnabled = value;
+    _appStore.settingsStore.portScanEnabled = value;
+
+  void reconnect() {
+    if (_appStore.wallet == null) {
+      return;
+    }
+    final node = _appStore.settingsStore.getCurrentNode(_appStore.wallet!.type);
+    _appStore.wallet!.connectToNode(
+      node: node, settingsStore: _appStore.settingsStore);
+  }
 }

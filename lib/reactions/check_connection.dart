@@ -31,7 +31,8 @@ void checkConnection(WalletBase wallet, SettingsStore settingsStore) async {
     }
 
     if (wallet.syncStatus is ConnectedSyncStatus ||
-        wallet.syncStatus is SyncedSyncStatus) {
+        wallet.syncStatus is SyncedSyncStatus ||
+        wallet.syncStatus is SyncingSyncStatus) {
       timeSinceLastSync = Duration();
     } else {
       timeSinceLastSync += timeInterval;

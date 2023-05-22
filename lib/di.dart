@@ -579,13 +579,12 @@ Future setup(
   });
 
   getIt.registerFactory(() {
-    return ProxySettingsViewModel(getIt.get<AppStore>().settingsStore);
+    return ProxySettingsViewModel(getIt.get<AppStore>());
   });
 
   getIt.registerFactoryParam<ProxySettingsPage, List<List<SettingsListItem>>, void>(
       (List<List<SettingsListItem>> additionalItems, _) => 
-        ProxySettingsPage(
-            getIt.get<ProxySettingsViewModel>(), getIt.get<DashboardViewModel>(), additionalItems));
+        ProxySettingsPage(getIt.get<ProxySettingsViewModel>(), additionalItems));
 
   getIt.registerFactoryParam<SelectAnonymityPage, bool, void>(
       (bool fromWelcome, _) => 

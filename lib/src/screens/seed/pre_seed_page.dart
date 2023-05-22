@@ -63,7 +63,7 @@ class PreSeedPage extends BasePage {
                           child: Text(
                             S
                                 .of(context)
-                                .pre_seed_description(wordsCount.toString()),
+                                .pre_seed_description(wordsCount().toString()),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontSize: 14,

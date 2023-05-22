@@ -150,6 +150,8 @@ abstract class DashboardViewModelBase with Store {
 
           return true;
     });
+
+    nextDisplayTime = DateTime.now();
   }
 
   @observable
@@ -290,6 +292,13 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   bool isOutdatedElectrumWallet;
+
+  static DateTime _nextDisplayTime = DateTime.now();
+
+  DateTime get nextDisplayTime => _nextDisplayTime;
+
+  set nextDisplayTime(DateTime nextDisplayTime) => 
+    _nextDisplayTime = nextDisplayTime;
 
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
