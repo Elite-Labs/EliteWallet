@@ -6,8 +6,8 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 fi
 
 flutter pub get
-flutter packages pub run tool/generate_new_secrets.dart
-cp ~/.secrets.g.dart lib
+flutter packages pub run tool/generate_new_secrets.dart --force salt=4aa0b8fb5e19ee6d3fcf6e90e99c9e5c keychainSalt=d888accc8e705ae6d1d9dfa7 key=a32a26265cbad3c23697ad72acb0a91c walletSalt=273c706f shortKey=c6ba9689234007756732924b backupSalt=d02e148d2cdee557 backupKeychainSalt=20b1dfaeee715e786e7c570d
+
 flutter packages pub run tool/generate_localization.dart
 flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=adminadmin keyPassword=adminadmin
 
