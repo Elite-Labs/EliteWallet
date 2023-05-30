@@ -1,11 +1,13 @@
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
+
 import 'package:ew_wownero/api/signatures.dart';
-import 'package:ew_wownero/api/types.dart';
-import 'package:ew_wownero/api/wownero_api.dart';
 import 'package:ew_wownero/api/structs/account_row.dart';
-import 'package:flutter/foundation.dart';
+import 'package:ew_wownero/api/types.dart';
 import 'package:ew_wownero/api/wallet.dart';
+import 'package:ew_wownero/api/wownero_api.dart';
+import 'package:ffi/ffi.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
+import 'package:flutter/foundation.dart';
 
 final accountSizeNative = wowneroApi
     .lookup<NativeFunction<account_size>>('account_size')
@@ -53,31 +55,31 @@ List<AccountRow> getAllAccount() {
 void addAccountSync({required String label}) {
   final labelPointer = label.toNativeUtf8();
   accountAddNewNative(labelPointer);
-  calloc.free(labelPointer);
+  pkgffi.calloc.free(labelPointer);
 }
 
-void setLabelForAccountSync({required int accountIndex, required String label}) {
+void setLabelForAccountSync({int? accountIndex, required String label}) {
   final labelPointer = label.toNativeUtf8();
   accountSetLabelNative(accountIndex, labelPointer);
-  calloc.free(labelPointer);
+  pkgffi.calloc.free(labelPointer);
 }
 
-void _addAccount(String label) => addAccountSync(label: label);
+void _addAccount(String? label) => addAccountSync(label: label!);
 
 void _setLabelForAccount(Map<String, dynamic> args) {
   final label = args['label'] as String;
-  final accountIndex = args['accountIndex'] as int;
+  final accountIndex = args['accountIndex'] as int?;
 
   setLabelForAccountSync(label: label, accountIndex: accountIndex);
 }
 
-Future<void> addAccount({required String label}) async {
+Future<void> addAccount({String? label}) async {
   await compute(_addAccount, label);
   await store();
 }
 
-Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
-    await compute(
-        _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
-    await store();
+Future<void> setLabelForAccount({int? accountIndex, String? label}) async {
+  await compute(
+      _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
+  await store();
 }

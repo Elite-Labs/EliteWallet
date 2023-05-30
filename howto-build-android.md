@@ -114,11 +114,15 @@ Download the source code.
 `$ git clone https://github.com/Elite-Labs/EliteWallet.git elite_wallet --branch master`
 
 Proceed into the source code before proceeding with the next steps:
+`$ cd elite_wallet`
 
-`$ cd elite_wallet/scripts/android/`
+### 7. Init submodules
+
+`$ git submodule update --init --force`
 
 ### 7. Installing Android NDK
 
+`$ cd scripts/android/`
 `$ ./install_ndk.sh`
 
 ### 8. Execute Build & Setup Commands for EliteWallet
@@ -145,50 +149,50 @@ It is now time to change back to the base directory of the EliteWallet source co
 
 Install Flutter package dependencies with this command:
 
-`$ flutter pub get`
+`$ .flutter/bin/flutter pub get`
 
 Your EliteWallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
-`$ flutter packages pub run tool/generate_new_secrets.dart`
+`$ .flutter/bin/flutter packages pub run tool/generate_new_secrets.dart`
 
 Next, we must generate key properties based on the secure keystore you generated for Android (in step 5). **MODIFY THE FOLLOWING COMMAND** with the "store password" and "key password" you assigned when creating your keystore (in step 5).
 
-`$ flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=<store password> keyPassword=<key password>`
+`$ .flutter/bin/flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=<store password> keyPassword=<key password>`
 
 **REMINDER:** The *above* command will **not** succeed unless you replaced the `storePassword` and `keyPassword` variables with the correct passwords for your keystore.
 
 Then we need to generate localization files.
 
-`$ flutter packages pub run tool/generate_localization.dart`
+`$ .flutter/bin/flutter packages pub run tool/generate_localization.dart`
 
 Lastly, we will generate mobx models for the project.
 
 Generate mobx models for `ew_core`:
 
-`cd ew_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+`cd ew_core && .flutter/bin/flutter pub get && .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
 Generate mobx models for `ew_monero`:
 
-`cd ew_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+`cd ew_monero && .flutter/bin/flutter pub get && .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
 Generate mobx models for `ew_bitcoin`:
 
-`cd ew_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+`cd ew_bitcoin && .flutter/bin/flutter pub get && .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
 Generate mobx models for `ew_haven`:
 
-`cd ew_haven ; flutter pub get ; flutter packages pub run build_runner build --delete-conflicting-outputs ; cd ..`
+`cd ew_haven ; .flutter/bin/flutter pub get ; .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs ; cd ..`
 
 Generate mobx models for `ew_wownero`:
 
-`cd ew_wownero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+`cd ew_wownero && .flutter/bin/flutter pub get && .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
 Finally build mobx models for the app:
 
-`$ flutter packages pub run build_runner build --delete-conflicting-outputs`
+`$ .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs`
 
 ### 9. Build!
 
-`$ flutter build apk --release`
+`$ .flutter/bin/flutter build apk --release`
 
 Copyright (c) 2023 Elite Technologies.

@@ -1,15 +1,17 @@
 import 'dart:ffi';
+
 import 'package:ew_wownero/api/convert_utf8_to_string.dart';
-import 'package:ew_wownero/api/wownero_output.dart';
-import 'package:ew_wownero/api/structs/ut8_box.dart';
-import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
+import 'package:ew_wownero/api/exceptions/creation_transaction_exception.dart';
 import 'package:ew_wownero/api/signatures.dart';
+import 'package:ew_wownero/api/structs/pending_transaction.dart';
+import 'package:ew_wownero/api/structs/transaction_info_row.dart';
+import 'package:ew_wownero/api/structs/ut8_box.dart';
 import 'package:ew_wownero/api/types.dart';
 import 'package:ew_wownero/api/wownero_api.dart';
-import 'package:ew_wownero/api/structs/transaction_info_row.dart';
-import 'package:ew_wownero/api/structs/pending_transaction.dart';
-import 'package:ew_wownero/api/exceptions/creation_transaction_exception.dart';
+import 'package:ew_wownero/api/wownero_output.dart';
+import 'package:ffi/ffi.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
+import 'package:flutter/foundation.dart';
 
 final transactionsRefreshNative = wowneroApi
     .lookup<NativeFunction<transactions_refresh>>('transactions_refresh')
@@ -28,7 +30,8 @@ final transactionCreateNative = wowneroApi
     .asFunction<TransactionCreate>();
 
 final transactionCreateMultDestNative = wowneroApi
-    .lookup<NativeFunction<transaction_create_mult_dest>>('transaction_create_mult_dest')
+    .lookup<NativeFunction<transaction_create_mult_dest>>(
+        'transaction_create_mult_dest')
     .asFunction<TransactionCreateMultDest>();
 
 final transactionCommitNative = wowneroApi
@@ -39,17 +42,17 @@ final getTxKeyNative = wowneroApi
     .lookup<NativeFunction<get_tx_key>>('get_tx_key')
     .asFunction<GetTxKey>();
 
-String getTxKey(String txId) {
+String? getTxKey(String txId) {
   final txIdPointer = txId.toNativeUtf8();
   final keyPointer = getTxKeyNative(txIdPointer);
 
-  calloc.free(txIdPointer);
+  pkgffi.calloc.free(txIdPointer);
 
   if (keyPointer != null) {
     return convertUTF8ToString(pointer: keyPointer);
   }
 
-  return '';
+  return null;
 }
 
 void refreshTransactions() => transactionsRefreshNative();
@@ -69,14 +72,17 @@ List<TransactionInfoRow> getAllTransations() {
 PendingTransactionDescription createTransactionSync(
     {required String address,
     required String paymentId,
-    required int priorityRaw,
     String? amount,
-    int accountIndex = 0}) {
+    int? priorityRaw,
+    int? accountIndex = 0}) {
   final addressPointer = address.toNativeUtf8();
   final paymentIdPointer = paymentId.toNativeUtf8();
   final amountPointer = amount != null ? amount.toNativeUtf8() : nullptr;
-  final errorMessagePointer = calloc<Utf8Box>();
-  final pendingTransactionRawPointer = calloc<PendingTransactionRaw>();
+
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
+  final pendingTransactionRawPointer = pkgffi.calloc
+      .allocate<PendingTransactionRaw>(sizeOf<PendingTransactionRaw>());
   final created = transactionCreateNative(
           addressPointer,
           paymentIdPointer,
@@ -87,16 +93,16 @@ PendingTransactionDescription createTransactionSync(
           pendingTransactionRawPointer) !=
       0;
 
-  calloc.free(addressPointer);
-  calloc.free(paymentIdPointer);
+  pkgffi.calloc.free(addressPointer);
+  pkgffi.calloc.free(paymentIdPointer);
 
   if (amountPointer != nullptr) {
-    calloc.free(amountPointer);
+    pkgffi.calloc.free(amountPointer);
   }
 
   if (!created) {
     final message = errorMessagePointer.ref.getValue();
-    calloc.free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw CreationTransactionException(message: message);
   }
 
@@ -108,17 +114,19 @@ PendingTransactionDescription createTransactionSync(
 }
 
 PendingTransactionDescription createTransactionMultDestSync(
-    {required List<MoneroOutput> outputs,
-      required String paymentId,
-      required int priorityRaw,
-      int accountIndex = 0}) {
+    {required List<WowneroOutput> outputs,
+    required String paymentId,
+    int? priorityRaw,
+    int? accountIndex = 0}) {
   final int size = outputs.length;
-  final List<Pointer<Utf8>> addressesPointers = outputs.map((output) =>
-      output.address.toNativeUtf8()).toList();
-  final Pointer<Pointer<Utf8>> addressesPointerPointer = calloc(size);
-  final List<Pointer<Utf8>> amountsPointers = outputs.map((output) =>
-      output.amount.toNativeUtf8()).toList();
-  final Pointer<Pointer<Utf8>> amountsPointerPointer = calloc(size);
+  final List<Pointer<Utf8>> addressesPointers =
+      outputs.map((output) => output.address!.toNativeUtf8()).toList();
+  final Pointer<Pointer<Utf8>> addressesPointerPointer =
+      pkgffi.calloc.allocate(size * sizeOf<Pointer<Utf8>>());
+  final List<Pointer<Utf8>> amountsPointers =
+      outputs.map((output) => output.amount.toNativeUtf8()).toList();
+  final Pointer<Pointer<Utf8>> amountsPointerPointer =
+      pkgffi.calloc.allocate(size * sizeOf<Pointer<Utf8>>());
 
   for (int i = 0; i < size; i++) {
     addressesPointerPointer[i] = addressesPointers[i];
@@ -126,30 +134,31 @@ PendingTransactionDescription createTransactionMultDestSync(
   }
 
   final paymentIdPointer = paymentId.toNativeUtf8();
-  final errorMessagePointer = calloc<Utf8Box>();
-  final pendingTransactionRawPointer = calloc<PendingTransactionRaw>();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
+  final pendingTransactionRawPointer = pkgffi.calloc
+      .allocate<PendingTransactionRaw>(sizeOf<PendingTransactionRaw>());
   final created = transactionCreateMultDestNative(
-      addressesPointerPointer,
-      paymentIdPointer,
-      amountsPointerPointer,
-      size,
-      priorityRaw,
-      accountIndex,
-      errorMessagePointer,
-      pendingTransactionRawPointer) !=
+          addressesPointerPointer,
+          paymentIdPointer,
+          amountsPointerPointer,
+          size,
+          priorityRaw,
+          accountIndex,
+          errorMessagePointer,
+          pendingTransactionRawPointer) !=
       0;
+  pkgffi.calloc.free(addressesPointerPointer);
+  pkgffi.calloc.free(amountsPointerPointer);
 
-  calloc.free(addressesPointerPointer);
-  calloc.free(amountsPointerPointer);
+  addressesPointers.forEach((element) => pkgffi.calloc.free(element));
+  amountsPointers.forEach((element) => pkgffi.calloc.free(element));
 
-  addressesPointers.forEach((element) => calloc.free(element));
-  amountsPointers.forEach((element) => calloc.free(element));
-
-  calloc.free(paymentIdPointer);
+  pkgffi.calloc.free(paymentIdPointer);
 
   if (!created) {
     final message = errorMessagePointer.ref.getValue();
-    calloc.free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw CreationTransactionException(message: message);
   }
 
@@ -160,17 +169,20 @@ PendingTransactionDescription createTransactionMultDestSync(
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
-void commitTransactionFromPointerAddress({required int address}) => commitTransaction(
-    transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
+void commitTransactionFromPointerAddress({required int address}) =>
+    commitTransaction(
+        transactionPointer:
+            Pointer<PendingTransactionRaw>.fromAddress(address));
 
-void commitTransaction({required Pointer<PendingTransactionRaw> transactionPointer}) {
-  final errorMessagePointer = calloc<Utf8Box>();
+void commitTransaction({Pointer<PendingTransactionRaw>? transactionPointer}) {
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
   final isCommited =
-      transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
+      transactionCommitNative(transactionPointer!, errorMessagePointer) != 0;
 
   if (!isCommited) {
     final message = errorMessagePointer.ref.getValue();
-    calloc.free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw CreationTransactionException(message: message);
   }
 }
@@ -179,8 +191,8 @@ PendingTransactionDescription _createTransactionSync(Map args) {
   final address = args['address'] as String;
   final paymentId = args['paymentId'] as String;
   final amount = args['amount'] as String?;
-  final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
+  final priorityRaw = args['priorityRaw'] as int?;
+  final accountIndex = args['accountIndex'] as int?;
 
   return createTransactionSync(
       address: address,
@@ -191,10 +203,10 @@ PendingTransactionDescription _createTransactionSync(Map args) {
 }
 
 PendingTransactionDescription _createTransactionMultDestSync(Map args) {
-  final outputs = args['outputs'] as List<MoneroOutput>;
+  final outputs = args['outputs'] as List<WowneroOutput>;
   final paymentId = args['paymentId'] as String;
-  final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
+  final priorityRaw = args['priorityRaw'] as int?;
+  final accountIndex = args['accountIndex'] as int?;
 
   return createTransactionMultDestSync(
       outputs: outputs,
@@ -204,11 +216,11 @@ PendingTransactionDescription _createTransactionMultDestSync(Map args) {
 }
 
 Future<PendingTransactionDescription> createTransaction(
-        {required String address,
-        required int priorityRaw,
-        String? amount,
+        {String? address,
         String paymentId = '',
-        int accountIndex = 0}) =>
+        String? amount,
+        int? priorityRaw,
+        int? accountIndex = 0}) =>
     compute(_createTransactionSync, {
       'address': address,
       'paymentId': paymentId,
@@ -218,10 +230,10 @@ Future<PendingTransactionDescription> createTransaction(
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-    {required List<MoneroOutput> outputs,
-      required int priorityRaw,
-      String paymentId = '',
-      int accountIndex = 0}) =>
+        {List<WowneroOutput>? outputs,
+        String paymentId = '',
+        int? priorityRaw,
+        int? accountIndex = 0}) =>
     compute(_createTransactionMultDestSync, {
       'outputs': outputs,
       'paymentId': paymentId,

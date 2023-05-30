@@ -1,37 +1,44 @@
-import 'package:ew_core/transaction_info.dart';
-import 'package:ew_wownero/wownero_amount_format.dart';
-import 'package:ew_wownero/api/structs/transaction_info_row.dart';
+import 'package:ew_core/format_amount.dart';
 import 'package:ew_core/parseBoolFromString.dart';
 import 'package:ew_core/transaction_direction.dart';
-import 'package:ew_core/format_amount.dart';
+import 'package:ew_core/transaction_info.dart';
+import 'package:ew_wownero/api/structs/transaction_info_row.dart';
 import 'package:ew_wownero/api/transaction_history.dart';
+import 'package:ew_wownero/wownero_amount_format.dart';
 
 class WowneroTransactionInfo extends TransactionInfo {
-  WowneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
-      this.confirmations);
+  WowneroTransactionInfo(
+      this.id,
+      this.height,
+      this.direction,
+      this.date,
+      this.isPending,
+      this.amount,
+      this.accountIndex,
+      this.addressIndex,
+      this.fee);
 
-  WowneroTransactionInfo.fromMap(Map<String, Object?> map)
+  WowneroTransactionInfo.fromMap(Map map)
       : id = (map['hash'] ?? '') as String,
         height = (map['height'] ?? 0) as int,
         direction =
             parseTransactionDirectionFromNumber(map['direction'] as String) ??
                 TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
+            (int.parse(map['timestamp'] as String)) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as int,
-        confirmations = map['confirmations'] as int,
+        addressIndex = map['addressIndex'] as int?,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0 {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+        fee = map['fee'] as int? ?? 0 {
+    additionalInfo = {
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+    confirmations = map['confirmations'] as int;
+  }
 
   WowneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -43,15 +50,15 @@ class WowneroTransactionInfo extends TransactionInfo {
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
-        confirmations = row.confirmations,
         key = getTxKey(row.getHash()),
         fee = row.fee {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = {
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+    confirmations = row.confirmations;
+  }
 
   final String id;
   final int height;
@@ -60,16 +67,16 @@ class WowneroTransactionInfo extends TransactionInfo {
   final int accountIndex;
   final bool isPending;
   final int amount;
-  final int fee;
-  final int addressIndex;
-  final int confirmations;
+  final int? fee;
+  final int? addressIndex;
   String? recipientAddress;
   String? key;
+
   String? _fiatAmount;
 
   @override
   String amountFormatted() =>
-      '${formatAmount(wowneroAmountToString(amount: amount))} WOW';
+      '${formatAmount(wowneroAmountToString(amount: amount!))} WOW';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -79,5 +86,5 @@ class WowneroTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() =>
-      '${formatAmount(wowneroAmountToString(amount: fee))} WOW';
+      '${formatAmount(wowneroAmountToString(amount: fee!))} WOW';
 }

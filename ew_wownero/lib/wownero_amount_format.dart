@@ -15,4 +15,4 @@ double wowneroAmountToDouble({required int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: wowneroAmountDivider);
 
 int wowneroParseAmount({required String amount}) =>
-    (double.parse(amount) * wowneroAmountDivider).round();
+    (double.parse(amount) * wowneroAmountDivider).toInt();

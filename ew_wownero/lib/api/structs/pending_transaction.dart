@@ -1,4 +1,5 @@
 import 'dart:ffi';
+
 import 'package:ffi/ffi.dart';
 
 class PendingTransactionRaw extends Struct {
@@ -15,13 +16,14 @@ class PendingTransactionRaw extends Struct {
 
 class PendingTransactionDescription {
   PendingTransactionDescription({
-    required this.amount,
-    required this.fee,
-    required this.hash,
-    required this.pointerAddress});
+    this.amount,
+    this.fee,
+    this.hash,
+    this.pointerAddress,
+  });
 
-  final int amount;
-  final int fee;
-  final String hash;
-  final int pointerAddress;
+  final int? amount;
+  final int? fee;
+  final String? hash;
+  final int? pointerAddress;
 }

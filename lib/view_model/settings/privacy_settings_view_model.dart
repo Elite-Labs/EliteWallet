@@ -24,6 +24,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get isAppSecure => settingsStore.isAppSecure;
 
+  @computed
+  bool get disableBuy => settingsStore.disableBuy;
+
+  @computed
+  bool get disableSell => settingsStore.disableSell;
+
   @action
   void setShouldSaveRecipientAddress(bool value) => settingsStore.shouldSaveRecipientAddress = value;
 
@@ -35,5 +41,11 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setIsAppSecure(bool value) => settingsStore.isAppSecure = value;
+
+  @action
+  void setDisableBuy(bool value) => settingsStore.disableBuy = value;
+
+  @action
+  void setDisableSell(bool value) => settingsStore.disableSell = value;
 
 }

@@ -9,11 +9,11 @@ import 'package:elite_wallet/src/screens/settings/widgets/settings_choices_cell.
 import 'package:elite_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:elite_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
+import 'package:elite_wallet/utils/device_info.dart';
 import 'package:elite_wallet/view_model/settings/choices_list_item.dart';
 import 'package:elite_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'dart:io' show Platform;
 
 class PrivacyPage extends BasePage {
   PrivacyPage(this._privacySettingsViewModel);
@@ -45,13 +45,13 @@ class PrivacyPage extends BasePage {
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                 }),
-            if (Platform.isAndroid)
-            SettingsSwitcherCell(
-                title: S.current.prevent_screenshots,
-                value: _privacySettingsViewModel.isAppSecure,
-                onValueChange: (BuildContext _, bool value) {
-                  _privacySettingsViewModel.setIsAppSecure(value);
-                }),
+            if (DeviceInfo.instance.isMobile)
+              SettingsSwitcherCell(
+                  title: S.current.prevent_screenshots,
+                  value: _privacySettingsViewModel.isAppSecure,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setIsAppSecure(value);
+                  }),
             SettingsCellWithArrow(
                 title: S.current.settings_select_anonymity,
                 handler: (BuildContext context) =>

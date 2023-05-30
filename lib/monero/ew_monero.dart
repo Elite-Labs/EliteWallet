@@ -161,8 +161,8 @@ class EWMonero extends Monero {
 	}
 
 	@override
-	int getHeigthByDate({required DateTime date}) {
-		return getMoneroHeigthByDate(date: date);
+	int getHeightByDate({required DateTime date}) {
+		return getMoneroHeightByDate(date: date);
 	}
 	
 	@override

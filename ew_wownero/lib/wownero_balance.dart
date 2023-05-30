@@ -1,20 +1,21 @@
 import 'package:ew_core/balance.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ew_wownero/wownero_amount_format.dart';
 
 class WowneroBalance extends Balance {
   WowneroBalance({required this.fullBalance, required this.unlockedBalance})
       : formattedFullBalance = wowneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
-            wowneroAmountToString(amount: unlockedBalance),
+        wowneroAmountToString(amount: unlockedBalance),
         super(unlockedBalance, fullBalance);
 
   WowneroBalance.fromString(
       {required this.formattedFullBalance,
-      required this.formattedUnlockedBalance})
+        required this.formattedUnlockedBalance})
       : fullBalance = wowneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = wowneroParseAmount(amount: formattedUnlockedBalance),
         super(wowneroParseAmount(amount: formattedUnlockedBalance),
-            wowneroParseAmount(amount: formattedFullBalance));
+          wowneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
   final int unlockedBalance;

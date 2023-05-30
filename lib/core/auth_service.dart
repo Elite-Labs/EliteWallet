@@ -79,6 +79,7 @@ class AuthService with Store {
       {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
+
     if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
       if (onAuthSuccess != null) {
         onAuthSuccess(true);
@@ -90,17 +91,22 @@ class AuthService with Store {
       }
       return;
     }
+
+    
     Navigator.of(context).pushNamed(Routes.auth,
         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
         onAuthSuccess?.call(false);
         return;
-      }
-      if (onAuthSuccess != null) {
-        auth.close().then((value) => onAuthSuccess.call(true));
       } else {
-        auth.close(route: route, arguments: arguments);
+        if (onAuthSuccess != null) {
+          auth.close().then((value) => onAuthSuccess.call(true));
+        } else {
+          auth.close(route: route, arguments: arguments);
+        }
       }
-    });
+      
+      });
+  
   }
 }

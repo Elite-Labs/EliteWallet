@@ -1,8 +1,8 @@
 class CreationTransactionException implements Exception {
-  CreationTransactionException({required this.message});
+  CreationTransactionException({this.message});
   
-  final String message;
+  final String? message;
 
   @override
-  String toString() => message;
+  String toString() => message!;
 }

@@ -19,9 +19,9 @@ abstract class WowneroTransactionHistoryBase
 
   @override
   void addOne(WowneroTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+      transactions![transaction.id] = transaction;
 
   @override
   void addMany(Map<String, WowneroTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
+      this.transactions!.addAll(transactions);
 }

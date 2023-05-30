@@ -12,31 +12,33 @@ class WowneroWalletAddresses = WowneroWalletAddressesBase
     with _$WowneroWalletAddresses;
 
 abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
-  WowneroWalletAddressesBase(WalletInfo walletInfo)
-    : accountList = WowneroAccountList(),
-      subaddressList = WowneroSubaddressList(),
-      address = '',
-      super(walletInfo);
+  WowneroWalletAddressesBase(WalletInfo walletInfo) 
+      : address = '',
+        super(walletInfo) {
+
+    accountList = WowneroAccountList();
+    subaddressList = WowneroSubaddressList();
+  }
 
   @override
   @observable
   String address;
-  
+
   @observable
   Account? account;
 
   @observable
   Subaddress? subaddress;
 
-  WowneroSubaddressList subaddressList;
+  late WowneroSubaddressList subaddressList;
 
-  WowneroAccountList accountList;
+  late WowneroAccountList accountList;
 
   @override
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.first;
-    updateSubaddressList(accountIndex: account?.id ?? 0);
+    updateSubaddressList(accountIndex: account!.id ?? 0);
     await updateAddressesInBox();
   }
 
@@ -45,12 +47,12 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
     try {
       final _subaddressList = WowneroSubaddressList();
 
-      addressesMap.clear();
+      addressesMap!.clear();
 
       accountList.accounts.forEach((account) {
         _subaddressList.update(accountIndex: account.id);
-        _subaddressList.subaddresses.forEach((subaddress) {
-          addressesMap[subaddress.address] = subaddress.label;
+        _subaddressList.subaddresses!.forEach((subaddress) {
+          addressesMap![subaddress.address!] = subaddress.label!;
         });
       });
 
@@ -62,14 +64,14 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
   bool validate() {
     accountList.update();
-    final accountListLength = accountList.accounts.length ?? 0;
+    final accountListLength = accountList.accounts.length;
 
     if (accountListLength <= 0) {
       return false;
     }
 
     subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses.length ?? 0;
+    final subaddressListLength = subaddressList.subaddresses?.length ?? 0;
 
     if (subaddressListLength <= 0) {
       return false;
@@ -78,9 +80,9 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
     return true;
   }
 
-  void updateSubaddressList({required int accountIndex}) {
+  void updateSubaddressList({int? accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    subaddress = subaddressList.subaddresses.first;
+    subaddress = subaddressList.subaddresses!.first;
     address = subaddress!.address;
   }
 }

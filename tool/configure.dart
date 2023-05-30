@@ -225,7 +225,7 @@ abstract class Monero {
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 
-  int getHeigthByDate({required DateTime date});
+  int getHeightByDate({required DateTime date});
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getMoneroTransactionPrioritySlow();
   TransactionPriority getMoneroTransactionPriorityAutomatic();
@@ -490,6 +490,7 @@ import 'package:elite_wallet/view_model/send/output.dart';
 import 'package:ew_core/wallet_service.dart';
 import 'package:hive/hive.dart';""";
   const wowneroEWHeaders = """
+import 'package:ew_core/get_height_by_date.dart';
 import 'package:ew_core/monero_amount_format.dart';
 import 'package:ew_core/monero_transaction_priority.dart';
 import 'package:ew_wownero/wownero_amount_format.dart';
@@ -565,6 +566,8 @@ abstract class Wownero {
   WowneroWalletDetails getWowneroWalletDetails(Object wallet);
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
+
+  int getHeightByDate({required DateTime date});
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 

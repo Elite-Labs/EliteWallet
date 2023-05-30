@@ -27,6 +27,7 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
   if (currentWalletName != null) {
     authenticationStore.installed();
   }
+  ++settingsStore.userExperience;
 
   startAuthenticationStateChange(authenticationStore, navigatorKey);
   startCurrentWalletChangeReaction(

@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:ew_wownero/api/structs/ut8_box.dart';
+
 import 'package:ew_wownero/api/convert_utf8_to_string.dart';
+import 'package:ew_wownero/api/exceptions/setup_wallet_exception.dart';
 import 'package:ew_wownero/api/signatures.dart';
+import 'package:ew_wownero/api/structs/ut8_box.dart';
 import 'package:ew_wownero/api/types.dart';
 import 'package:ew_wownero/api/wownero_api.dart';
-import 'package:ew_wownero/api/exceptions/setup_wallet_exception.dart';
+import 'package:ffi/ffi.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
@@ -72,8 +73,9 @@ final setRecoveringFromSeedNative = wowneroApi
 final storeNative =
     wowneroApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
 
-final setPasswordNative =
-    wowneroApi.lookup<NativeFunction<set_password>>('set_password').asFunction<SetPassword>();
+final setPasswordNative = wowneroApi
+    .lookup<NativeFunction<set_password>>('set_password')
+    .asFunction<SetPassword>();
 
 final setListenerNative = wowneroApi
     .lookup<NativeFunction<set_listener>>('set_listener')
@@ -132,6 +134,10 @@ final trustedDaemonNative = wowneroApi
     .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
     .asFunction<TrustedDaemon>();
 
+final validateAddressNative = wowneroApi
+    .lookup<NativeFunction<validate_address>>('validate_address')
+    .asFunction<ValidateAddress>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -145,10 +151,10 @@ String getSeed() => convertUTF8ToString(pointer: getSeedNative());
 String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
     convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
 
-int getFullBalance({int accountIndex = 0}) =>
+int getFullBalance({int? accountIndex = 0}) =>
     getFullBalanceNative(accountIndex);
 
-int getUnlockedBalance({int accountIndex = 0}) =>
+int getUnlockedBalance({int? accountIndex = 0}) =>
     getUnlockedBalanceNative(accountIndex);
 
 int getCurrentHeight() => getCurrentHeightNative();
@@ -158,7 +164,7 @@ int getNodeHeightSync() => getNodeHeightNative();
 int getSeedHeightSync(String seed) {
   final seedPointer = seed.toNativeUtf8();
   final ret = getSeedHeightNative(seedPointer);
-  calloc.free(seedPointer);
+  pkgffi.calloc.free(seedPointer);
   return ret;
 }
 
@@ -170,6 +176,7 @@ bool setupNodeSync(
     String? password,
     bool useSSL = false,
     bool isLightWallet = false}) {
+  print("SetupNodeSync begin");
   final addressPointer = address.toNativeUtf8();
   Pointer<Utf8>? loginPointer;
   Pointer<Utf8>? passwordPointer;
@@ -182,7 +189,8 @@ bool setupNodeSync(
     passwordPointer = password.toNativeUtf8();
   }
 
-  final errorMessagePointer = ''.toNativeUtf8();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
   final isSetupNode = setupNodeNative(
           addressPointer,
           loginPointer!,
@@ -192,20 +200,15 @@ bool setupNodeSync(
           errorMessagePointer) !=
       0;
 
-  calloc.free(addressPointer);
-
-  if (loginPointer != null) {
-    calloc.free(loginPointer);
-  }
-
-  if (passwordPointer != null) {
-    calloc.free(passwordPointer);
-  }
+  pkgffi.calloc.free(addressPointer);
+  pkgffi.calloc.free(loginPointer);
+  pkgffi.calloc.free(passwordPointer);
 
   if (!isSetupNode) {
     throw SetupWalletException(
         message: convertUTF8ToString(pointer: errorMessagePointer));
   }
+  print("setup nodesync end");
 
   return isSetupNode;
 }
@@ -214,8 +217,8 @@ void startRefreshSync() => startRefreshNative();
 
 Future<bool> connectToNode() async => connecToNodeNative() != 0;
 
-void setRefreshFromBlockHeight({required int height}) =>
-    setRefreshFromBlockHeightNative(height);
+void setRefreshFromBlockHeight({int? height = 0}) =>
+    setRefreshFromBlockHeightNative(height ?? 0);
 
 void setRecoveringFromSeed({required bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
@@ -223,22 +226,24 @@ void setRecoveringFromSeed({required bool isRecovery}) =>
 void storeSync() {
   final pathPointer = ''.toNativeUtf8();
   storeNative(pathPointer);
-  calloc.free(pathPointer);
+  pkgffi.calloc.free(pathPointer);
 }
 
 void setPasswordSync(String password) {
   final passwordPointer = password.toNativeUtf8();
-  final errorMessagePointer = calloc<Utf8Box>();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
+  // final errorMessagePointer = allocate<Utf8Box>();
   final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
-  calloc.free(passwordPointer);
-  
+  pkgffi.calloc.free(passwordPointer);
+
   if (!changed) {
     final message = errorMessagePointer.ref.getValue();
-    calloc.free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw Exception(message);
   }
 
-  calloc.free(errorMessagePointer);
+  pkgffi.calloc.free(errorMessagePointer);
 }
 
 void closeCurrentWallet() => closeCurrentWalletNative();
@@ -256,21 +261,22 @@ String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
 class SyncListener {
-  SyncListener(this.onNewBlock, this.onNewTransaction)
-    : _cachedBlockchainHeight = 0,
-      _lastKnownBlockHeight = 0,
-      _initialSyncHeight = 0;
+  SyncListener(this.onNewBlock, this.onNewTransaction) {
+    _cachedBlockchainHeight = 0;
+    _lastKnownBlockHeight = 0;
+    _initialSyncHeight = 0;
+  }
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
 
   Timer? _updateSyncInfoTimer;
-  int _cachedBlockchainHeight;
-  int _lastKnownBlockHeight;
-  int _initialSyncHeight;
+  int? _cachedBlockchainHeight;
+  int? _lastKnownBlockHeight;
+  late int _initialSyncHeight;
 
-  Future<int> getNodeHeightOrUpdate(int baseHeight) async {
-    if (_cachedBlockchainHeight < baseHeight || _cachedBlockchainHeight == 0) {
+  Future<int?> getNodeHeightOrUpdate(int baseHeight) async {
+    if (_cachedBlockchainHeight! < baseHeight || _cachedBlockchainHeight == 0) {
       _cachedBlockchainHeight = await getNodeHeight();
     }
 
@@ -284,7 +290,7 @@ class SyncListener {
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
-        onNewTransaction?.call();
+        onNewTransaction.call();
       }
 
       var syncHeight = getSyncingHeight();
@@ -304,7 +310,7 @@ class SyncListener {
       }
 
       _lastKnownBlockHeight = syncHeight;
-      final track = bchHeight - _initialSyncHeight;
+      final track = bchHeight! - _initialSyncHeight;
       final diff = track - (bchHeight - syncHeight);
       final ptc = diff <= 0 ? 0.0 : diff / track;
       final left = bchHeight - syncHeight;
@@ -314,7 +320,7 @@ class SyncListener {
       }
 
       // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-      onNewBlock?.call(syncHeight, left, ptc);
+      onNewBlock.call(syncHeight, left, ptc);
     });
   }
 
@@ -353,8 +359,8 @@ int _getNodeHeight(Object _) => getNodeHeightSync();
 
 void startRefresh() => startRefreshSync();
 
-Future<void> setupNode(
-        {required String address,
+Future setupNode(
+        {String? address,
         String? login,
         String? password,
         bool useSSL = false,
@@ -367,7 +373,30 @@ Future<void> setupNode(
       'isLightWallet': isLightWallet
     });
 
-Future<void> store() => compute<int, void>(_storeSync, 0);
+int storeTime = 0;
+bool priorityInQueue = false;
+
+Future<bool> store({bool prioritySave = false}) async {
+  if (priorityInQueue) {
+    return false;
+  }
+  print(
+      "${DateTime.now().millisecondsSinceEpoch} $prioritySave $priorityInQueue");
+  if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
+      prioritySave) {
+    priorityInQueue = true;
+    await Future.delayed(Duration(seconds: 1));
+    priorityInQueue = false;
+    return store(prioritySave: prioritySave);
+  } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 90000 &&
+      !prioritySave) {
+    return false;
+  }
+  print("released $storeTime");
+  storeTime = DateTime.now().millisecondsSinceEpoch;
+  await compute<int, void>(_storeSync, 0);
+  return true;
+}
 
 Future<bool> isConnected() => compute(_isConnected, 0);
 
@@ -376,9 +405,18 @@ Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
 
 String getSubaddressLabel(int accountIndex, int addressIndex) {
-  return convertUTF8ToString(pointer: getSubaddressLabelNative(accountIndex, addressIndex));
+  return convertUTF8ToString(
+      pointer: getSubaddressLabelNative(accountIndex, addressIndex));
 }
 
-Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
+Future setTrustedDaemon(bool trusted) async =>
+    setTrustedDaemonNative(_boolToInt(trusted));
 
 Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;
+
+bool validateAddress(String address) {
+  final addressPointer = address.toNativeUtf8();
+  final valid = validateAddressNative(addressPointer) != 0;
+  pkgffi.calloc.free(addressPointer);
+  return valid;
+}

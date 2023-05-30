@@ -80,7 +80,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryTextTheme!.headline6!.color!),
+                  color:
+                      Theme.of(context).primaryTextTheme!.titleLarge!.color!),
             ),
           ),
           Row(
@@ -124,7 +125,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         lastDate: now);
 
     if (date != null) {
-      final height = monero!.getHeigthByDate(date: date);
+      final height = monero!.getHeightByDate(date: date);
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';

@@ -1,0 +1,14 @@
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 240c796c2..e5e360251 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -434,6 +434,9 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
+ 
+     m_refreshIntervalMillis = DEFAULT_REFRESH_INTERVAL_MILLIS;
+ 
++    m_refreshThread = boost::thread([this] () {
++        this->refreshThreadFunc();
++    });
+ }
+ 
+ WalletImpl::~WalletImpl()

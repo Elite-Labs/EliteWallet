@@ -89,7 +89,7 @@ final dates = {
   "2020-11": 2220000
 };
 
-int getMoneroHeigthByDate({required DateTime date}) {
+int getMoneroHeightByDate({required DateTime date}) {
   final raw = '${date.year}' + '-' + '${date.month}';
   final lastHeight = dates.values.last;
   int startHeight;
@@ -124,6 +124,8 @@ int getMoneroHeigthByDate({required DateTime date}) {
 }
 
 const havenDates = {
+  "2023-05": 1352995,
+  "2023-04": 1331460,
   "2023-03": 1309180,
   "2023-01": 1266810,
   "2022-12": 1244510,
@@ -204,4 +206,97 @@ Future<int> getHavenCurrentHeight() async {
   } else {
     throw Exception('Failed to load current blockchain height');
   }
+}
+
+final wowneroDates = {
+  "2018-05": 8725,
+  "2018-06": 17533,
+  "2018-07": 25981,
+  "2018-08": 34777,
+  "2018-09": 43633,
+  "2018-10": 52165,
+  "2018-11": 60769,
+  "2018-12": 66817,
+  "2019-01": 72769,
+  "2019-02": 78205,
+  "2019-03": 84805,
+  "2019-04": 93649,
+  "2019-05": 102277,
+  "2019-06": 111193,
+  "2019-07": 119917,
+  "2019-08": 128797,
+  "2019-09": 137749,
+  "2019-10": 146377,
+  "2019-11": 155317,
+  "2019-12": 163933,
+  "2020-01": 172861,
+  "2020-02": 181801,
+  "2020-03": 190141,
+  "2020-04": 199069,
+  "2020-05": 207625,
+  "2020-06": 216385,
+  "2020-07": 224953,
+  "2020-08": 233869,
+  "2020-09": 242773,
+  "2020-10": 251401,
+  "2020-11": 260365,
+  "2020-12": 269077,
+  "2021-01": 278017,
+  "2021-02": 286945,
+  "2021-03": 295033,
+  "2021-04": 303949,
+  "2021-05": 312637,
+  "2021-06": 321601,
+  "2021-07": 330277,
+  "2021-08": 340093,
+  "2021-09": 349141,
+  "2021-10": 357625,
+  "2021-11": 366433,
+  "2021-12": 374869,
+  "2022-01": 383713,
+  "2022-02": 392389,
+  "2022-03": 400525,
+  "2022-04": 409441,
+  "2022-05": 417913,
+  "2022-06": 426769,
+  "2022-07": 435205,
+  "2022-08": 444157,
+  "2022-09": 453157,
+  "2022-10": 461737,
+  "2022-11": 470617
+};
+
+int getWowneroHeightByDate({required DateTime date}) {
+  final raw = '${date.year}' + '-' + '${date.month}';
+  final lastHeight = wowneroDates.values.last;
+  int startHeight;
+  int endHeight;
+  int height = 0;
+
+  try {
+    if ((wowneroDates[raw] == null) || (wowneroDates[raw] == lastHeight)) {
+      startHeight = wowneroDates.values.toList()[wowneroDates.length - 2];
+      endHeight = wowneroDates.values.toList()[wowneroDates.length - 1];
+      final heightPerDay = (endHeight - startHeight) / 31;
+      final endDateRaw =
+          wowneroDates.keys.toList()[wowneroDates.length - 1].split('-');
+      final endYear = int.parse(endDateRaw[0]);
+      final endMonth = int.parse(endDateRaw[1]);
+      final endDate = DateTime(endYear, endMonth);
+      final differenceInDays = date.difference(endDate).inDays;
+      final daysHeight = (differenceInDays * heightPerDay).round();
+      height = endHeight + daysHeight;
+    } else {
+      startHeight = wowneroDates[raw]!;
+      final index = wowneroDates.values.toList().indexOf(startHeight);
+      endHeight = wowneroDates.values.toList()[index + 1];
+      final heightPerDay = ((endHeight - startHeight) / 31).round();
+      final daysHeight = (date.day - 1) * heightPerDay;
+      height = startHeight + daysHeight - heightPerDay;
+    }
+  } catch (e) {
+    print(e.toString());
+  }
+
+  return height;
 }

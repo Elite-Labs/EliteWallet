@@ -159,6 +159,11 @@ class EWWownero extends Wownero {
 		return EWWowneroWalletDetails(wallet);
 	}
 
+	@override
+	int getHeightByDate({required DateTime date}) {
+		return getWowneroHeightByDate(date: date);
+	}
+	
   @override
 	TransactionPriority getDefaultTransactionPriority() {
 		return MoneroTransactionPriority.automatic;

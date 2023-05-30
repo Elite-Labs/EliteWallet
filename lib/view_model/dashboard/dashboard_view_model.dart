@@ -18,6 +18,7 @@ import 'package:elite_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:elite_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:elite_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:mobx/mobx.dart';
+import 'dart:io' show Platform;
 import 'package:ew_core/wallet_base.dart';
 import 'package:ew_core/sync_status.dart';
 import 'package:ew_core/wallet_type.dart';
@@ -46,9 +47,7 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore})
   : isOutdatedElectrumWallet = false,
     hasSellAction = false,
-    isEnabledSellAction = false,
     hasBuyAction = false,
-    isEnabledBuyAction = false,
     hasExchangeAction = false,
     isShowFirstYatIntroduction = false,
     isShowSecondYatIntroduction = false,
@@ -274,14 +273,19 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool hasExchangeAction;
 
-  @observable
-  bool isEnabledBuyAction;
+  @computed
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && wallet.type != WalletType.haven;
 
   @observable
   bool hasBuyAction;
 
-  @observable
-  bool isEnabledSellAction;
+  @computed
+  bool get isEnabledSellAction =>
+      !settingsStore.disableSell &&
+      wallet.type != WalletType.haven &&
+      wallet.type != WalletType.monero &&
+      wallet.type != WalletType.litecoin;
 
   @observable
   bool hasSellAction;
@@ -392,15 +396,9 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    hasExchangeAction = !isHaven && wallet.type != WalletType.haven;
-    isEnabledBuyAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero
-      && wallet.type != WalletType.wownero;
-    hasBuyAction = !isMoneroOnly && !isHaven && !isWownero;
-    isEnabledSellAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero
-      && wallet.type != WalletType.wownero
-      && wallet.type != WalletType.litecoin;
-    hasSellAction = !isMoneroOnly && !isHaven && !isWownero;
+    hasExchangeAction = !isHaven && wallet.type != WalletType.haven && 
+      (Platform.isAndroid || settingsStore.userExperience > 5);
+    hasBuyAction = false;
+    hasSellAction = false;
   }
 }

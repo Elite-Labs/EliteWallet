@@ -1,16 +1,31 @@
 import 'dart:ffi';
+
 import 'package:ew_wownero/api/structs/pending_transaction.dart';
 import 'package:ew_wownero/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 
-typedef create_wallet = Int8 Function(
+typedef create_14_word_wallet = Int8 Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
 
-typedef restore_wallet_from_seed = Int8 Function(
+typedef create_25_word_wallet = Int8 Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
 
-typedef restore_wallet_from_keys = Int8 Function(Pointer<Utf8>, Pointer<Utf8>,
-    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Int64, Pointer<Utf8>);
+typedef restore_wallet_from_14_word_seed = Int8 Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
+
+typedef restore_wallet_from_25_word_seed = Int8 Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
+
+typedef restore_wallet_from_keys = Int8 Function(
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Int32,
+    Int64,
+    Pointer<Utf8>);
 
 typedef is_wallet_exist = Int8 Function(Pointer<Utf8>);
 
@@ -41,7 +56,7 @@ typedef get_seed_height = Int64 Function(Pointer<Utf8>);
 typedef is_connected = Int8 Function();
 
 typedef setup_node = Int8 Function(
-    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, Int8, Int8, Pointer<Utf8>);
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int8, Int8, Pointer<Utf8>);
 
 typedef start_refresh = Void Function();
 
@@ -53,7 +68,8 @@ typedef set_recovering_from_seed = Void Function(Int8);
 
 typedef store_c = Void Function(Pointer<Utf8>);
 
-typedef set_password = Int8 Function(Pointer<Utf8> password, Pointer<Utf8Box> error);
+typedef set_password = Int8 Function(
+    Pointer<Utf8> password, Pointer<Utf8Box> error);
 
 typedef set_listener = Void Function();
 
@@ -88,7 +104,7 @@ typedef account_set_label = Void Function(
 
 typedef transactions_refresh = Void Function();
 
-typedef get_tx_key = Pointer<Utf8>? Function(Pointer<Utf8> txId);
+typedef get_tx_key = Pointer<Utf8> Function(Pointer<Utf8> txId);
 
 typedef transactions_count = Int64 Function();
 
@@ -113,7 +129,8 @@ typedef transaction_create_mult_dest = Int8 Function(
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
-typedef transaction_commit = Int8 Function(Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
+typedef transaction_commit = Int8 Function(
+    Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
 
 typedef secret_view_key = Pointer<Utf8> Function();
 
@@ -130,9 +147,10 @@ typedef on_startup = Void Function();
 typedef rescan_blockchain = Void Function();
 
 typedef get_subaddress_label = Pointer<Utf8> Function(
-    Int32 accountIndex,
-    Int32 addressIndex);
+    Int32 accountIndex, Int32 addressIndex);
 
 typedef set_trusted_daemon = Void Function(Int8 trusted);
 
 typedef trusted_daemon = Int8 Function();
+
+typedef validate_address = Int8 Function(Pointer<Utf8> address);

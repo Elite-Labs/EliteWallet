@@ -1,8 +1,8 @@
 class WalletCreationException implements Exception {
-  WalletCreationException({required this.message});
+  WalletCreationException({this.message});
 
-  final String message;
+  final String? message;
 
   @override
-  String toString() => message;
+  String toString() => message!;
 }

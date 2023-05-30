@@ -4,3 +4,7 @@
 [submodule ".vendor/inject.dart"]
 	path = .vendor/inject.dart
 	url = https://github.com/google/inject.dart
+[submodule ".flutter"]
+	path = .flutter
+	url = https://github.com/flutter/flutter.git
+	commit = f72efea43c3013323d1b95cff571f3c1caa37583

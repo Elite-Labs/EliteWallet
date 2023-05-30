@@ -11,6 +11,8 @@ class PreferencesKey {
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
+  static const disableBuyKey = 'disable_buy';
+  static const disableSellKey = 'disable_sell';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const proxyEnabledKey = 'proxy_enabled';
   static const proxyIPAddressKey = 'proxy_ip_address';
@@ -21,6 +23,9 @@ class PreferencesKey {
   static const portScanEnabledKey = 'proxy_port_scan_enabled';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
+  static const useTOTP2FA = 'use_totp_2fa';
+  static const failedTotpTokenTrials = 'failed_token_trials';
+  static const totpSecretKey = 'totp_qr_secret_key';
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
@@ -56,4 +61,5 @@ class PreferencesKey {
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const selectNodeAutomatically = 'select_node_automatically';
+  static const userExperience = 'user_experience';
 }

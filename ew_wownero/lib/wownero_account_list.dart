@@ -48,12 +48,12 @@ abstract class WowneroAccountListBase with Store {
         label: accountRow.getLabel()))
       .toList();
 
-  Future<void> addAccount({required String label}) async {
+  Future addAccount({String? label}) async {
     await account_list.addAccount(label: label);
     update();
   }
 
-  Future<void> setLabelAccount({required int accountIndex, required String label}) async {
+  Future setLabelAccount({int? accountIndex, String? label}) async {
     await account_list.setLabelForAccount(
         accountIndex: accountIndex, label: label);
     update();

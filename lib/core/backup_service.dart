@@ -217,6 +217,8 @@ class BackupService {
     final proxyPassword = data[PreferencesKey.proxyPasswordKey] as String?;
     final portScanEnabled = data[PreferencesKey.portScanEnabledKey] as bool?;
     final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
+    final disableBuy = data[PreferencesKey.disableBuyKey] as bool?;
+    final disableSell = data[PreferencesKey.disableSellKey] as bool?;
     final currentTransactionPriorityKeyLegacy = data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
     final allowBiometricalAuthentication = data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
     final currentBitcoinElectrumSererId = data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
@@ -293,6 +295,16 @@ class BackupService {
       await _sharedPreferences.setBool(
         PreferencesKey.isAppSecureKey,
         isAppSecure);
+
+    if (disableBuy != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.disableBuyKey,
+          disableBuy);
+
+    if (disableSell != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.disableSellKey,
+          disableSell);
 
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
@@ -482,6 +494,10 @@ class BackupService {
           .getString(PreferencesKey.proxyPasswordKey),
       PreferencesKey.portScanEnabledKey: _sharedPreferences
           .getBool(PreferencesKey.portScanEnabledKey),
+      PreferencesKey.disableBuyKey: _sharedPreferences
+          .getBool(PreferencesKey.disableBuyKey),
+      PreferencesKey.disableSellKey: _sharedPreferences
+          .getBool(PreferencesKey.disableSellKey),
       PreferencesKey.isDarkThemeLegacy:
           _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
       PreferencesKey.currentPinLength:
