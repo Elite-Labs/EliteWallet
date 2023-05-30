@@ -25,13 +25,13 @@ class Modify2FAPage extends BasePage {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SettingsCellWithArrow(
-              title: S.current.disable_cake_2fa,
+              title: S.current.disable_elite_2fa,
               handler: (_) async {
                 await showPopUp<void>(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertWithTwoActions(
-                      alertTitle: S.current.disable_cake_2fa,
+                      alertTitle: S.current.disable_elite_2fa,
                       alertContent: S.current.question_to_disable_2fa,
                       leftButtonText: S.current.cancel,
                       rightButtonText: S.current.disable,
