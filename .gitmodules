@@ -6,5 +6,5 @@
 	url = https://github.com/google/inject.dart
 [submodule ".flutter"]
 	path = .flutter
-	url = https://github.com/flutter/flutter.git
+	url = https://github.com/flutter/flutter
 	commit = f72efea43c3013323d1b95cff571f3c1caa37583
