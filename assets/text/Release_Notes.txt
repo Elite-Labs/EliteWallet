@@ -1,4 +1,4 @@
-Automatically Select Available Node
-Improved Connectivity with Existing Nodes
-Faster Transaction Processing
-Bugfixes
+Update monero to v0.18.2.2
+Wownero connectivity bugfix
+Add flutter as submodule
+GUI improvements
