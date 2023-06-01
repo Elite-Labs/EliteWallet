@@ -2,8 +2,6 @@
 
 . ./config.sh
 
-EXPAT_VERSION=R_2_4_8
-EXPAT_HASH="3bab6c09bbe8bf42d84b81563ddbcf4cca4be838"
 EXPAT_SRC_DIR=$WORKDIR/libexpat
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
@@ -12,13 +10,11 @@ PREFIX=$WORKDIR/prefix_${arch}
 TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
 PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
-cd $WORKDIR
-rm -rf $EXPAT_SRC_DIR
-git clone ${LOCAL_GIT_REPOS}/libexpat -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
 cd $EXPAT_SRC_DIR
-git fetch
-git reset --hard ${EXPAT_VERSION}
-test `git rev-parse HEAD` = ${EXPAT_HASH} || exit 1
+git submodule update --init --force
+git checkout .
+git clean -fdx
+
 cd $EXPAT_SRC_DIR/expat
 
 case $arch in
@@ -33,8 +29,6 @@ make -j$THREADS
 make -j$THREADS install
 done
 
-UNBOUND_VERSION=release-1.16.2
-UNBOUND_HASH="cbed768b8ff9bfcf11089a5f1699b7e5707f1ea5"
 UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
@@ -48,14 +42,14 @@ case $arch in
 esac 
 
 PATH="${TOOLCHAIN_BIN_PATH}:${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
-echo $PATH
-cd $WORKDIR
-rm -rf $UNBOUND_SRC_DIR
-git clone ${LOCAL_GIT_REPOS}/unbound -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
 cd $UNBOUND_SRC_DIR
-git fetch
-git reset --hard ${UNBOUND_HASH}
-test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
+git submodule update --init --force
+git checkout .
+git clean -fdx
+rm -rf contrib/unbound_smf23.tar.gz
+rm -rf contrib/libunbound.so.conf
+rm -rf contrib/unbound_cacti.tar.gz
+rm -rf winrc/gen_msg.bin
 
 case $arch in
 	"aarch")   HOST="arm-linux-androideabi";;

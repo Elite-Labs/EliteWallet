@@ -2,17 +2,11 @@
 
 . ./config.sh
 
-SEED_VERSION=0.3.0
 SEED_SRC_DIR="${EXTERNAL_IOS_SOURCE_DIR}/seed"
-SEED_URL="${LOCAL_GIT_REPOS}/wownero-seed"
-SEED_SHA_HEAD="ef6910b6bb3b61757c36e2e5db0927d75f1731c8"
 
-rm -rf "$SEED_SRC_DIR" > /dev/null
-
-echo "[*] cloning $SEED_URL"
-git clone --branch ${SEED_VERSION} ${SEED_URL} ${SEED_SRC_DIR}
 cd $SEED_SRC_DIR
-git reset --hard $SEED_SHA_HEAD
+git checkout .
+git clean -fdx
 
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}

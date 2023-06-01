@@ -2,30 +2,17 @@
 
 . ./config.sh
 
-MONERO_URL="${LOCAL_GIT_REPOS}/monero"
 MONERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/monero"
-MONERO_VERSION=release-v0.18.2.2
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/monero
 DEST_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR}/monero
 
-echo "Cloning monero from - $MONERO_URL to - $MONERO_DIR_PATH"		
-git clone $MONERO_URL $MONERO_DIR_PATH
 cd $MONERO_DIR_PATH
-git fetch
-git checkout .
-git reset --hard HEAD
-git checkout $MONERO_VERSION
-
-LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/tevador\/RandomX/${LOCAL_GIT_REPOS_FORMATTED}\/RandomX/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
-
 git submodule update --init --force
+git checkout .
+git clean -fdx
+
 mkdir -p build
 cd ..
 

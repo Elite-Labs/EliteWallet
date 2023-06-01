@@ -1,10 +1,45 @@
-[submodule "inject.dart"]
-	path = inject.dart
-	url = https://github.com/google/inject.dart
-[submodule ".vendor/inject.dart"]
-	path = .vendor/inject.dart
-	url = https://github.com/google/inject.dart
 [submodule ".flutter"]
 	path = .flutter
 	url = https://github.com/flutter/flutter
-	commit = f72efea43c3013323d1b95cff571f3c1caa37583
+[submodule "ew_shared_external/ios/External/sources/libexpat"]
+	path = ew_shared_external/ios/External/sources/libexpat
+	url = https://github.com/libexpat/libexpat.git
+[submodule "ew_shared_external/ios/External/sources/unbound-1.16.2"]
+	path = ew_shared_external/ios/External/sources/unbound-1.16.2
+	url = https://github.com/NLnetLabs/unbound.git
+[submodule "ew_shared_external/ios/External/sources/openssl-1.1.1q"]
+	path = ew_shared_external/ios/External/sources/openssl-1.1.1q
+	url = https://github.com/openssl/openssl
+[submodule "ew_shared_external/ios/External/sources/zlib"]
+	path = ew_shared_external/ios/External/sources/zlib
+	url = https://github.com/madler/zlib
+[submodule "ew_shared_external/ios/External/sources/libsodium"]
+	path = ew_shared_external/ios/External/sources/libsodium
+	url = https://github.com/jedisct1/libsodium.git
+[submodule "ew_shared_external/ios/External/sources/libzmq"]
+	path = ew_shared_external/ios/External/sources/libzmq
+	url = https://github.com/zeromq/libzmq.git
+[submodule "ew_shared_external/ios/External/sources/monero"]
+	path = ew_shared_external/ios/External/sources/monero
+	url = https://github.com/cake-tech/monero.git
+[submodule "ew_shared_external/ios/External/sources/haven"]
+	path = ew_shared_external/ios/External/sources/haven
+	url = https://github.com/haven-protocol-org/haven-main.git
+[submodule "ew_shared_external/ios/External/sources/seed"]
+	path = ew_shared_external/ios/External/sources/seed
+	url = https://git.wownero.com/wowlet/wownero-seed
+[submodule "ew_shared_external/ios/External/sources/boost-ios"]
+	path = ew_shared_external/ios/External/sources/boost-ios
+	url = https://github.com/cake-tech/Apple-Boost-BuildScript.git
+[submodule "ew_shared_external/ios/External/sources/openssl-ios"]
+	path = ew_shared_external/ios/External/sources/openssl-ios
+	url = https://github.com/x2on/OpenSSL-for-iPhone.git
+[submodule "ew_shared_external/ios/External/sources/wownero"]
+	path = ew_shared_external/ios/External/sources/wownero
+	url = https://git.wownero.com/wownero/wownero
+[submodule "ew_shared_external/ios/External/sources/libiconv-1.17"]
+	path = ew_shared_external/ios/External/sources/libiconv-1.17
+	url = git://git.savannah.gnu.org/libiconv.git
+[submodule "ew_shared_external/ios/External/sources/boost_1_72_0"]
+	path = ew_shared_external/ios/External/sources/boost_1_72_0
+	url = https://github.com/boostorg/boost

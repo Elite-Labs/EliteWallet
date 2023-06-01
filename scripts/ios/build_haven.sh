@@ -2,31 +2,17 @@
 
 . ./config.sh
 
-HAVEN_URL="${LOCAL_GIT_REPOS}/haven"
 HAVEN_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/haven"
-HAVEN_VERSION=tags/v3.0.7
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/haven
 DEST_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR}/haven
 
-echo "Cloning haven from - $HAVEN_URL to - $HAVEN_DIR_PATH"		
-git clone $HAVEN_URL $HAVEN_DIR_PATH
 cd $HAVEN_DIR_PATH
-git fetch
-git checkout .
-git reset --hard HEAD
-git checkout $HAVEN_VERSION
-
-LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/monero-project\/unbound/${LOCAL_GIT_REPOS_FORMATTED}\/unbound-haven/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/monero-project\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp-haven/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/tevador\/RandomX/${LOCAL_GIT_REPOS_FORMATTED}\/RandomX/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/haven-protocol-org\/haven-blockchain-explorer.git/${LOCAL_GIT_REPOS_FORMATTED}\/haven-blockchain-explorer/g" .gitmodules
-
 git submodule update --init --force
+git checkout .
+git clean -fdx
+
 mkdir -p build
 sed -i -e 's/ifdef TARGET_OS_OSX/ifndef TARGET_OS_OSX/g' external/randomx/src/virtual_memory.cpp
 cd ..

@@ -77,7 +77,7 @@ EliteWallet cannot be built without the following packages installed on your bui
 
 You may easily install them on your build system with the following command:
 
-`$ sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake openjdk-8-jre-headless clang bison byacc`
+`$ sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake openjdk-8-jre-headless clang bison byacc gperf groff`
 
 ### 2. Installing Android Studio and Android toolchain
 

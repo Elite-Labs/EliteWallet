@@ -111,7 +111,13 @@ ios/build
 *.sublime-project
 
 shared_external/**
-ew_shared_external/ios/External/
+ew_shared_external/ios/External/android
+ew_shared_external/ios/External/ios
+ew_shared_external/ios/External/macos
+ew_shared_external/ios/External/sources/elite_wallet_data
+ew_shared_external/ios/External/sources/android-ndk*
+ew_shared_external/ios/External/sources/prefix_*
+ew_shared_external/ios/External/sources/toolchain_*
 # ew_haven/**
 ew_haven/ios/External/
 ew_haven/android/.externalNativeBuild/

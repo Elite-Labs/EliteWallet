@@ -11,10 +11,7 @@ DEST_LIB_DIR=${EXTERNAL_MACOS_LIB_DIR}/monero
 DEST_INCLUDE_DIR=${EXTERNAL_MACOS_INCLUDE_DIR}/monero
 ARCH=`uname -m`
 
-echo "Cloning monero from - $MONERO_URL to - $MONERO_DIR_PATH"		
-git clone $MONERO_URL $MONERO_DIR_PATH
 cd $MONERO_DIR_PATH
-git checkout $MONERO_VERSION
 git submodule update --init --force
 mkdir -p build
 cd ..

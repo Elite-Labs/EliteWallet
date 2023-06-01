@@ -3,19 +3,13 @@
 . ./config.sh
 
 MIN_IOS_VERSION=10.0
-BOOST_URL="${LOCAL_GIT_REPOS}/boost-ios"
-BOOST_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/Apple-Boost-BuildScript"
+BOOST_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/boost-ios"
 BOOST_VERSION=1.72.0
 BOOST_LIBS="random regex graph random chrono thread filesystem system date_time locale serialization program_options"
 
 echo "============================ Boost ============================"
 
-echo "Cloning Apple-Boost-BuildScript from - $BOOST_URL"
-git clone -b build $BOOST_URL $BOOST_DIR_PATH
 cd $BOOST_DIR_PATH
-git fetch
-git checkout .
-git reset --hard HEAD
 ./boost.sh -ios \
 	--min-ios-version ${MIN_IOS_VERSION} \
 	--boost-libs "${BOOST_LIBS}" \

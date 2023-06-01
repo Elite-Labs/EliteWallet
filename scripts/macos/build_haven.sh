@@ -11,10 +11,7 @@ DEST_LIB_DIR=${EXTERNAL_MACOS_LIB_DIR}/haven
 DEST_INCLUDE_DIR=${EXTERNAL_MACOS_INCLUDE_DIR}/haven
 ARCH=`uname -m`
 
-echo "Cloning haven from - $HAVEN_URL to - $HAVEN_DIR_PATH"		
-git clone $HAVEN_URL $HAVEN_DIR_PATH
 cd $HAVEN_DIR_PATH
-git checkout $HAVEN_VERSION
 git submodule update --init --force
 mkdir -p build
 cd ..

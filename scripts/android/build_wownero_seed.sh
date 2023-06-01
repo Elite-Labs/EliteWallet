@@ -50,13 +50,9 @@ case $arch in
 		ARCH_ABI="x86_64";;
 esac
 
-cd $WORKDIR
-
-rm -rf $SEED_DIR
-git clone -b $SEED_TAG --depth 1 ${LOCAL_GIT_REPOS}/wownero-seed $SEED_DIR
 cd $SEED_DIR
-git fetch
-git reset --hard $SEED_COMMIT_HASH
+git checkout .
+git clean -fdx
 
 sed -i -e "s/finalize/finalize_/g" src/argon2/argon2.c
 sed -i -e "s/validate_inputs/validate_inputs_/g" src/argon2/argon2.c

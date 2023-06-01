@@ -2,24 +2,16 @@
 
 . ./config.sh
 
-WOWNERO_VERSION=v0.11.0.3
 WOWNERO_SRC_DIR=${WORKDIR}/wownero
-WOWNERO_SHA_HEAD="e921c3b8a35bc497ef92c4735e778e918b4c4f99"
 
-git clone ${LOCAL_GIT_REPOS}/wownero ${WOWNERO_SRC_DIR} --branch ${WOWNERO_VERSION}
 cd $WOWNERO_SRC_DIR
-git fetch
-git reset --hard $WOWNERO_SHA_HEAD
-
-LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
-sed -i -e "s/https:\/\/git.wownero.com\/wownero\/RandomWOW/${LOCAL_GIT_REPOS_FORMATTED}\/RandomWOW/g" .gitmodules
-
 git submodule init
 git submodule update
+git checkout .
+git clean -fdx
+rm -rf external/trezor-common/*
+rm -rf tests
+
 git apply --stat --apply ${EW_DIR}/patches/wownero/refresh_thread.patch
 
 for arch in "aarch" "aarch64" "i686" "x86_64"

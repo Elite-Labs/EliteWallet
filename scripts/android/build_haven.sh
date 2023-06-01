@@ -1,25 +1,20 @@
 #!/bin/sh
 
 . ./config.sh
-HAVEN_VERSION=tags/v3.0.7
 HAVEN_SRC_DIR=${WORKDIR}/haven
 
-rm -rf ${HAVEN_SRC_DIR}
-git clone ${LOCAL_GIT_REPOS}/haven ${HAVEN_SRC_DIR}
 cd $HAVEN_SRC_DIR
-git fetch
-git checkout ${HAVEN_VERSION}
-
-LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/monero-project\/unbound/${LOCAL_GIT_REPOS_FORMATTED}\/unbound-haven/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/monero-project\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp-haven/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/tevador\/RandomX/${LOCAL_GIT_REPOS_FORMATTED}\/RandomX/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/haven-protocol-org\/haven-blockchain-explorer.git/${LOCAL_GIT_REPOS_FORMATTED}\/haven-blockchain-explorer/g" .gitmodules
-
 git submodule init
 git submodule update
+git checkout .
+git clean -fdx
+rm -rf contrib/epee/tests
+rm -rf external/trezor-common/*
+rm -rf external/unbound/contrib/unbound_smf22.tar.gz
+rm -rf external/unbound/contrib/libunbound.so.conf
+rm -rf external/unbound/contrib/unbound_cacti.tar.gz
+rm -rf external/unbound/winrc/gen_msg.bin
+rm -rf tests
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do

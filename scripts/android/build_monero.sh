@@ -1,25 +1,15 @@
 #!/bin/sh
 
 . ./config.sh
-MONERO_BRANCH=release-v0.18.2.2-android
 MONERO_SRC_DIR=${WORKDIR}/monero
 
-rm -rf ${MONERO_SRC_DIR}
-git clone ${LOCAL_GIT_REPOS}/monero ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
 cd $MONERO_SRC_DIR
-git fetch
-git reset --hard ${MONERO_BRANCH}
-
-LOCAL_GIT_REPOS_FORMATTED=$(echo $LOCAL_GIT_REPOS | sed -e "s/\//\\\\\//g")
-sed -i -e "s/https:\/\/github.com\/miniupnp\/miniupnp/${LOCAL_GIT_REPOS_FORMATTED}\/miniupnp/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/tevador\/RandomX/${LOCAL_GIT_REPOS_FORMATTED}\/RandomX/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/Tencent\/rapidjson/${LOCAL_GIT_REPOS_FORMATTED}\/rapidjson/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/monero-project\/supercop/${LOCAL_GIT_REPOS_FORMATTED}\/supercop/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/trezor\/trezor-common.git/${LOCAL_GIT_REPOS_FORMATTED}\/trezor-common/g" .gitmodules
-sed -i -e "s/https:\/\/github.com\/monero-project\/unbound/${LOCAL_GIT_REPOS_FORMATTED}\/unbound-haven/g" .gitmodules
-
 git submodule init
 git submodule update
+git checkout .
+git clean -fdx
+rm -rf external/trezor-common/*
+rm -rf tests
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do

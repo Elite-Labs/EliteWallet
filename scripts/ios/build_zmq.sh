@@ -3,16 +3,13 @@ g#!/bin/sh
 . ./config.sh
 
 ZMQ_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libzmq"
-ZMQ_URL="${LOCAL_GIT_REPOS}/libzmq"
 
 echo "============================ ZMQ ============================"
 
-echo "Cloning ZMQ from - $ZMQ_URL"
-git clone $ZMQ_URL $ZMQ_PATH
 cd $ZMQ_PATH
-git fetch
 git checkout .
-git reset --hard HEAD
+git clean -fdx
+
 mkdir cmake-build
 cd cmake-build
 cmake ..

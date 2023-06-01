@@ -19,12 +19,10 @@ esac
 
 
 HOST="${TARGET}-linux-android"
-cd $WORKDIR
-rm -rf $ZMQ_SRC_DIR
-git clone ${LOCAL_GIT_REPOS}/libzmq ${ZMQ_SRC_DIR} -b ${ZMQ_BRANCH}
 cd $ZMQ_SRC_DIR
-git fetch
-git reset --hard ${ZMQ_COMMIT_HASH}
+git checkout .
+git clean -fdx
+
 ./autogen.sh
 CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
 make -j$THREADS

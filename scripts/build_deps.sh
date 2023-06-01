@@ -23,17 +23,15 @@ fi
 
 if [[ ! " $@ " =~ " --skip_other_deps " ]]; then
   if [[ "$BUILD_PLATFORM" == "android" ]]; then
-    sudo apt-get install -y curl unzip automake build-essential file pkg-config git python2 libtool libtinfo5 cmake openjdk-8-jre-headless clang bison byacc
+    sudo apt-get install -y curl unzip automake build-essential file pkg-config git python2 libtool libtinfo5 cmake openjdk-8-jre-headless clang bison byacc gperf groff
   else
     brew install autoconf cmake pkg-config cocoapods
   fi
 fi
 
-git submodule update --init --force
-
 git config --global protocol.file.allow always
 
-./scripts/get_repos.sh
+git submodule update --init --force
 
 cd scripts/android
 
@@ -60,6 +58,7 @@ else
   cd ../ios
   configure_and_build_deps
   ./setup.sh
+  cd ../..
   cd ios
   ../.flutter/bin/flutter precache --ios
   pod install
