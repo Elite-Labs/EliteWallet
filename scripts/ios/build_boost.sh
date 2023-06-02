@@ -10,6 +10,8 @@ BOOST_LIBS="random regex graph random chrono thread filesystem system date_time 
 echo "============================ Boost ============================"
 
 cd $BOOST_DIR_PATH
+git checkout .
+git clean -fdx
 ./boost.sh -ios \
 	--min-ios-version ${MIN_IOS_VERSION} \
 	--boost-libs "${BOOST_LIBS}" \

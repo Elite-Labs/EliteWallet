@@ -17,6 +17,8 @@ esac
 
 HOST="${TARGET}-linux-android"
 cd $SODIUM_SRC_DIR
+git checkout .
+git clean -fdx
 ./autogen.sh
 CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
 make -j$THREADS
