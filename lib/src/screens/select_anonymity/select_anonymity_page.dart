@@ -39,9 +39,6 @@ class SelectAnonymityPage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme
-            .of(context)
-            .backgroundColor,
         resizeToAvoidBottomInset: false,
         body: body(context));
   }
