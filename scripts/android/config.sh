@@ -7,7 +7,7 @@ export EW_EXRTERNAL_DIR=${EW_DIR}/ew_shared_external/ios/External/android
 
 export WORKDIR=${EW_EXRTERNAL_DIR}/../sources
 export ANDROID_NDK_ZIP=${WORKDIR}/android-ndk-r17c.zip
-export ANDROID_NDK_ROOT=${WORKDIR}/android-ndk-r17c
+export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$WORKDIR/android-ndk-r17c}"
 export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT
 export TOOLCHAIN_DIR="${WORKDIR}/toolchain"
 export TOOLCHAIN_BASE_DIR=$TOOLCHAIN_DIR
