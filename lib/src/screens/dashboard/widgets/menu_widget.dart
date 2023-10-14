@@ -19,18 +19,19 @@ class MenuWidget extends StatefulWidget {
 
 class MenuWidgetState extends State<MenuWidget> {
   MenuWidgetState()
-      : this.menuWidth = 0,
-        this.screenWidth = 0,
-        this.screenHeight = 0,
-        this.headerHeight = 120,
-        this.tileHeight = 60,
-        this.fromTopEdge = 50,
-        this.fromBottomEdge = 25,
-        this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
-        this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
-        this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
-        this.havenIcon = Image.asset('assets/images/haven_menu.png'),
-        this.wowneroIcon = Image.asset('assets/images/wownero_menu.png');
+    : this.menuWidth = 0,
+      this.screenWidth = 0,
+      this.screenHeight = 0,
+      this.headerHeight = 120,
+      this.tileHeight = 60,
+      this.fromTopEdge = 50,
+      this.fromBottomEdge = 25,
+      this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
+      this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
+      this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
+      this.havenIcon = Image.asset('assets/images/haven_menu.png'),
+      this.wowneroIcon = Image.asset('assets/images/wownero_menu.png'),
+      this.ethereumIcon = Image.asset('assets/images/eth_icon.png');
 
   final largeScreen = 731;
 
@@ -48,6 +49,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image litecoinIcon;
   Image havenIcon;
   Image wowneroIcon;
+  Image ethereumIcon;
 
   @override
   void initState() {
@@ -87,17 +89,14 @@ class MenuWidgetState extends State<MenuWidget> {
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
         color: Theme.of(context)
-            .accentTextTheme!
+            .accentTextTheme
             .labelSmall!
             .decorationColor!);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
         color: Theme.of(context)
-            .accentTextTheme!
+            .accentTextTheme
             .labelSmall!
             .decorationColor!);
-    litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
-    havenIcon = Image.asset('assets/images/haven_menu.png');
-    wowneroIcon = Image.asset('assets/images/wownero_menu.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -181,7 +180,7 @@ class MenuWidgetState extends State<MenuWidget> {
                         index--;
 
                         final item = SettingActions.all[index];
-                       
+
                         final isLastTile = index == itemCount - 1;
 
                         return SettingActionButton(
@@ -220,6 +219,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return havenIcon;
       case WalletType.wownero:
         return wowneroIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

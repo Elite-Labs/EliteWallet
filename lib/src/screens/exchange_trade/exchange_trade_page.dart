@@ -357,7 +357,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           onPressed: () {
                             Navigator.of(popupContext).pop();
                           },  
-                          text: S.of(popupContext).send_got_it,
+                          text: S.of(popupContext).got_it,
                           color: Theme.of(popupContext)
                               .accentTextTheme!
                               .bodyLarge!

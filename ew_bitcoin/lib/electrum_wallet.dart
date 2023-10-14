@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:ew_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:ew_bitcoin/electrum_wallet_addresses.dart';
@@ -15,7 +15,6 @@ import 'package:ew_core/pathForWallet.dart';
 import 'package:ew_bitcoin/address_to_output_script.dart';
 import 'package:ew_bitcoin/bitcoin_address_record.dart';
 import 'package:ew_bitcoin/electrum_balance.dart';
-import 'package:ew_bitcoin/bitcoin_mnemonic.dart';
 import 'package:ew_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:ew_bitcoin/electrum_transaction_history.dart';
 import 'package:ew_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
@@ -120,6 +119,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   List<int> _feeRates;
   Map<String, BehaviorSubject<Object>?> _scripthashesUpdateSubject;
   bool _isTransactionUpdating;
+
+  void Function(FlutterErrorDetails)? _onError;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -325,7 +326,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     } else {
       feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
     }
-    
+
     final changeValue = totalInputAmount - amount - feeAmount;
 
     if (changeValue > minAmount) {
@@ -431,6 +432,29 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
+  }
+
+  @override
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletFile = File(currentWalletPath);
+
+    final currentDirPath =
+        await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentWalletFile.existsSync()) {
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      await currentWalletFile.copy(newWalletPath);
+    }
+    if (currentTransactionsFile.existsSync()) {
+      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+    }
+
+    // Delete old name's dir and files
+    await Directory(currentDirPath).delete(recursive: true);
   }
 
   @override
@@ -644,8 +668,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
           await updateUnspent();
           await updateBalance();
           await updateTransactions();
-        } catch (e) {
+        } catch (e, s) {
           print(e.toString());
+          _onError?.call(FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: this.runtimeType.toString(),
+          ));
         }
       });
     });
@@ -711,4 +740,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
     return addresses[random.nextInt(addresses.length)].address;
   }
+
+  @override
+  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 }

@@ -2,6 +2,7 @@ import 'package:elite_wallet/bitcoin/bitcoin.dart';
 import 'package:elite_wallet/core/mnemonic_length.dart';
 import 'package:elite_wallet/view_model/restore/restore_wallet.dart';
 import 'package:flutter/foundation.dart';
+import 'package:elite_wallet/ethereum/ethereum.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/store/app_store.dart';
@@ -91,6 +92,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return wownero!.createWowneroRestoreWalletFromSeedCredentials(
               name: name,
               height: height,
+              mnemonic: seed,
+              password: password);
+        case WalletType.ethereum:
+          return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
+              name: name,
               mnemonic: seed,
               password: password);
         default:

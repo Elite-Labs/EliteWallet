@@ -5,7 +5,7 @@ import 'package:elite_wallet/src/screens/receive/widgets/currency_input_field.da
 import 'package:elite_wallet/utils/device_info.dart';
 import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
+// import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -194,14 +194,14 @@ class QRWidget extends StatelessWidget {
     }
 
     // Get the current brightness:
-    final brightness = await DeviceDisplayBrightness.getBrightness();
+    // final brightness = await DeviceDisplayBrightness.getBrightness();
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(1.0);
+    // DeviceDisplayBrightness.setBrightness(1.0);
 
     await navigation();
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(brightness);
+    // DeviceDisplayBrightness.setBrightness(brightness);
   }
 }

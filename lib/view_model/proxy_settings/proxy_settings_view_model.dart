@@ -7,6 +7,7 @@ import 'package:elite_wallet/view_model/proxy_settings/proxy_input_list_item.dar
 import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/view_model/proxy_settings/switcher_list_item.dart';
 import 'package:elite_wallet/src/screens/proxy_settings/proxy_input_type.dart';
+import 'package:ew_core/proxy_settings_store.dart';
 
 part 'proxy_settings_view_model.g.dart';
 
@@ -79,6 +80,10 @@ abstract class ProxySettingsViewModelBase with Store {
 
   @computed
   bool get portScanEnabled => _appStore.settingsStore.portScanEnabled;
+
+  @computed
+  ProxySettingsStore get proxySettingsStore =>
+    ProxySettingsStore.fromSettingsStore(_appStore.settingsStore);
 
   @action
   void setProxyEnabled(bool value) =>

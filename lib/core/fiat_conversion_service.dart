@@ -25,7 +25,23 @@ Future<double> _fetchCoinGeckoPrice(Map<String, dynamic> args) async {
     'LTC' : 'litecoin',
     'XMR' : 'monero',
     'XHV' : 'haven',
-    'WOW' : 'wownero'};
+    'WOW' : 'wownero',
+    'ETH' : 'ethereum',
+    'USDT': 'tether',
+    'USDC': 'usd-coin',
+    'DAI' : 'dai',
+    'WBTC': 'wrapped-bitcoin',
+    'AAVE': 'aave',
+    'UNI' : 'uniswap',
+    'MKR' : 'maker',
+    'BNB' : 'binancecoin',
+    'stETH' : 'staked-ether',
+    'LDO' : 'lido-dao',
+    'ARB' : 'arbitrum',
+    'GRT' : 'the-graph',
+    'BUSD': 'binance-usd',
+    'TUSD': 'true-usd',
+    'CRO' : 'crypto-com-chain'};
 
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;

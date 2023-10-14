@@ -2,6 +2,7 @@ import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:elite_wallet/entities/parse_address_from_domain.dart';
 import 'package:elite_wallet/entities/parsed_address.dart';
+import 'package:elite_wallet/ethereum/ethereum.dart';
 import 'package:elite_wallet/haven/haven.dart';
 import 'package:elite_wallet/wownero/wownero.dart';
 import 'package:elite_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -17,6 +18,8 @@ import 'package:elite_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
+
+import 'package:elite_wallet/entities/contact_base.dart';
 
 part 'output.g.dart';
 
@@ -71,7 +74,7 @@ abstract class OutputBase with Store {
     int amount = 0;
 
     try {
-      if (cryptoAmount?.isNotEmpty ?? false) {
+      if (cryptoAmount.isNotEmpty) {
         final _cryptoAmount = cryptoAmount.replaceAll(',', '.');
         int _amount = 0;
         switch (walletType) {
@@ -91,6 +94,9 @@ abstract class OutputBase with Store {
             break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
+            break;
+          case WalletType.ethereum:
+            _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
             break;
           default:
             break;
@@ -129,6 +135,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.wownero) {
         return wownero!.formatterWowneroAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.ethereum) {
+        return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -139,8 +149,9 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
+      final currency = _wallet.type == WalletType.ethereum ? _wallet.currency : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
+          price: _fiatConversationStore.prices[currency]!,
           cryptoAmount: estimatedFee);
       return fiat;
     } catch (_) {
@@ -235,6 +246,7 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 12;
         break;
       case WalletType.wownero:
+      case WalletType.ethereum:
         maximumFractionDigits = 12;
         break;
       default:
@@ -249,6 +261,13 @@ abstract class OutputBase with Store {
     final ticker = cryptoCurrencyHandler().title.toLowerCase();
     parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
+    note = parsedAddress.description;
+  }
+
+  void loadContact(ContactBase contact) {
+    address = contact.name;
+    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
+    extractedAddress = parsedAddress.addresses.first;
     note = parsedAddress.description;
   }
 }

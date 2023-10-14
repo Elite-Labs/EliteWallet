@@ -1,6 +1,6 @@
 import 'package:elite_wallet/entities/fiat_api_mode.dart';
-import 'package:elite_wallet/entities/fiat_currency.dart';
 import 'package:elite_wallet/entities/update_haven_rate.dart';
+import 'package:elite_wallet/ethereum/ethereum.dart';
 import 'package:ew_core/transaction_history.dart';
 import 'package:ew_core/balance.dart';
 import 'package:ew_core/transaction_info.dart';
@@ -95,6 +95,20 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       fiatConversionStore.prices[wallet.currency] =
           await FiatConversionService.fetchPrice(
               wallet.currency, settingsStore.fiatCurrency, settingsStore);
+
+      if (wallet.type == WalletType.ethereum) {
+        final currencies =
+                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+
+        for (final currency in currencies) {
+          () async {
+            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+                currency,
+                settingsStore.fiatCurrency,
+                settingsStore);
+          }.call();
+        }
+      }
     } catch (e) {
       print(e.toString());
     }

@@ -14,7 +14,7 @@
 
 * Completely noncustodial. *Your keys, your coins.*
 * Built-in exchange for dozens of pairs
-* Buy cryptocurrency with credit/debit/bank
+* Easily pay cryptocurrency invoices with fixed rate exchanges
 * Sell cryptocurrency by bank transfer
 * Scan QR codes for easy cryptocurrency transfers
 * Create several wallets
@@ -39,8 +39,12 @@
 * Bitcoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
-* Buy BTC with over a dozen fiat currencies
-* Sell BTC for USD
+
+### Ethereum Specific Features
+
+* Store ETH and all ERc-20 tokens
+* Add custom tokens by contract address
+* Enable or disable Etherscan for transaction history
 
 ### Litecoin Specific Features
 

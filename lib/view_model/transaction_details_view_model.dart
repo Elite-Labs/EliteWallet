@@ -9,6 +9,7 @@ import 'package:ew_core/transaction_direction.dart';
 import 'package:elite_wallet/utils/date_formatter.dart';
 import 'package:elite_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/generated/i18n.dart';
@@ -27,106 +28,31 @@ abstract class TransactionDetailsViewModelBase with Store {
       required this.transactionDescriptionBox,
       required this.wallet,
       required this.settingsStore})
-      : items = <TransactionDetailsListItem>[],
-      isRecipientAddressShown = false,
-      showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
+      : items = [],
+        isRecipientAddressShown = false,
+        showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
-    if (wallet.type == WalletType.monero) {
-      final key = tx.additionalInfo['key'] as String?;
-      final accountIndex = tx.additionalInfo['accountIndex'] as int;
-      final addressIndex = tx.additionalInfo['addressIndex'] as int;
-      final feeFormatted = tx.feeFormatted();
-      final _items = [
-        StandartListItem(
-            title: S.current.transaction_details_transaction_id, value: tx.id),
-        StandartListItem(
-            title: S.current.transaction_details_date,
-            value: dateFormat.format(tx.date)),
-        StandartListItem(
-            title: S.current.transaction_details_height, value: '${tx.height}'),
-        StandartListItem(
-            title: S.current.transaction_details_amount,
-            value: tx.amountFormatted()),
-        if (feeFormatted != null)
-          StandartListItem(
-            title: S.current.transaction_details_fee, value: feeFormatted),
-        if (key?.isNotEmpty ?? false)
-          StandartListItem(title: S.current.transaction_key, value: key!)
-      ];
-
-      if (tx.direction == TransactionDirection.incoming &&
-          accountIndex != null &&
-          addressIndex != null) {
-        try {
-          final address = monero!.getTransactionAddress(wallet, accountIndex, addressIndex);
-          final label = monero!.getSubaddressLabel(wallet, accountIndex, addressIndex);
-
-          if (address?.isNotEmpty ?? false) {
-            isRecipientAddressShown = true;
-            _items.add(
-                StandartListItem(
-                    title: S.current.transaction_details_recipient_address,
-                    value: address));
-          }
-
-          if (label?.isNotEmpty ?? false) {
-            _items.add(
-                StandartListItem(
-                  title: S.current.address_label,
-                  value: label)
-            );
-          }
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      items.addAll(_items);
-    }
-
-    if (wallet.type == WalletType.bitcoin
-        || wallet.type == WalletType.litecoin) {
-      final _items = [
-        StandartListItem(
-            title: S.current.transaction_details_transaction_id, value: tx.id),
-        StandartListItem(
-            title: S.current.transaction_details_date,
-            value: dateFormat.format(tx.date)),
-        StandartListItem(
-            title: S.current.confirmations,
-            value: tx.confirmations.toString()),
-        StandartListItem(
-            title: S.current.transaction_details_height, value: '${tx.height}'),
-        StandartListItem(
-            title: S.current.transaction_details_amount,
-            value: tx.amountFormatted()),
-        if (tx.feeFormatted()?.isNotEmpty ?? false)
-          StandartListItem(
-              title: S.current.transaction_details_fee,
-              value: tx.feeFormatted()!),
-      ];
-
-      items.addAll(_items);
-    }
-
-    if (wallet.type == WalletType.haven || wallet.type == WalletType.wownero) {
-      items.addAll([
-        StandartListItem(
-            title: S.current.transaction_details_transaction_id, value: tx.id),
-        StandartListItem(
-            title: S.current.transaction_details_date,
-            value: dateFormat.format(tx.date)),
-        StandartListItem(
-            title: S.current.transaction_details_height, value: '${tx.height}'),
-        StandartListItem(
-            title: S.current.transaction_details_amount,
-            value: tx.amountFormatted()),
-        if (tx.feeFormatted()?.isNotEmpty ?? false)
-          StandartListItem(
-            title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
-      ]);
+    switch (wallet.type) {
+      case WalletType.monero:
+        _addMoneroListItems(tx, dateFormat);
+        break;
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        _addElectrumListItems(tx, dateFormat);
+        break;
+      case WalletType.haven:
+        _addHavenListItems(tx, dateFormat);
+        break;
+      case WalletType.wownero:
+        _addWowneroListItems(tx, dateFormat);
+        break;
+      case WalletType.ethereum:
+        _addEthereumListItems(tx, dateFormat);
+        break;
+      default:
+        break;
     }
 
     if (showRecipientAddress && !isRecipientAddressShown) {
@@ -137,10 +63,9 @@ abstract class TransactionDetailsViewModelBase with Store {
 
         if (recipientAddress?.isNotEmpty ?? false) {
           items.add(StandartListItem(
-              title: S.current.transaction_details_recipient_address,
-              value: recipientAddress!));
+              title: S.current.transaction_details_recipient_address, value: recipientAddress!));
         }
-      } catch(_) {
+      } catch (_) {
         // FIX-ME: Unhandled exception
       }
     }
@@ -186,7 +111,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
       case WalletType.monero:
-        return 'https://monero.so/tx/${txId}';
+        return 'https://monero.sc/tx/${txId}';
       case WalletType.bitcoin:
         return 'https://mempool.space/tx/${txId}';
       case WalletType.litecoin:
@@ -195,6 +120,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
+      case WalletType.ethereum:
+        return 'https://etherscan.io/tx/${txId}';
       default:
         return '';
     }
@@ -203,7 +130,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   String _explorerDescription(WalletType type) {
     switch (type) {
       case WalletType.monero:
-        return S.current.view_transaction_on + 'Monero.so';
+        return S.current.view_transaction_on + 'Monero.sc';
       case WalletType.bitcoin:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
@@ -212,8 +139,104 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       case WalletType.wownero:
         return S.current.view_transaction_on + 'explore.wownero.com';
+      case WalletType.ethereum:
+        return S.current.view_transaction_on + 'etherscan.io';
       default:
         return '';
     }
+  }
+
+  void _addMoneroListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final key = tx.additionalInfo['key'] as String?;
+    final accountIndex = tx.additionalInfo['accountIndex'] as int;
+    final addressIndex = tx.additionalInfo['addressIndex'] as int;
+    final feeFormatted = tx.feeFormatted();
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (feeFormatted != null)
+        StandartListItem(title: S.current.transaction_details_fee, value: feeFormatted),
+      if (key?.isNotEmpty ?? false) StandartListItem(title: S.current.transaction_key, value: key!),
+    ];
+
+    if (tx.direction == TransactionDirection.incoming) {
+      try {
+        final address = monero!.getTransactionAddress(wallet, accountIndex, addressIndex);
+        final label = monero!.getSubaddressLabel(wallet, accountIndex, addressIndex);
+
+        if (address.isNotEmpty) {
+          isRecipientAddressShown = true;
+          _items.add(StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: address,
+          ));
+        }
+
+        if (label.isNotEmpty) {
+          _items.add(StandartListItem(title: S.current.address_label, value: label));
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+
+    items.addAll(_items);
+  }
+
+  void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addHavenListItems(TransactionInfo tx, DateFormat dateFormat) {
+    items.addAll([
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+    ]);
+  }
+
+  void _addWowneroListItems(TransactionInfo tx, DateFormat dateFormat) {
+    items.addAll([
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+    ]);
+  }
+
+  void _addEthereumListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+    ];
+
+    items.addAll(_items);
   }
 }

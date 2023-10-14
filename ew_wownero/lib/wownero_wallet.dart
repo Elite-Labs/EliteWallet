@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/account.dart';
@@ -7,6 +8,7 @@ import 'package:ew_core/monero_transaction_priority.dart';
 import 'package:ew_core/monero_wallet_keys.dart';
 import 'package:ew_core/monero_wallet_utils.dart';
 import 'package:ew_core/node.dart';
+import 'package:ew_core/pathForWallet.dart';
 import 'package:ew_core/pending_transaction.dart';
 import 'package:ew_core/port_redirector.dart';
 import 'package:ew_core/sync_status.dart';
@@ -288,6 +290,29 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name!);
     return await wownero_wallet.store(prioritySave: prioritySave);
+  }
+
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: name, type: type);
+    final currentCacheFile = File(currentWalletPath);
+    final currentKeysFile = File('$currentWalletPath.keys');
+    final currentAddressListFile = File('$currentWalletPath.address.txt');
+
+    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+
+    // Copies current wallet files into new wallet name's dir and files
+    if (currentCacheFile.existsSync()) {
+      await currentCacheFile.copy(newWalletPath);
+    }
+    if (currentKeysFile.existsSync()) {
+      await currentKeysFile.copy('$newWalletPath.keys');
+    }
+    if (currentAddressListFile.existsSync()) {
+      await currentAddressListFile.copy('$newWalletPath.address.txt');
+    }
+
+    // Delete old name's dir and files
+    await Directory(currentWalletPath).delete(recursive: true);
   }
 
   @override

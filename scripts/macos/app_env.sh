@@ -15,8 +15,8 @@ if [ -n "$1" ]; then
 fi
 
 ELITEWALLET_NAME="Elite Wallet"
-ELITEWALLET_VERSION="1.1.7"
-ELITEWALLET_BUILD_NUMBER=10
+ELITEWALLET_VERSION="1.2.0"
+ELITEWALLET_BUILD_NUMBER=12
 ELITEWALLET_BUNDLE_ID="sc.elitewallet.elite-wallet"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_MACOS_TYPE} " ]]; then

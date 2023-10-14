@@ -1,4 +1,4 @@
-Update monero to v0.18.2.2
-Wownero connectivity bugfix
-Add flutter as submodule
-GUI improvements
+Add Ethereum cryptocurrency and various ERC20 tokens
+Bitcoin transaction history bugfix
+MajesticBank transaction details bugfix
+Add BCH and FIRO to MajesticBank exchange

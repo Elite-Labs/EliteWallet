@@ -7,6 +7,7 @@ analyzer:
     ew_core/lib/**.g.dart,
     ew_haven/lib/**.g.dart,
     ew_monero/lib/**.g.dart,
+    ew_wownero/lib/**.g.dart,
     lib/generated/*.dart,
     ew_monero/ios/External/**,
     ew_shared_external/**,

@@ -5,6 +5,7 @@ import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/src/widgets/nav_bar.dart';
+import 'package:elite_wallet/generated/i18n.dart';
 
 enum AppBarStyle { regular, withShadow, transparent }
 
@@ -58,7 +59,7 @@ abstract class BasePage extends StatelessWidget {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: 'Back',
+            label: S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(

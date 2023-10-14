@@ -1,17 +1,21 @@
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:elite_wallet/src/widgets/market_place_item.dart';
+import 'package:elite_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:elite_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 
 class MarketPlacePage extends StatelessWidget {
-
-  MarketPlacePage({required this.dashboardViewModel});
+  MarketPlacePage({
+    required this.dashboardViewModel,
+    required this.marketPlaceViewModel,
+  });
 
   final DashboardViewModel dashboardViewModel;
+  final MarketPlaceViewModel marketPlaceViewModel;
   final _scrollController = ScrollController();
 
   @override
@@ -46,13 +50,13 @@ class MarketPlacePage extends StatelessWidget {
                   controller: _scrollController,
                   children: <Widget>[
                     SizedBox(height: 20),
-                    MarketPlaceItem(
-                      onTap: () =>_navigatorToGiftCardsPage(context),
+                    DashBoardRoundedCardWidget(
+                      onTap: () => {},
                       title: S.of(context).elite_pay_title,
                       subTitle: S.of(context).elite_pay_subtitle,
                     ),
                     SizedBox(height: 20),
-                    MarketPlaceItem(
+                    DashBoardRoundedCardWidget(
                       onTap: () => {},
                       title: S.of(context).elite_pay_web_cards_title,
                       subTitle: S.of(context).elite_pay_web_cards_subtitle,
@@ -66,12 +70,14 @@ class MarketPlacePage extends StatelessWidget {
       ),
     );
   }
+
+  // TODO: Remove ionia flow/files if we will discard it
   void _navigatorToGiftCardsPage(BuildContext context) {
     final walletType = dashboardViewModel.type;
 
     switch (walletType) {
       case WalletType.haven:
-         showPopUp<void>(
+        showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
               return AlertWithOneAction(
@@ -81,9 +87,14 @@ class MarketPlacePage extends StatelessWidget {
                   buttonAction: () => Navigator.of(context).pop());
             });
         break;
-        default:
-         Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
+      default:
+        marketPlaceViewModel.isIoniaUserAuthenticated().then((value) {
+          if (value) {
+            Navigator.pushNamed(context, Routes.ioniaManageCardsPage);
+            return;
+          }
+          Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
+        });
     }
   }
-
 }

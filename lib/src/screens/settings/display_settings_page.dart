@@ -8,6 +8,7 @@ import 'package:elite_wallet/src/screens/settings/widgets/settings_switcher_cell
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/themes/theme_list.dart';
 import 'package:elite_wallet/utils/device_info.dart';
+import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:elite_wallet/view_model/settings/choices_list_item.dart';
 import 'package:elite_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
@@ -29,20 +30,23 @@ class DisplaySettingsPage extends BasePage {
         child: Column(
           children: [
             SettingsSwitcherCell(
-            title: S.current.settings_display_balance,
-            value:  _displaySettingsViewModel.shouldDisplayBalance,
-            onValueChange: (_, bool value) {
-               _displaySettingsViewModel.setShouldDisplayBalance(value);          
-            }),
+                title: S.current.settings_display_balance,
+                value: _displaySettingsViewModel.shouldDisplayBalance,
+                onValueChange: (_, bool value) {
+                  _displaySettingsViewModel.setShouldDisplayBalance(value);
+                }),
             //if (!isHaven) it does not work correctly
-            if(!_displaySettingsViewModel.disabledFiatApiMode)
+            if (!_displaySettingsViewModel.disabledFiatApiMode)
               SettingsPickerCell<FiatCurrency>(
                 title: S.current.settings_currency,
                 searchHintText: S.current.search_currency,
                 items: FiatCurrency.all,
                 selectedItem: _displaySettingsViewModel.fiatCurrency,
-                onItemSelected: (FiatCurrency currency) => _displaySettingsViewModel.setFiatCurrency(currency),
-                images: FiatCurrency.all.map((e) => Image.asset("assets/images/flags/${e.countryCode}.png")).toList(),
+                onItemSelected: (FiatCurrency currency) =>
+                    _displaySettingsViewModel.setFiatCurrency(currency),
+                images: FiatCurrency.all
+                    .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                    .toList(),
                 isGridView: true,
                 matchingCriteria: (FiatCurrency currency, String searchText) {
                   return currency.title.toLowerCase().contains(searchText) ||
@@ -59,7 +63,8 @@ class DisplaySettingsPage extends BasePage {
               selectedItem: _displaySettingsViewModel.languageCode,
               onItemSelected: _displaySettingsViewModel.onLanguageSelected,
               images: LanguageService.list.keys
-                  .map((e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
+                  .map((e) => Image.asset(
+                      "assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
                   .toList(),
               matchingCriteria: (String code, String searchText) {
                 return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;

@@ -1,12 +1,11 @@
 import 'package:elite_wallet/core/auth_service.dart';
 import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:elite_wallet/utils/device_info.dart';
+import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/generated/i18n.dart';
@@ -15,7 +14,6 @@ import 'package:elite_wallet/view_model/wallet_list/wallet_list_view_model.dart'
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:elite_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
@@ -49,6 +47,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_logo.png', height: 24, width: 24);
+  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -58,7 +57,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage =
         Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+        height: 12, width: 12, color: Theme.of(context).primaryTextTheme.titleLarge!.color!);
 
     return Container(
       padding: EdgeInsets.only(top: 16),
@@ -75,34 +74,10 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
-                        ? Theme.of(context).accentTextTheme!.titleSmall!.decorationColor!
+                        ? Theme.of(context).accentTextTheme.titleSmall!.decorationColor!
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
-                        onTap: () async {
-                          if (wallet.isCurrent || !wallet.isEnabled) {
-                            return;
-                          }
-
-                          final confirmed = await showPopUp<bool>(
-                                  context: context,
-                                  builder: (dialogContext) {
-                                    return AlertWithTwoActions(
-                                        alertTitle: S.of(context).change_wallet_alert_title,
-                                        alertContent:
-                                            S.of(context).change_wallet_alert_content(wallet.name),
-                                        leftButtonText: S.of(context).cancel,
-                                        rightButtonText: S.of(context).change,
-                                        actionLeftButton: () =>
-                                            Navigator.of(dialogContext).pop(false),
-                                        actionRightButton: () =>
-                                            Navigator.of(dialogContext).pop(true));
-                                  }) ??
-                              false;
-
-                          if (confirmed) {
-                            await _loadWallet(wallet);
-                          }
-                        },
+                        onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
                         child: Container(
                           height: tileHeight,
                           width: double.infinity,
@@ -130,16 +105,21 @@ class WalletListBodyState extends State<WalletListBody> {
                                           ? _imageFor(type: wallet.type)
                                           : nonWalletTypeIcon,
                                       SizedBox(width: 10),
-                                      Text(
-                                        wallet.name,
-                                        style: TextStyle(
+                                      Flexible(
+                                        child: Text(
+                                          wallet.name,
+                                          maxLines: null,
+                                          softWrap: true,
+                                          style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
                                                 .primaryTextTheme
                                                 .titleLarge!
-                                                .color!),
-                                      )
+                                                .color!,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -148,14 +128,7 @@ class WalletListBodyState extends State<WalletListBody> {
                           ),
                         ));
 
-                    return wallet.isCurrent
-                        ? row
-                        : Slidable(
-                            key: Key('${wallet.key}'),
-                            startActionPane: _actionPane(wallet),
-                            endActionPane: _actionPane(wallet),
-                            child: row,
-                          );
+                    return row;
                   }),
             ),
           ),
@@ -163,27 +136,59 @@ class WalletListBodyState extends State<WalletListBody> {
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
               onPressed: () {
+                //TODO(David): Find a way to optimize this
                 if (isSingleCoin) {
-                  Navigator.of(context).pushNamed(Routes.newWallet,
-                      arguments: widget.walletListViewModel.currentWalletType);
+                  if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                    widget.authService.authenticateAction(
+                      context,
+                      route: Routes.newWallet,
+                      arguments: widget.walletListViewModel.currentWalletType,
+                      conditionToDetermineIfToUse2FA:
+                          widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                    );
+                  } else {
+                    Navigator.of(context).pushNamed(
+                      Routes.newWallet,
+                      arguments: widget.walletListViewModel.currentWalletType,
+                    );
+                  }
                 } else {
-                  Navigator.of(context).pushNamed(Routes.newWalletType);
+                  if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                    widget.authService.authenticateAction(
+                      context,
+                      route: Routes.newWalletType,
+                      conditionToDetermineIfToUse2FA:
+                          widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                    );
+                  } else {
+                    Navigator.of(context).pushNamed(Routes.newWalletType);
+                  }
                 }
               },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+              color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
               textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+                  if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                    widget.authService.authenticateAction(
+                      context,
+                      route: Routes.restoreOptions,
+                      arguments: false,
+                      conditionToDetermineIfToUse2FA:
+                          widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                    );
+                  } else {
+                    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+                  }
                 },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
-                textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!)
+                color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                textColor: Theme.of(context).primaryTextTheme.titleLarge!.color!)
           ])),
     );
   }
@@ -200,74 +205,39 @@ class WalletListBodyState extends State<WalletListBody> {
         return havenIcon;
       case WalletType.wownero:
         return wowneroIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
       default:
         return nonWalletTypeIcon;
     }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    await widget.authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
-
-      try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-        await widget.walletListViewModel.loadWallet(wallet);
-        await hideProgressText();
-        // only pop the wallets route in mobile as it will go back to dashboard page
-        // in desktop platforms the navigation tree is different
-        if (DeviceInfo.instance.isMobile) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop();
-          });
+    await widget.authService.authenticateAction(
+      context,
+      onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        if (!isAuthenticatedSuccessfully) {
+          return;
         }
-      } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-      }
-    });
-  }
 
-  Future<void> _removeWallet(WalletListItem wallet) async {
-    widget.authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
-      _onSuccessfulAuth(wallet);
-    });
-  }
-
-  void _onSuccessfulAuth(WalletListItem wallet) async {
-    bool confirmed = false;
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithTwoActions(
-            alertTitle: S.of(context).delete_wallet,
-            alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
-            leftButtonText: S.of(context).cancel,
-            rightButtonText: S.of(context).delete,
-            actionLeftButton: () => Navigator.of(context).pop(),
-            actionRightButton: () {
-              confirmed = true;
+        try {
+          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+          await widget.walletListViewModel.loadWallet(wallet);
+          await hideProgressText();
+          // only pop the wallets route in mobile as it will go back to dashboard page
+          // in desktop platforms the navigation tree is different
+          if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
-            },
-          );
-        });
-
-    if (confirmed) {
-      try {
-        changeProcessText(S.of(context).wallet_list_removing_wallet(wallet.name));
-        await widget.walletListViewModel.remove(wallet);
-        hideProgressText();
-      } catch (e) {
-        changeProcessText(
-          S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()),
-        );
-      }
-    }
+            });
+          }
+        } catch (e) {
+          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        }
+      },
+      conditionToDetermineIfToUse2FA:
+          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
+    );
   }
 
   void changeProcessText(String text) {
@@ -280,18 +250,4 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar = null;
     });
   }
-
-  ActionPane _actionPane(WalletListItem wallet) => ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.3,
-        children: [
-          SlidableAction(
-            onPressed: (_) => _removeWallet(wallet),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
-        ],
-      );
 }

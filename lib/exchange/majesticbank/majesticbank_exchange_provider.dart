@@ -18,19 +18,28 @@ import 'package:elite_wallet/entities/exchange_api_mode.dart';
 
 class MajesticBankExchangeProvider extends ExchangeProvider {
   MajesticBankExchangeProvider(this.settingsStore)
-      : super(pairList: [
-          ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.btc),
-          ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr),
-          ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.btc),
-          ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.ltc),
-          ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.ltc),
-          ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.xmr),
-          ExchangePair(from: CryptoCurrency.wow, to: CryptoCurrency.btc),
-          ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.wow),
-          ExchangePair(from: CryptoCurrency.wow, to: CryptoCurrency.ltc),
-          ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.wow),
-          ExchangePair(from: CryptoCurrency.wow, to: CryptoCurrency.xmr),
-          ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.wow),]);
+      : super(pairList: _supportedPairs());
+  static const List<CryptoCurrency> _supported = [
+    CryptoCurrency.bch,
+    CryptoCurrency.btc,
+    CryptoCurrency.firo,
+    CryptoCurrency.ltc,
+    CryptoCurrency.wow,
+    CryptoCurrency.xmr,
+    CryptoCurrency.eth,
+  ];
+
+  static List<ExchangePair> _supportedPairs() {
+    final supportedCurrencies = CryptoCurrency.all
+        .where((element) => _supported.contains(element))
+        .toList();
+
+    return supportedCurrencies
+        .map((i) => supportedCurrencies
+            .map((k) => ExchangePair(from: i, to: k, reverse: true)))
+        .expand((i) => i)
+        .toList();
+  }
 
   static const referralCode = 'BVIQmf';
   static const apiAuthorityDirect = 'majesticbank.sc';
@@ -338,6 +347,9 @@ class MajesticBankExchangeProvider extends ExchangeProvider {
 
   static String _parseStatus(String input) {
     if (input == "Waiting for funds") {
+      return "waitingPayment";
+    }
+    if (input == "Funds confirming") {
       return "waitingPayment";
     }
     if (input == "Completed") {

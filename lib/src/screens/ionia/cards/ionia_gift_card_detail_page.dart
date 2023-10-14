@@ -13,7 +13,7 @@ import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/utils/route_aware.dart';
 import 'package:elite_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
+// import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:elite_wallet/generated/i18n.dart';
@@ -87,9 +87,9 @@ class IoniaGiftCardDetailPage extends BasePage {
 
     return RouteAwareWidget(
         pushToWidget: ()=> viewModel.increaseBrightness(),
-        pushToNextWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+        pushToNextWidget: ()=> {},
         popNextWidget: ()=> viewModel.increaseBrightness(),
-        popWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
+        popWidget: ()=> {},
       child: ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
@@ -214,7 +214,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                     })
                     .expand((e) => e)
                     .toList()),
-            actionTitle: S.of(context).send_got_it,
+            actionTitle: S.of(context).got_it,
           );
         });
   }

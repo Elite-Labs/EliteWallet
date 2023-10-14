@@ -1,16 +1,18 @@
 import 'package:elite_wallet/core/totp_request_details.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:elite_wallet/src/widgets/primary_button.dart';
+import 'package:elite_wallet/src/widgets/standard_list.dart';
+import 'package:elite_wallet/generated/i18n.dart';
+import 'package:elite_wallet/palette.dart';
+import 'package:elite_wallet/routes.dart';
+import 'package:elite_wallet/utils/clipboard_util.dart';
 import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/view_model/set_up_2fa_viewmodel.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
-import '../../../palette.dart';
-import '../../widgets/primary_button.dart';
-import '../../widgets/standard_list.dart';
+
 
 class Setup2FAQRPage extends BasePage {
   Setup2FAQRPage({required this.setup2FAViewModel});
@@ -106,7 +108,8 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: '${setup2FAViewModel.secretKey}'));
+                    ClipboardUtil.setSensitiveDataToClipboard(
+                        ClipboardData(text: '${setup2FAViewModel.secretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(

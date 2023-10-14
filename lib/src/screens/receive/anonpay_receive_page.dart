@@ -9,7 +9,7 @@ import 'package:elite_wallet/src/screens/receive/widgets/anonpay_status_section.
 import 'package:elite_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/copy_link_item.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
-import 'package:device_display_brightness/device_display_brightness.dart';
+// import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
@@ -32,28 +32,7 @@ class AnonPayReceivePage extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context)
-          .accentTextTheme!
-          .displayMedium!
-          .backgroundColor!,
-      size: 16,
-    );
-
-    return SizedBox(
-      height: 37,
-      width: 37,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: TextButton(
-            onPressed: () =>
-                Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false),
-            child: _backButton),
-      ),
-    );
-  }
+  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
 
   @override
   Widget middle(BuildContext context) {
@@ -136,10 +115,10 @@ class AnonPayReceivePage extends BasePage {
               ),
               child: GestureDetector(
                 onTap: () async {
-                  final double brightness = await DeviceDisplayBrightness.getBrightness();
+                  // final double brightness = await DeviceDisplayBrightness.getBrightness();
 
                   // ignore: unawaited_futures
-                  DeviceDisplayBrightness.setBrightness(1.0);
+                  // DeviceDisplayBrightness.setBrightness(1.0);
                   await Navigator.pushNamed(
                     context,
                     Routes.fullscreenQR,
@@ -148,7 +127,7 @@ class AnonPayReceivePage extends BasePage {
                     )
                   );
                   // ignore: unawaited_futures
-                  DeviceDisplayBrightness.setBrightness(brightness);
+                  // DeviceDisplayBrightness.setBrightness(brightness);
                 },
                 child: Hero(
                   tag: Key(invoiceInfo.clearnetUrl),

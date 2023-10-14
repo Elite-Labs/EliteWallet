@@ -8,7 +8,8 @@ const walletTypes = [
   WalletType.bitcoin,
   WalletType.litecoin,
   WalletType.haven,
-  WalletType.wownero
+  WalletType.wownero,
+  WalletType.ethereum,
 ];
 const walletTypeTypeId = 5;
 
@@ -30,7 +31,10 @@ enum WalletType {
   haven,
 
   @HiveField(5)
-  wownero
+  wownero,
+
+  @HiveField(6)
+  ethereum,
 }
 
 int serializeToInt(WalletType type) {
@@ -45,6 +49,8 @@ int serializeToInt(WalletType type) {
       return 3;
     case WalletType.wownero:
       return 4;
+    case WalletType.ethereum:
+      return 5;
     default:
       return -1;
   }
@@ -62,6 +68,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.haven;
     case 4:
       return WalletType.wownero;
+    case 5:
+      return WalletType.ethereum;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -79,6 +87,8 @@ String walletTypeToString(WalletType type) {
       return 'Haven';
     case WalletType.wownero:
       return 'Wownero';
+    case WalletType.ethereum:
+      return 'Ethereum';
     default:
       return '';
   }
@@ -87,15 +97,17 @@ String walletTypeToString(WalletType type) {
 String walletTypeToDisplayName(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return 'Monero';
+      return 'Monero (XMR)';
     case WalletType.bitcoin:
-      return 'Bitcoin (Electrum)';
+      return 'Bitcoin (BTC)';
     case WalletType.litecoin:
-      return 'Litecoin (Electrum)';
+      return 'Litecoin (LTC)';
     case WalletType.haven:
-      return 'Haven';
+      return 'Haven (XHV)';
     case WalletType.wownero:
-      return 'Wownero';
+      return 'Wownero (WOW)';
+    case WalletType.ethereum:
+      return 'Ethereum (ETH)';
     default:
       return '';
   }
@@ -113,6 +125,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.xhv;
     case WalletType.wownero:
       return CryptoCurrency.wow;
+    case WalletType.ethereum:
+      return CryptoCurrency.eth;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }

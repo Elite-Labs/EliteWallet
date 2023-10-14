@@ -23,8 +23,11 @@ import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.
 import 'package:elite_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:elite_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:elite_wallet/src/screens/trade_details/trade_details_status_item.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:collection/collection.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/format_amount.dart';
+
 part 'trade_details_view_model.g.dart';
 
 class TradeDetailsViewModel = TradeDetailsViewModelBase with _$TradeDetailsViewModel;
@@ -35,13 +38,14 @@ abstract class TradeDetailsViewModelBase with Store {
     required this.trades,
     required this.settingsStore,
   })  : items = ObservableList<StandartListItem>(),
-        trade = tradeForDetails {
+        trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
+            tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider(settingsStore);
         break;
       case ExchangeProviderDescription.changeNow:
-        _provider = ChangeNowExchangeProvider(settingsStore);
+        _provider = ChangeNowExchangeProvider(settingsStore: settingsStore);
         break;
       case ExchangeProviderDescription.majesticBank:
         _provider = MajesticBankExchangeProvider(settingsStore);
@@ -65,8 +69,6 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = TrocadorExchangeProvider(settingsStore);
         break;
     }
-
-    items = ObservableList<StandartListItem>();
 
     _updateItems();
 
@@ -96,6 +98,12 @@ abstract class TradeDetailsViewModelBase with Store {
 
       if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
+      }
+      Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
+      if (foundElement != null) {
+        final editedTrade = trades.get(foundElement.key);
+        editedTrade?.stateRaw = updatedTrade.stateRaw;
+        editedTrade?.save();
       }
 
       if (updatedTrade.expiredAt == null && trade.expiredAt != null) {
@@ -219,5 +227,12 @@ abstract class TradeDetailsViewModelBase with Store {
         items.add(StandartListItem(
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
     }
+  }
+
+  void _launchUrl(String url) {
+    final uri = Uri.parse(url);
+    try {
+      launchUrl(uri);
+    } catch (e) {}
   }
 }

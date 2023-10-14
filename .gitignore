@@ -8,6 +8,7 @@
 .buildlog/
 .history
 .svn/
+.fvm/
 
 # IntelliJ related
 *.iml
@@ -89,7 +90,9 @@ android/key.properties
 **/tool/.secrets-prod.json
 **/tool/.secrets-test.json
 **/tool/.secrets-config.json
+**/tool/.ethereum-secrets-config.json
 **/lib/.secrets.g.dart
+**/ew_ethereum/lib/.secrets.g.dart
 
 vendor/
 
@@ -131,6 +134,7 @@ lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart
 lib/haven/haven.dart
 lib/wownero/wownero.dart
+lib/ethereum/ethereum.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png

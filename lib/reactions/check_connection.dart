@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ew_core/wallet_base.dart';
 import 'package:ew_core/sync_status.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/node.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:hive/hive.dart';
 
 Timer? _checkConnectionTimer;

@@ -2,10 +2,13 @@ import 'dart:async';
 import 'package:elite_wallet/core/fiat_conversion_service.dart';
 import 'package:elite_wallet/entities/fiat_api_mode.dart';
 import 'package:elite_wallet/entities/update_haven_rate.dart';
+import 'package:elite_wallet/ethereum/ethereum.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:elite_wallet/store/settings_store.dart';
+import 'package:ew_core/port_redirector.dart';
 import 'package:ew_core/wallet_type.dart';
+import 'package:mobx/mobx.dart';
 
 Timer? _timer;
 
@@ -15,7 +18,7 @@ Future<void> startFiatRateUpdate(
     return;
   }
 
-  _timer = Timer.periodic(Duration(seconds: 30), (_) async {
+  final _updateFiat = (_) async {
     try {
       if (appStore.wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
         return;
@@ -28,8 +31,37 @@ Future<void> startFiatRateUpdate(
             await FiatConversionService.fetchPrice(
                 appStore.wallet!.currency, settingsStore.fiatCurrency, settingsStore);
       }
+
+      if (appStore.wallet!.type == WalletType.ethereum) {
+        final currencies =
+                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+
+        for (final currency in currencies) {
+          () async {
+            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+                currency,
+                settingsStore.fiatCurrency,
+                settingsStore);
+          }.call();
+        }
+      }
     } catch (e) {
       print(e);
+    }
+  };
+
+  _timer = Timer.periodic(Duration(seconds: 30), _updateFiat);
+  // also run immediately:
+  _updateFiat(null);
+
+  // setup autorun to listen to changes in fiatApiMode
+  autorun((_) {
+    // restart the timer if fiatApiMode was re-enabled
+    if (settingsStore.fiatApiMode != FiatApiMode.disabled) {
+      _timer = Timer.periodic(Duration(seconds: 30), _updateFiat);
+      _updateFiat(null);
+    } else {
+      _timer?.cancel();
     }
   });
 }

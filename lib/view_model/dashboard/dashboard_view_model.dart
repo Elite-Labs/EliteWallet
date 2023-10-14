@@ -1,6 +1,7 @@
 import 'package:elite_wallet/entities/exchange_api_mode.dart';
 import 'package:elite_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:elite_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import 'package:elite_wallet/view_model/settings/sync_mode.dart';
 import 'package:elite_wallet/wallet_type_utils.dart';
 import 'package:ew_core/transaction_history.dart';
 import 'package:ew_core/balance.dart';
@@ -284,8 +285,7 @@ abstract class DashboardViewModelBase with Store {
   bool get isEnabledSellAction =>
       !settingsStore.disableSell &&
       wallet.type != WalletType.haven &&
-      wallet.type != WalletType.monero &&
-      wallet.type != WalletType.litecoin;
+      wallet.type != WalletType.monero;
 
   @observable
   bool hasSellAction;
@@ -401,4 +401,16 @@ abstract class DashboardViewModelBase with Store {
     hasBuyAction = false;
     hasSellAction = false;
   }
+
+  @computed
+  SyncMode get syncMode => settingsStore.currentSyncMode;
+
+  @action
+  void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
+
+  @computed
+  bool get syncAll => settingsStore.currentSyncAll;
+
+  @action
+  void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 }

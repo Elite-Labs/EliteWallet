@@ -1,5 +1,6 @@
 import 'package:elite_wallet/entities/balance_display_mode.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
+import 'package:elite_wallet/ethereum/ethereum.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:ew_core/transaction_direction.dart';
 import 'package:ew_core/transaction_info.dart';
@@ -28,7 +29,7 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
 
-  BalanceDisplayMode get displayMode => settingsStore.balanceDisplayMode;
+  BalanceDisplayMode get displayMode => balanceViewModel.displayMode;
 
   @override
   dynamic get keyIndex => transaction.id;
@@ -89,6 +90,13 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.wownero:
         amount = calculateFiatAmountRaw(
             cryptoAmount: wownero!.formatterWowneroAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.ethereum:
+        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
             price: price);
         break;
       default:

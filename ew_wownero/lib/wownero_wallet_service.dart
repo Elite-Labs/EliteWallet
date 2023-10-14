@@ -155,6 +155,22 @@ class WowneroWalletService extends WalletService<
   }
 
   @override
+  Future<void> rename(
+      String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values.firstWhere(
+        (info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWallet = WowneroWallet(walletInfo: currentWalletInfo);
+
+    await currentWallet.renameWalletFiles(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
   Future<WowneroWallet> restoreFromKeys(
       WowneroRestoreWalletFromKeysCredentials credentials) async {
     try {

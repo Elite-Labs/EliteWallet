@@ -36,7 +36,8 @@ class PrivacyPage extends BasePage {
                 title: S.current.exchange,
                 items: ExchangeApiMode.all,
                 selectedItem: _privacySettingsViewModel.exchangeStatus,
-                onItemSelected: (ExchangeApiMode mode) => _privacySettingsViewModel.setExchangeApiMode(mode),
+                onItemSelected: (ExchangeApiMode mode) =>
+                    _privacySettingsViewModel.setExchangeApiMode(mode),
               ),
             ),
             SettingsSwitcherCell(
@@ -80,6 +81,13 @@ class PrivacyPage extends BasePage {
                   return service.toLowerCase().contains(searchText);
                 },
             ),
+            if (_privacySettingsViewModel.canUseEtherscan)
+              SettingsSwitcherCell(
+                  title: S.current.etherscan_history,
+                  value: _privacySettingsViewModel.useEtherscan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseEtherscan(value);
+                  }),
           ],
         );
       }),

@@ -34,14 +34,17 @@ abstract class ExchangeTradeViewModelBase with Store {
       required this.settingsStore})
       : trade = tradesStore.trade!,
         isSendable = tradesStore.trade!.from == wallet.currency ||
-            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto,
+            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
+            (wallet.currency == CryptoCurrency.eth &&
+                tradesStore.trade!.from.tag == CryptoCurrency.eth.title),
         items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
         _provider = XMRTOExchangeProvider(settingsStore);
         break;
       case ExchangeProviderDescription.changeNow:
-        _provider = ChangeNowExchangeProvider(settingsStore);
+        _provider =
+            ChangeNowExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
         break;
       case ExchangeProviderDescription.majesticBank:
         _provider = MajesticBankExchangeProvider(settingsStore);
@@ -61,7 +64,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.simpleSwap:
         _provider = SimpleSwapExchangeProvider(settingsStore);
         break;
-        case ExchangeProviderDescription.trocador:
+      case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider(settingsStore);
         break;
     }
@@ -117,6 +120,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     final output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
+    sendViewModel.selectedCryptoCurrency = trade.from;
     await sendViewModel.createTransaction();
   }
 
@@ -129,6 +133,10 @@ abstract class ExchangeTradeViewModelBase with Store {
         updatedTrade.createdAt = trade.createdAt;
       }
 
+      if (updatedTrade.amount.isEmpty) {
+        updatedTrade.amount = trade.amount;
+      }
+
       trade = updatedTrade;
 
       _updateItems();
@@ -138,7 +146,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
-    final tagFrom = tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
+    final tagFrom =
+        tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
     final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
     items.clear();
     items.add(ExchangeTradeItem(

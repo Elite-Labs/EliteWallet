@@ -73,6 +73,8 @@ class Node extends HiveObject with Keyable {
         return Uri.http(uriRaw, '');
       case WalletType.wownero:
         return Uri.http(uriRaw, '');
+      case WalletType.ethereum:
+        return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -122,6 +124,8 @@ class Node extends HiveObject with Keyable {
           return requestElectrumServer(settingsStore);
         case WalletType.haven:
           return requestMoneroNode(settingsStore);
+        case WalletType.ethereum:
+          return requestEthereumServer(settingsStore);
         default:
           return false;
       }
@@ -182,6 +186,20 @@ class Node extends HiveObject with Keyable {
         onBadCertificate: (_) => true);
 
       return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestEthereumServer(SettingsStore settingsStore) async {
+    try {
+      final response = await get(
+        settingsStore,
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
     } catch (_) {
       return false;
     }

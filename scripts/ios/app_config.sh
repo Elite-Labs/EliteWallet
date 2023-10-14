@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MONERO_SO="monero.so"
+MONERO_SC="monero.sc"
 ELITEWALLET="elitewallet"
 HAVEN="haven"
 WOWNERO="wownero"
@@ -20,11 +20,11 @@ cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 CONFIG_ARGS=""
 
 case $APP_IOS_TYPE in
-        $MONERO_SO)
+        $MONERO_SC)
 		CONFIG_ARGS="--monero"
 		;;
         $ELITEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --haven --wownero"
+		CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum"
 		;;
 	$HAVEN)
 		CONFIG_ARGS="--haven"

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
+import 'package:elite_wallet/src/screens/proxy_settings/proxy_settings.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/view_model/proxy_settings/save_button_list_item.dart';
 import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/wallet_type_utils.dart';
+import 'package:ew_core/proxy_settings_store.dart';
 
 class SelectAnonymityPage extends BasePage {
   SelectAnonymityPage(this.settingsStore, this.fromWelcome);
@@ -22,7 +24,7 @@ class SelectAnonymityPage extends BasePage {
 
   String appDescription(BuildContext context) {
     if (isMoneroOnly) {
-      return S.of(context).monero_so_wallet_text;
+      return S.of(context).monero_sc_wallet_text;
     }
 
     if (isHaven) {
@@ -73,7 +75,7 @@ class SelectAnonymityPage extends BasePage {
             .headline5!
             .decorationColor!);
 
-    void Function() action = () {
+    void Function() close = () {
       if (fromWelcome) {
         Navigator.of(context).popAndPushNamed(Routes.welcome);
       } else {
@@ -81,9 +83,14 @@ class SelectAnonymityPage extends BasePage {
       }
     };
 
-    void Function() saveButtonAction = () {
+    Future<void> Function() saveButtonAction = () async {
+      ProxySettingsStore proxy =
+        ProxySettingsStore.fromSettingsStore(settingsStore);
+      void Function() action = () {
         Navigator.of(context).pop();
-        action();
+        close();
+      };
+      await ProxySettingsPage.showPopupIfInvalid(context, proxy, action);
     };
 
     List<List<SettingsListItem>> saveButton =
@@ -170,7 +177,8 @@ class SelectAnonymityPage extends BasePage {
                                   settingsStore.proxyEnabled = false;
                                   settingsStore.proxyIPAddress = "";
                                   settingsStore.proxyPort = "";
-                                  action();
+                                  settingsStore.proxyAuthenticationEnabled = false;
+                                  close();
                                 },
                                 image: standardAnonymity,
                                 text: S
@@ -195,7 +203,7 @@ class SelectAnonymityPage extends BasePage {
                                   settingsStore.proxyIPAddress = "proxy.elitewallet.sc";
                                   settingsStore.proxyPort = "9999";
                                   settingsStore.proxyAuthenticationEnabled = false;
-                                  action();
+                                  close();
                                 },
                                 image: advancedAnonymity,
                                 text: S

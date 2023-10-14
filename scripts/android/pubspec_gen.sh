@@ -1,17 +1,17 @@
 #!/bin/bash
 
-MONERO_SO=monero.so
+MONERO_SC=monero.sc
 ELITEWALLET=elitewallet
 HAVEN=haven
 WOWNERO=wownero
 CONFIG_ARGS=""
 
 case $APP_ANDROID_TYPE in
-        $MONERO_SO)
+        $MONERO_SC)
                 CONFIG_ARGS="--monero"
                 ;;
         $ELITEWALLET)
-                CONFIG_ARGS="--monero --bitcoin --haven --wownero"
+                CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum"
                 ;;
         $HAVEN)
                 CONFIG_ARGS="--haven"

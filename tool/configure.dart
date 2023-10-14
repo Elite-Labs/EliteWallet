@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 
 const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
+const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -15,12 +15,14 @@ Future<void> main(List<String> args) async {
   final hasMonero = args.contains('${prefix}monero');
   final hasHaven = args.contains('${prefix}haven');
   final hasWownero = args.contains('${prefix}wownero');
+  final hasEthereum = args.contains('${prefix}ethereum');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
   await generateWownero(hasWownero);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasWownero: hasWownero);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasWownero: hasWownero);
+  await generateEthereum(hasEthereum);
+  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasWownero: hasWownero, hasEthereum: hasEthereum);
+  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasWownero: hasWownero, hasEthereum: hasEthereum);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -226,6 +228,7 @@ abstract class Monero {
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 
   int getHeightByDate({required DateTime date});
+  int getCurrentHeight();
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getMoneroTransactionPrioritySlow();
   TransactionPriority getMoneroTransactionPriorityAutomatic();
@@ -568,6 +571,7 @@ abstract class Wownero {
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
   int getHeightByDate({required DateTime date});
+  int getCurrentHeight();
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 
@@ -635,7 +639,89 @@ abstract class WowneroAccountList {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasWownero}) async {
+Future<void> generateEthereum(bool hasImplementation) async {
+
+  final outputFile = File(ethereumOutputPath);
+  const ethereumCommonHeaders = """
+import 'package:elite_wallet/view_model/send/output.dart';
+import 'package:ew_core/crypto_amount_format.dart';
+import 'package:ew_core/crypto_currency.dart';
+import 'package:ew_core/erc20_token.dart';
+import 'package:ew_core/output_info.dart';
+import 'package:ew_core/transaction_info.dart';
+import 'package:ew_core/transaction_priority.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const ethereumEWHeaders = """
+import 'package:ew_ethereum/ethereum_formatter.dart';
+import 'package:ew_ethereum/ethereum_mnemonics.dart';
+import 'package:ew_ethereum/ethereum_transaction_credentials.dart';
+import 'package:ew_ethereum/ethereum_transaction_info.dart';
+import 'package:ew_ethereum/ethereum_wallet.dart';
+import 'package:ew_ethereum/ethereum_wallet_creation_credentials.dart';
+import 'package:ew_ethereum/ethereum_wallet_service.dart';
+import 'package:ew_ethereum/ethereum_transaction_priority.dart';
+""";
+  const ethereumEwPart = "part 'ew_ethereum.dart';";
+  const ethereumContent = """
+abstract class Ethereum {
+  List<String> getEthereumWordList(String language);
+  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  String getAddress(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeEthereumTransactionPriority(int raw);
+
+  Object createEthereumTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createEthereumTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterEthereumParseAmount(String amount);
+  double formatterEthereumAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
+  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+}
+  """;
+
+  const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
+  const ethereumEWDefinition = 'Ethereum? ethereum = EWEthereum();\n';
+
+  final output = '$ethereumCommonHeaders\n'
+    + (hasImplementation ? '$ethereumEWHeaders\n' : '\n')
+    + (hasImplementation ? '$ethereumEwPart\n\n' : '\n')
+    + (hasImplementation ? ethereumEWDefinition : ethereumEmptyDefinition)
+    + '\n'
+    + ethereumContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasWownero, required bool hasEthereum}) async {
   const ewCore =  """
   ew_core:
     path: ./ew_core
@@ -659,6 +745,10 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   const ewSharedExternal = """
   ew_shared_external:
     path: ./ew_shared_external
+  """;
+  const ewEthereum = """
+  ew_ethereum:
+    path: ./ew_ethereum
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -686,6 +776,10 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
     output += '\n$ewWownero';
   }
 
+  if (hasEthereum) {
+    output += '\n$ewEthereum';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -698,7 +792,7 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasWownero}) async {
+Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasWownero, required bool hasEthereum}) async {
   final walletTypesFile = File(walletTypesPath);
   
   if (walletTypesFile.existsSync()) {
@@ -714,7 +808,15 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
   }
 
   if (hasBitcoin) {
-    outputContent += '\tWalletType.bitcoin,\n\tWalletType.litecoin,\n';
+    outputContent += '\tWalletType.bitcoin,\n';
+  }
+
+  if (hasEthereum) {
+    outputContent += '\tWalletType.ethereum,\n';
+  }
+
+  if (hasBitcoin) {
+    outputContent += '\tWalletType.litecoin,\n';
   }
 
   if (hasHaven) {

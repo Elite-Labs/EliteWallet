@@ -78,6 +78,19 @@ class PortRedirector {
       return redirector;
   }
 
+  static Future<bool> isProxyValid(ProxySettingsStore proxy) async {
+    if (!proxy.proxyEnabled) {
+      return true;
+    }
+    try {
+      await connectToProxy(
+        proxy, proxy.proxyIPAddress, int.parse(proxy.proxyPort),
+        Duration(seconds: 1));
+      return true;
+    } catch (_) {}
+    return false;
+  }
+
   static Future<SocksSocket> connectToProxy(
     ProxySettingsStore proxySettingsStore,
     String host,

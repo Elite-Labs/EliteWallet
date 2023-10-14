@@ -22,7 +22,7 @@ bool get isSingleCoin {
 
 String get approximatedAppName {
     if (isMoneroOnly) {
-        return 'Monero.so';   
+        return 'Monero.sc';   
     }
 
     if (isHaven) {

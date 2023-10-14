@@ -9,8 +9,6 @@ import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.
 import 'package:elite_wallet/monero/monero.dart';
 import 'package:elite_wallet/haven/haven.dart';
 import 'package:elite_wallet/wownero/wownero.dart';
-import 'package:ew_monero/api/wallet.dart' as monero_wallet;
-import 'package:ew_wownero/api/wallet.dart' as wownero_wallet;
 
 part 'wallet_keys_view_model.g.dart';
 
@@ -19,7 +17,8 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
-                _appStore.wallet!.type == WalletType.litecoin
+                _appStore.wallet!.type == WalletType.litecoin ||
+                _appStore.wallet!.type == WalletType.ethereum
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
@@ -107,7 +106,8 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
     if (_appStore.wallet!.type == WalletType.bitcoin ||
-        _appStore.wallet!.type == WalletType.litecoin) {
+        _appStore.wallet!.type == WalletType.litecoin ||
+        _appStore.wallet!.type == WalletType.ethereum) {
       items.addAll([
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed),
       ]);
@@ -119,10 +119,10 @@ abstract class WalletKeysViewModelBase with Store {
       return await haven!.getCurrentHeight();
     }
     if (_appStore.wallet!.type == WalletType.monero) {
-      return monero_wallet.getCurrentHeight();
+      return monero!.getCurrentHeight();
     }
     if (_appStore.wallet!.type == WalletType.wownero) {
-      return await wownero_wallet.getCurrentHeight();
+      return wownero!.getCurrentHeight();
     }
     return null;
   }
@@ -137,6 +137,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'litecoin-wallet';
       case WalletType.haven:
         return 'haven-wallet';
+      case WalletType.wownero:
+        return 'wownero-wallet';
+      case WalletType.ethereum:
+        return 'ethereum-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

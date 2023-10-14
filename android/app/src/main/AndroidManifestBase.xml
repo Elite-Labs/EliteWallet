@@ -14,8 +14,9 @@
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:requestLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true">
+        android:versionCode="__versionCode__"
+        android:versionName="__versionName__"
+        android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance"
@@ -23,7 +24,6 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait"
             android:exported="true">
             <meta-data
                     android:name="io.flutter.embedding.android.SplashScreenDrawable"

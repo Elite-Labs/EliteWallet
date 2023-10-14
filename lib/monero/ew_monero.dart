@@ -164,7 +164,10 @@ class EWMonero extends Monero {
 	int getHeightByDate({required DateTime date}) {
 		return getMoneroHeightByDate(date: date);
 	}
-	
+
+  @override
+  int getCurrentHeight() => monero_wallet_api.getCurrentHeight();
+
 	@override
 	TransactionPriority getDefaultTransactionPriority() {
 		return MoneroTransactionPriority.automatic;

@@ -1,4 +1,5 @@
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
+import 'package:elite_wallet/ethereum/ethereum.dart';
 import 'package:elite_wallet/haven/haven.dart';
 import 'package:elite_wallet/wownero/wownero.dart';
 import 'package:elite_wallet/core/validator.dart';
@@ -28,6 +29,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return wownero!.getWowneroWordList(language);
       case WalletType.haven:
         return haven!.getMoneroWordList(language);
+      case WalletType.ethereum:
+        return ethereum!.getEthereumWordList(language);
       default:
         return <String>[];
     }

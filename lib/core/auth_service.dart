@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:elite_wallet/core/totp_request_details.dart';
 import 'package:elite_wallet/entities/preferences_key.dart';
 import 'package:elite_wallet/entities/secret_store_key.dart';
 import 'package:elite_wallet/entities/encrypt.dart';
 import 'package:elite_wallet/store/settings_store.dart';
+import 'package:elite_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class AuthService with Store {
   AuthService({
@@ -20,6 +22,12 @@ class AuthService with Store {
     Routes.showKeys,
     Routes.backup,
     Routes.setupPin,
+    Routes.setup_2faPage,
+    Routes.modify2FAPage,
+    Routes.newWallet,
+    Routes.newWalletType,
+    Routes.addressBookAddContact,
+    Routes.restoreOptions,
   ];
 
   final FlutterSecureStorage secureStorage;
@@ -76,21 +84,26 @@ class AuthService with Store {
   }
 
   Future<void> authenticateAction(BuildContext context,
-      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
+      {Function(bool)? onAuthSuccess,
+      String? route,
+      Object? arguments,
+      required bool conditionToDetermineIfToUse2FA}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
 
-    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
-      if (onAuthSuccess != null) {
-        onAuthSuccess(true);
-      } else {
-        Navigator.of(context).pushNamed(
-          route ?? '',
-          arguments: arguments,
-        );
+    if (!conditionToDetermineIfToUse2FA) {
+      if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+        if (onAuthSuccess != null) {
+          onAuthSuccess(true);
+        } else {
+          Navigator.of(context).pushNamed(
+            route ?? '',
+            arguments: arguments,
+          );
+        }
+        return;
       }
-      return;
-    }
+}
 
     
     Navigator.of(context).pushNamed(Routes.auth,
@@ -99,8 +112,25 @@ class AuthService with Store {
         onAuthSuccess?.call(false);
         return;
       } else {
-        if (onAuthSuccess != null) {
-          auth.close().then((value) => onAuthSuccess.call(true));
+        if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
+          auth.close(
+            route: Routes.totpAuthCodePage,
+            arguments: TotpAuthArgumentsModel(
+              isForSetup: !settingsStore.useTOTP2FA,
+              onTotpAuthenticationFinished:
+                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
+                if (!isAuthenticatedSuccessfully) {
+                  onAuthSuccess?.call(false);
+                  return;
+                }
+                if (onAuthSuccess != null) {
+                  totpAuth.close().then((value) => onAuthSuccess.call(true));
+                } else {
+                  totpAuth.close(route: route, arguments: arguments);
+                }
+              },
+            ),
+          );
         } else {
           auth.close(route: route, arguments: arguments);
         }

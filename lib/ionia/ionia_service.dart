@@ -6,7 +6,6 @@ import 'package:elite_wallet/.secrets.g.dart' as secrets;
 import 'package:elite_wallet/ionia/ionia_api.dart';
 import 'package:elite_wallet/ionia/ionia_gift_card.dart';
 import 'package:elite_wallet/ionia/ionia_category.dart';
-import 'package:platform_device_id/platform_device_id.dart';
 
 class IoniaService {
 	IoniaService(this.secureStorage, this.ioniaApi);
@@ -112,9 +111,9 @@ class IoniaService {
 		required String currency}) async {
 		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
 		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
-		final deviceId = await PlatformDeviceId.getDeviceId;
+		// final deviceId = await PlatformDeviceId.getDeviceId;
 		return ioniaApi.purchaseGiftCard(
-			requestedUUID: deviceId!,
+			requestedUUID: "",
 			merchId: merchId,
 			amount: amount,
 			currency: currency,

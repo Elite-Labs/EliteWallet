@@ -27,6 +27,7 @@ const eliteWalletBitcoinElectrumUri = 'fortress.qtornado.com:443';
 const eliteWalletLitecoinElectrumUri = 'electrum.ltc.xurious.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const wowneroDefaultNodeUri = 'eu-west-2.wow.xmr.pm:34568';
+const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 
 Future defaultSettingsMigration(
     {required int version,
@@ -171,6 +172,12 @@ Future defaultSettingsMigration(
           await removeUnreliableBitcoinElectrumNodes(nodes: nodes);
           break;
 
+        case 23:
+          await addEthereumNodeList(nodes: nodes);
+          await changeEthereumCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+
         default:
           break;
       }
@@ -260,6 +267,12 @@ Node? getWowneroDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull(
           (Node node) => node.uriRaw == wowneroDefaultNodeUri)
           ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.wownero);
+}
+
+Node? getEthereumDefaultNode({required Box<Node> nodes}) {
+    return nodes.values.firstWhereOrNull(
+          (Node node) => node.uriRaw == ethereumDefaultNodeUri)
+          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -478,6 +491,8 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentWowneroNodeId = sharedPreferences
       .getInt(PreferencesKey.currentWowneroNodeIdKey);
+  final currentEthereumNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
@@ -488,6 +503,8 @@ Future<void> checkCurrentNodes(
       (node) => node.key == currentHavenNodeId);
   final currentWowneroNodeServer = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentWowneroNodeId);
+  final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
+      (node) => node.key == currentEthereumNodeId);
 
   if (currentMoneroNode == null) {
     final newEliteWalletNode =
@@ -527,6 +544,13 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentWowneroNodeIdKey, node.key as int);
+  }
+
+  if (currentEthereumNodeServer == null) {
+    final node = Node(uri: ethereumDefaultNodeUri, type: WalletType.ethereum);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentEthereumNodeIdKey, node.key as int);
   }
 }
 
@@ -571,9 +595,9 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
     return;
   }
 
-  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled 
+  await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, isExchangeDisabled
       ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
-      
+
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }
 
@@ -586,4 +610,22 @@ Future<void> removeUnreliableBitcoinElectrumNodes({required Box<Node> nodes}) as
       await node.delete();
     }
   });
+}
+
+Future<void> addEthereumNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultEthereumNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeEthereumCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences,
+      required Box<Node> nodes}) async {
+  final node = getEthereumDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, nodeId);
 }
