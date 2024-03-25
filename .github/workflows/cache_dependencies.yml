@@ -41,19 +41,19 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            /opt/android/elite_wallet/ew_haven/android/.cxx
-            /opt/android/elite_wallet/ew_haven/ios/External
-            /opt/android/elite_wallet/ew_monero/android/.cxx
-            /opt/android/elite_wallet/ew_monero/ios/External
-            /opt/android/elite_wallet/ew_wownero/android/.cxx
-            /opt/android/elite_wallet/ew_wownero/ios/External
-            /opt/android/elite_wallet/ew_shared_external/ios/External
+            /opt/android/EliteWallet/ew_haven/android/.cxx
+            /opt/android/EliteWallet/ew_haven/ios/External
+            /opt/android/EliteWallet/ew_monero/android/.cxx
+            /opt/android/EliteWallet/ew_monero/ios/External
+            /opt/android/EliteWallet/ew_wownero/android/.cxx
+            /opt/android/EliteWallet/ew_wownero/ios/External
+            /opt/android/EliteWallet/ew_shared_external/ios/External
           key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/build_wownero.sh', '**/monero_api.cpp', '**/haven_api.cpp', '**/wownero_api.cpp') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
         run: |
-          cd /opt/android/elite_wallet/scripts/android/
+          cd /opt/android/EliteWallet/scripts/android/
           source ./app_env.sh elitewallet
           ./build_all.sh
           ./copy_monero_deps.sh
