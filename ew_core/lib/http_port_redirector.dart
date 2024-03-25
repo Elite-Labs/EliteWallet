@@ -1,17 +1,15 @@
 import 'dart:io';
-import 'package:elite_wallet/store/settings_store.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as ioc;
 import 'package:ew_core/port_redirector.dart';
 
 Future<http.Response> get(
-  SettingsStore settingsStore,
   dynamic url,
   {Map<String, String>? headers,
    HttpClient? httpClient}) async {
 
   Map<String, dynamic> map =
-    await _initializeRedirector(settingsStore, url, httpClient);
+    await _initializeRedirector(url, httpClient);
 
   http.Client client = map['client'] as http.Client;
   PortRedirector redirector = map['redirector'] as PortRedirector;
@@ -23,14 +21,13 @@ Future<http.Response> get(
 }
 
 Future<http.Response> post(
-  SettingsStore settingsStore,
   dynamic url,
   {Map<String, String>? headers,
    Object? body,
    HttpClient? httpClient}) async {
 
   Map<String, dynamic> map =
-    await _initializeRedirector(settingsStore, url, httpClient);
+    await _initializeRedirector(url, httpClient);
 
   http.Client client = map['client'] as http.Client;
   PortRedirector redirector = map['redirector'] as PortRedirector;
@@ -45,14 +42,13 @@ Future<http.Response> post(
 }
 
 Future<http.Response> put(
-  SettingsStore settingsStore,
   dynamic url,
   {Map<String, String>? headers,
    Object? body,
    HttpClient? httpClient}) async {
 
   Map<String, dynamic> map =
-    await _initializeRedirector(settingsStore, url, httpClient);
+    await _initializeRedirector(url, httpClient);
 
   http.Client client = map['client'] as http.Client;
   PortRedirector redirector = map['redirector'] as PortRedirector;
@@ -67,7 +63,6 @@ Future<http.Response> put(
 }
 
 Future<Map<String, dynamic>> _initializeRedirector(
-  SettingsStore settingsStore,
   dynamic serverUrl,
   HttpClient? httpClient) async {
 
@@ -82,7 +77,7 @@ Future<Map<String, dynamic>> _initializeRedirector(
 
   String serverHost = url.host;
   PortRedirector portRedirector = await PortRedirector.start(
-    settingsStore, url.host, url.port, timeout: Duration(seconds: 5));
+    url.host, url.port, timeout: Duration(seconds: 5));
   String host = portRedirector.host;
   int port = portRedirector.port;
 

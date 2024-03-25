@@ -49,13 +49,11 @@ void checkConnection(WalletBase wallet, SettingsStore settingsStore) async {
     if (wallet.syncStatus is LostConnectionSyncStatus ||
         wallet.syncStatus is FailedSyncStatus) {
       final alive =
-          await settingsStore.getCurrentNode(wallet.type).requestNode(
-              settingsStore);
+          await settingsStore.getCurrentNode(wallet.type).requestNode();
 
       if (alive) {
         await wallet.connectToNode(
-            node: settingsStore.getCurrentNode(wallet.type),
-            settingsStore: settingsStore);
+            node: settingsStore.getCurrentNode(wallet.type));
       }
     }
   } catch (e) {

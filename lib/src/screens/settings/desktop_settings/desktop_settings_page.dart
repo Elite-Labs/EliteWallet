@@ -5,11 +5,13 @@ import 'package:elite_wallet/src/widgets/setting_actions.dart';
 import 'package:elite_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/router.dart' as Router;
+import 'package:elite_wallet/themes/extensions/menu_theme.dart';
 
 final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 
 class DesktopSettingsPage extends StatefulWidget {
   const DesktopSettingsPage({super.key});
+
 
   @override
   State<DesktopSettingsPage> createState() => _DesktopSettingsPageState();
@@ -71,10 +73,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                       },
                       separatorBuilder: (_, index) => Container(
                         height: 1,
-                        color: Theme.of(context)
-                            .primaryTextTheme!
-                            .bodySmall!
-                            .decorationColor!,
+                        color: Theme.of(context).extension<EliteMenuTheme>()!.dividerColor,
                       ),
                       itemCount: itemCount,
                     ),

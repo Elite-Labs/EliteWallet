@@ -5,6 +5,10 @@ const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
+const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
+const nanoOutputPath = 'lib/nano/nano.dart';
+const polygonOutputPath = 'lib/polygon/polygon.dart';
+const solanaOutputPath = 'lib/solana/solana.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -16,18 +20,54 @@ Future<void> main(List<String> args) async {
   final hasHaven = args.contains('${prefix}haven');
   final hasWownero = args.contains('${prefix}wownero');
   final hasEthereum = args.contains('${prefix}ethereum');
+  final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
+  final hasNano = args.contains('${prefix}nano');
+  final hasBanano = args.contains('${prefix}banano');
+  final hasPolygon = args.contains('${prefix}polygon');
+  final hasSolana = args.contains('${prefix}solana');
+
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
   await generateWownero(hasWownero);
   await generateEthereum(hasEthereum);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasWownero: hasWownero, hasEthereum: hasEthereum);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasWownero: hasWownero, hasEthereum: hasEthereum);
+  await generateBitcoinCash(hasBitcoinCash);
+  await generateNano(hasNano);
+  await generatePolygon(hasPolygon);
+  await generateSolana(hasSolana);
+  // await generateBanano(hasEthereum);
+
+  await generatePubspec(
+    hasMonero: hasMonero,
+    hasBitcoin: hasBitcoin,
+    hasHaven: hasHaven,
+    hasWownero: hasWownero,
+    hasEthereum: hasEthereum,
+    hasNano: hasNano,
+    hasBanano: hasBanano,
+    hasBitcoinCash: hasBitcoinCash,
+    hasPolygon: hasPolygon,
+    hasSolana: hasSolana,
+  );
+  await generateWalletTypes(
+    hasMonero: hasMonero,
+    hasBitcoin: hasBitcoin,
+    hasHaven: hasHaven,
+    hasWownero: hasWownero,
+    hasEthereum: hasEthereum,
+    hasNano: hasNano,
+    hasBanano: hasBanano,
+    hasBitcoinCash: hasBitcoinCash,
+    hasPolygon: hasPolygon,
+    hasSolana: hasSolana,
+  );
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'package:ew_core/receive_page_option.dart';
+import 'package:ew_core/unspent_transaction_output.dart';
 import 'package:ew_core/wallet_credentials.dart';
 import 'package:ew_core/wallet_info.dart';
 import 'package:ew_core/transaction_priority.dart';
@@ -35,38 +75,39 @@ import 'package:ew_core/output_info.dart';
 import 'package:ew_core/unspent_coins_info.dart';
 import 'package:ew_core/wallet_service.dart';
 import 'package:elite_wallet/view_model/send/output.dart';
-import 'package:hive/hive.dart';""";
+import 'package:hive/hive.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';""";
   const bitcoinEWHeaders = """
+import 'package:ew_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:ew_bitcoin/electrum_wallet.dart';
 import 'package:ew_bitcoin/bitcoin_unspent.dart';
 import 'package:ew_bitcoin/bitcoin_mnemonic.dart';
 import 'package:ew_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:ew_bitcoin/bitcoin_wallet.dart';
 import 'package:ew_bitcoin/bitcoin_wallet_service.dart';
 import 'package:ew_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:ew_bitcoin/bitcoin_amount_format.dart';
 import 'package:ew_bitcoin/bitcoin_address_record.dart';
 import 'package:ew_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:ew_bitcoin/litecoin_wallet_service.dart';
+import 'package:mobx/mobx.dart';
 """;
   const bitcoinEWPart = "part 'ew_bitcoin.dart';";
   const bitcoinContent = """
-class Unspent {
-  Unspent(this.address, this.hash, this.value, this.vout)
-      : isSending = true,
-        isFrozen = false,
-        note = '';
-
-  final String address;
-  final String hash;
-  final int value;
-  final int vout;
   
-  bool isSending;
-  bool isFrozen;
-  String note;
-
-  bool get isP2wpkh => address.startsWith('bc') || address.startsWith('ltc');
+  class ElectrumSubAddress {
+  ElectrumSubAddress({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.txCount,
+    required this.balance,
+    required this.isChange});
+  final int id;
+  final String name;
+  final String address;
+  final int txCount;
+  final int balance;
+  final bool isChange;
 }
 
 abstract class Bitcoin {
@@ -79,15 +120,19 @@ abstract class Bitcoin {
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
   List<TransactionPriority> getLitecoinTransactionPriorities();
-  TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw); 
+  TransactionPriority deserializeBitcoinTransactionPriority(int raw);
+  TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Future<void> generateNewAddress(Object wallet);
+  Future<void> generateNewAddress(Object wallet, String label);
+  Future<void> updateAddress(Object wallet,String address, String label);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
+  List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
@@ -95,25 +140,30 @@ abstract class Bitcoin {
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
 
   List<Unspent> getUnspents(Object wallet);
-  void updateUnspents(Object wallet);
+  Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
+
+  Future<void> setAddressType(Object wallet, dynamic option);
+  ReceivePageOption getSelectedAddressType(Object wallet);
+  List<ReceivePageOption> getBitcoinReceivePageOptions();
+  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
 }
   """;
 
   const bitcoinEmptyDefinition = 'Bitcoin? bitcoin;\n';
   const bitcoinEWDefinition = 'Bitcoin? bitcoin = EWBitcoin();\n';
 
-  final output = '$bitcoinCommonHeaders\n'
-    + (hasImplementation ? '$bitcoinEWHeaders\n' : '\n')
-    + (hasImplementation ? '$bitcoinEWPart\n\n' : '\n')
-    + (hasImplementation ? bitcoinEWDefinition : bitcoinEmptyDefinition)
-    + '\n'
-    + bitcoinContent;
+  final output = '$bitcoinCommonHeaders\n' +
+      (hasImplementation ? '$bitcoinEWHeaders\n' : '\n') +
+      (hasImplementation ? '$bitcoinEWPart\n\n' : '\n') +
+      (hasImplementation ? bitcoinEWDefinition : bitcoinEmptyDefinition) +
+      '\n' +
+      bitcoinContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -125,8 +175,10 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
+import 'package:ew_core/unspent_transaction_output.dart';
+import 'package:ew_core/unspent_coins_info.dart';
+import 'package:ew_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/foundation.dart';
 import 'package:ew_core/wallet_credentials.dart';
 import 'package:ew_core/wallet_info.dart';
 import 'package:ew_core/transaction_priority.dart';
@@ -136,7 +188,8 @@ import 'package:ew_core/balance.dart';
 import 'package:ew_core/output_info.dart';
 import 'package:elite_wallet/view_model/send/output.dart';
 import 'package:ew_core/wallet_service.dart';
-import 'package:hive/hive.dart';""";
+import 'package:hive/hive.dart';
+import 'package:polyseed/polyseed.dart';""";
   const moneroEWHeaders = """
 import 'package:ew_core/get_height_by_date.dart';
 import 'package:ew_core/monero_amount_format.dart';
@@ -144,7 +197,6 @@ import 'package:ew_core/monero_transaction_priority.dart';
 import 'package:ew_monero/monero_wallet_service.dart';
 import 'package:ew_monero/monero_wallet.dart';
 import 'package:ew_monero/monero_transaction_info.dart';
-import 'package:ew_monero/monero_transaction_history.dart';
 import 'package:ew_monero/monero_transaction_creation_credentials.dart';
 import 'package:ew_core/account.dart' as monero_account;
 import 'package:ew_monero/api/wallet.dart' as monero_wallet_api;
@@ -235,6 +287,9 @@ abstract class Monero {
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
+  
+  List<Unspent> getUnspents(Object wallet);
+  Future<void> updateUnspents(Object wallet);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
@@ -245,7 +300,7 @@ abstract class Monero {
     required String language,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, String password,});
+  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
   Map<String, String> getKeys(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
   Object createMoneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
@@ -256,7 +311,7 @@ abstract class Monero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
 }
 
@@ -283,12 +338,12 @@ abstract class MoneroAccountList {
   const moneroEmptyDefinition = 'Monero? monero;\n';
   const moneroEWDefinition = 'Monero? monero = EWMonero();\n';
 
-  final output = '$moneroCommonHeaders\n'
-    + (hasImplementation ? '$moneroEWHeaders\n' : '\n')
-    + (hasImplementation ? '$moneroEWPart\n\n' : '\n')
-    + (hasImplementation ? moneroEWDefinition : moneroEmptyDefinition)
-    + '\n'
-    + moneroContent;
+  final output = '$moneroCommonHeaders\n' +
+      (hasImplementation ? '$moneroEWHeaders\n' : '\n') +
+      (hasImplementation ? '$moneroEWPart\n\n' : '\n') +
+      (hasImplementation ? moneroEWDefinition : moneroEmptyDefinition) +
+      '\n' +
+      moneroContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -298,7 +353,6 @@ abstract class MoneroAccountList {
 }
 
 Future<void> generateHaven(bool hasImplementation) async {
-  
   final outputFile = File(havenOutputPath);
   const havenCommonHeaders = """
 import 'package:mobx/mobx.dart';
@@ -390,10 +444,10 @@ class AssetRate {
 }
 
 abstract class HavenWalletDetails {
-  // FIX-ME: it's abstruct class
+  // FIX-ME: it's abstract class
   @observable
   late Account account;
-  // FIX-ME: it's abstruct class
+  // FIX-ME: it's abstract class
   @observable
   late HavenBalance balance;
 }
@@ -463,12 +517,12 @@ abstract class HavenAccountList {
   const havenEmptyDefinition = 'Haven? haven;\n';
   const havenEWDefinition = 'Haven? haven = EWHaven();\n';
 
-  final output = '$havenCommonHeaders\n'
-    + (hasImplementation ? '$havenEWHeaders\n' : '\n')
-    + (hasImplementation ? '$havenEWPart\n\n' : '\n')
-    + (hasImplementation ? havenEWDefinition : havenEmptyDefinition)
-    + '\n'
-    + havenContent;
+  final output = '$havenCommonHeaders\n' +
+      (hasImplementation ? '$havenEWHeaders\n' : '\n') +
+      (hasImplementation ? '$havenEWPart\n\n' : '\n') +
+      (hasImplementation ? havenEWDefinition : havenEmptyDefinition) +
+      '\n' +
+      havenContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -625,12 +679,12 @@ abstract class WowneroAccountList {
   const wowneroEmptyDefinition = 'Wownero? wownero;\n';
   const wowneroEWDefinition = 'Wownero? wownero = EWWownero();\n';
 
-  final output = '$wowneroCommonHeaders\n'
-      + (hasImplementation ? '$wowneroEWHeaders\n' : '\n')
-      + (hasImplementation ? '$wowneroEWPart\n\n' : '\n')
-      + (hasImplementation ? wowneroEWDefinition : wowneroEmptyDefinition)
-      + '\n'
-      + wowneroContent;
+  final output = '$wowneroCommonHeaders\n' +
+      (hasImplementation ? '$wowneroEWHeaders\n' : '\n') +
+      (hasImplementation ? '$wowneroEWPart\n\n' : '\n') +
+      (hasImplementation ? wowneroEWDefinition : wowneroEmptyDefinition) +
+      '\n' +
+      wowneroContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -640,11 +694,9 @@ abstract class WowneroAccountList {
 }
 
 Future<void> generateEthereum(bool hasImplementation) async {
-
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:elite_wallet/view_model/send/output.dart';
-import 'package:ew_core/crypto_amount_format.dart';
 import 'package:ew_core/crypto_currency.dart';
 import 'package:ew_core/erc20_token.dart';
 import 'package:ew_core/output_info.dart';
@@ -655,26 +707,37 @@ import 'package:ew_core/wallet_credentials.dart';
 import 'package:ew_core/wallet_info.dart';
 import 'package:ew_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
+
 """;
   const ethereumEWHeaders = """
-import 'package:ew_ethereum/ethereum_formatter.dart';
-import 'package:ew_ethereum/ethereum_mnemonics.dart';
-import 'package:ew_ethereum/ethereum_transaction_credentials.dart';
-import 'package:ew_ethereum/ethereum_transaction_info.dart';
+import 'package:ew_evm/evm_chain_formatter.dart';
+import 'package:ew_evm/evm_chain_mnemonics.dart';
+import 'package:ew_evm/evm_chain_transaction_credentials.dart';
+import 'package:ew_evm/evm_chain_transaction_info.dart';
+import 'package:ew_evm/evm_chain_transaction_priority.dart';
+import 'package:ew_evm/evm_chain_wallet_creation_credentials.dart';
+
+import 'package:ew_ethereum/ethereum_client.dart';
 import 'package:ew_ethereum/ethereum_wallet.dart';
-import 'package:ew_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:ew_ethereum/ethereum_wallet_service.dart';
-import 'package:ew_ethereum/ethereum_transaction_priority.dart';
+
+import 'package:eth_sig_util/util/utils.dart';
+
 """;
-  const ethereumEwPart = "part 'ew_ethereum.dart';";
+  const ethereumEWPart = "part 'ew_ethereum.dart';";
   const ethereumContent = """
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getEthereumTransactionPrioritySlow();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
 
@@ -695,24 +758,26 @@ abstract class Ethereum {
   int formatterEthereumParseAmount(String amount);
   double formatterEthereumAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
-  Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
-  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
 }
   """;
 
   const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
   const ethereumEWDefinition = 'Ethereum? ethereum = EWEthereum();\n';
 
-  final output = '$ethereumCommonHeaders\n'
-    + (hasImplementation ? '$ethereumEWHeaders\n' : '\n')
-    + (hasImplementation ? '$ethereumEwPart\n\n' : '\n')
-    + (hasImplementation ? ethereumEWDefinition : ethereumEmptyDefinition)
-    + '\n'
-    + ethereumContent;
+  final output = '$ethereumCommonHeaders\n' +
+      (hasImplementation ? '$ethereumEWHeaders\n' : '\n') +
+      (hasImplementation ? '$ethereumEWPart\n\n' : '\n') +
+      (hasImplementation ? ethereumEWDefinition : ethereumEmptyDefinition) +
+      '\n' +
+      ethereumContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -721,8 +786,376 @@ abstract class Ethereum {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasWownero, required bool hasEthereum}) async {
-  const ewCore =  """
+Future<void> generatePolygon(bool hasImplementation) async {
+  final outputFile = File(polygonOutputPath);
+  const polygonCommonHeaders = """
+import 'package:elite_wallet/view_model/send/output.dart';
+import 'package:ew_core/crypto_currency.dart';
+import 'package:ew_core/erc20_token.dart';
+import 'package:ew_core/output_info.dart';
+import 'package:ew_core/transaction_info.dart';
+import 'package:ew_core/transaction_priority.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
+
+""";
+  const polygonEWHeaders = """
+import 'package:ew_evm/evm_chain_formatter.dart';
+import 'package:ew_evm/evm_chain_mnemonics.dart';
+import 'package:ew_evm/evm_chain_transaction_info.dart';
+import 'package:ew_evm/evm_chain_transaction_priority.dart';
+import 'package:ew_evm/evm_chain_transaction_credentials.dart';
+import 'package:ew_evm/evm_chain_wallet_creation_credentials.dart';
+
+import 'package:ew_polygon/polygon_client.dart';
+import 'package:ew_polygon/polygon_wallet.dart';
+import 'package:ew_polygon/polygon_wallet_service.dart';
+
+import 'package:eth_sig_util/util/utils.dart';
+
+""";
+  const polygonEWPart = "part 'ew_polygon.dart';";
+  const polygonContent = """
+abstract class Polygon {
+  List<String> getPolygonWordList(String language);
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getPolygonTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializePolygonTransactionPriority(int raw);
+
+  Object createPolygonTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createPolygonTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterPolygonParseAmount(String amount);
+  double formatterPolygonAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
+}
+  """;
+
+  const polygonEmptyDefinition = 'Polygon? polygon;\n';
+  const polygonEWDefinition = 'Polygon? polygon = EWPolygon();\n';
+
+  final output = '$polygonCommonHeaders\n' +
+      (hasImplementation ? '$polygonEWHeaders\n' : '\n') +
+      (hasImplementation ? '$polygonEWPart\n\n' : '\n') +
+      (hasImplementation ? polygonEWDefinition : polygonEmptyDefinition) +
+      '\n' +
+      polygonContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generateBitcoinCash(bool hasImplementation) async {
+  final outputFile = File(bitcoinCashOutputPath);
+  const bitcoinCashCommonHeaders = """
+import 'dart:typed_data';
+
+import 'package:ew_core/unspent_transaction_output.dart';
+import 'package:ew_core/transaction_priority.dart';
+import 'package:ew_core/unspent_coins_info.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const bitcoinCashEWHeaders = """
+import 'package:ew_bitcoin_cash/ew_bitcoin_cash.dart';
+import 'package:ew_bitcoin/bitcoin_transaction_priority.dart';
+""";
+  const bitcoinCashEWPart = "part 'ew_bitcoin_cash.dart';";
+  const bitcoinCashContent = """
+abstract class BitcoinCash {
+  String getCashAddrFormat(String address);
+
+  WalletService createBitcoinCashWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+
+  WalletCredentials createBitcoinCashNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo});
+
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password});
+
+  TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
+  
+  TransactionPriority getBitcoinCashTransactionPrioritySlow();
+}
+  """;
+
+  const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
+  const bitcoinCashEWDefinition = 'BitcoinCash? bitcoinCash = EWBitcoinCash();\n';
+
+  final output = '$bitcoinCashCommonHeaders\n' +
+      (hasImplementation ? '$bitcoinCashEWHeaders\n' : '\n') +
+      (hasImplementation ? '$bitcoinCashEWPart\n\n' : '\n') +
+      (hasImplementation ? bitcoinCashEWDefinition : bitcoinCashEmptyDefinition) +
+      '\n' +
+      bitcoinCashContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generateNano(bool hasImplementation) async {
+  final outputFile = File(nanoOutputPath);
+  const nanoCommonHeaders = """
+import 'package:ew_core/elite_hive.dart';
+import 'package:ew_core/nano_account.dart';
+import 'package:ew_core/account.dart';
+import 'package:ew_core/node.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/transaction_info.dart';
+import 'package:ew_core/transaction_history.dart';
+import 'package:ew_core/wallet_service.dart';
+import 'package:ew_core/output_info.dart';
+import 'package:ew_core/nano_account_info_response.dart';
+import 'package:mobx/mobx.dart';
+import 'package:hive/hive.dart';
+import 'package:elite_wallet/view_model/send/output.dart';
+""";
+  const nanoEWHeaders = """
+import 'package:ew_nano/nano_client.dart';
+import 'package:ew_nano/nano_mnemonic.dart';
+import 'package:ew_nano/nano_wallet.dart';
+import 'package:ew_nano/nano_wallet_service.dart';
+import 'package:ew_nano/nano_transaction_info.dart';
+import 'package:ew_nano/nano_transaction_credentials.dart';
+import 'package:ew_nano/nano_wallet_creation_credentials.dart';
+// needed for nano_util:
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:convert/convert.dart';
+import "package:ed25519_hd_key/ed25519_hd_key.dart";
+import 'package:libcrypto/libcrypto.dart';
+import 'package:nanodart/nanodart.dart' as ND;
+import 'package:nanoutil/nanoutil.dart';
+""";
+  const nanoEWPart = "part 'ew_nano.dart';";
+  const nanoContent = """
+abstract class Nano {
+  NanoAccountList getAccountList(Object wallet);
+
+  Account getCurrentAccount(Object wallet);
+
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
+
+  WalletCredentials createNanoNewWalletCredentials({
+    required String name,
+    String password,
+  });
+  
+  WalletCredentials createNanoRestoreWalletFromSeedCredentials({
+    required String name,
+    required String password,
+    required String mnemonic,
+    DerivationType? derivationType,
+  });
+
+  WalletCredentials createNanoRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required String seedKey,
+    DerivationType? derivationType,
+  });
+
+  List<String> getNanoWordList(String language);
+  Map<String, String> getKeys(Object wallet);
+  Object createNanoTransactionCredentials(List<Output> outputs);
+  Future<void> changeRep(Object wallet, String address);
+  Future<bool> updateTransactions(Object wallet);
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
+  String getRepresentative(Object wallet);
+}
+
+abstract class NanoAccountList {
+  ObservableList<NanoAccount> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  Future<List<NanoAccount>> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
+
+abstract class NanoUtil {
+  bool isValidBip39Seed(String seed);
+  static const int maxDecimalDigits = 6; // Max digits after decimal
+  BigInt rawPerNano = BigInt.parse("1000000000000000000000000000000");
+  BigInt rawPerNyano = BigInt.parse("1000000000000000000000000");
+  BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
+  BigInt rawPerXMR = BigInt.parse("1000000000000");
+  BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
+  String getRawAsUsableString(String? raw, BigInt rawPerCur);
+  String getRawAccuracy(String? raw, BigInt rawPerCur);
+  String getAmountAsRaw(String amount, BigInt rawPerCur);
+
+  // derivationInfo:
+  Future<AccountInfoResponse?> getInfoFromSeedOrMnemonic(
+    DerivationType derivationType, {
+    String? seedKey,
+    String? mnemonic,
+    required Node node,
+  });
+  Future<List<DerivationType>> compareDerivationMethods({
+    String? mnemonic,
+    String? privateKey,
+    required Node node,
+  });
+}
+  """;
+
+  const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
+  const nanoEWDefinition = 'Nano? nano = EWNano();\nNanoUtil? nanoUtil = EWNanoUtil();\n';
+
+  final output = '$nanoCommonHeaders\n' +
+      (hasImplementation ? '$nanoEWHeaders\n' : '\n') +
+      (hasImplementation ? '$nanoEWPart\n\n' : '\n') +
+      (hasImplementation ? nanoEWDefinition : nanoEmptyDefinition) +
+      '\n' +
+      nanoContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generateSolana(bool hasImplementation) async {
+  final outputFile = File(solanaOutputPath);
+  const solanaCommonHeaders = """
+import 'package:elite_wallet/view_model/send/output.dart';
+import 'package:ew_core/crypto_currency.dart';
+import 'package:ew_core/output_info.dart';
+import 'package:ew_core/transaction_info.dart';
+import 'package:ew_core/wallet_base.dart';
+import 'package:ew_core/wallet_credentials.dart';
+import 'package:ew_core/wallet_info.dart';
+import 'package:ew_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:solana/solana.dart';
+
+""";
+  const solanaEWHeaders = """
+import 'package:ew_solana/spl_token.dart';
+import 'package:ew_solana/solana_wallet.dart';
+import 'package:ew_solana/solana_mnemonics.dart';
+import 'package:ew_solana/solana_wallet_service.dart';
+import 'package:ew_solana/solana_transaction_info.dart';
+import 'package:ew_solana/solana_transaction_credentials.dart';
+import 'package:ew_solana/solana_wallet_creation_credentials.dart';
+""";
+  const solanaEwPart = "part 'ew_solana.dart';";
+  const solanaContent = """
+abstract class Solana {
+  List<String> getSolanaWordList(String language);
+  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createSolanaNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo});
+  WalletCredentials createSolanaRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password});
+  WalletCredentials createSolanaRestoreWalletFromPrivateKey(
+      {required String name, required String privateKey, required String password});
+
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  Ed25519HDKeyPair? getWalletKeyPair(WalletBase wallet);
+
+  Object createSolanaTransactionCredentials(
+    List<Output> outputs, {
+    required CryptoCurrency currency,
+  });
+
+  Object createSolanaTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    required CryptoCurrency currency,
+  });
+  List<CryptoCurrency> getSPLTokenCurrencies(WalletBase wallet);
+  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
+
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  double getTransactionAmountRaw(TransactionInfo transactionInfo);
+  String getTokenAddress(CryptoCurrency asset);
+  List<int>? getValidationLength(CryptoCurrency type);
+}
+
+  """;
+
+  const solanaEmptyDefinition = 'Solana? solana;\n';
+  const solanaEWDefinition = 'Solana? solana = EWSolana();\n';
+
+  final output = '$solanaCommonHeaders\n' +
+      (hasImplementation ? '$solanaEWHeaders\n' : '\n') +
+      (hasImplementation ? '$solanaEwPart\n\n' : '\n') +
+      (hasImplementation ? solanaEWDefinition : solanaEmptyDefinition) +
+      '\n' +
+      solanaContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generatePubspec(
+    {required bool hasMonero,
+    required bool hasBitcoin,
+    required bool hasHaven,
+    required bool hasWownero,
+    required bool hasEthereum,
+    required bool hasNano,
+    required bool hasBanano,
+    required bool hasBitcoinCash,
+    required bool hasPolygon,
+    required bool hasSolana}) async {
+  const ewCore = """
   ew_core:
     path: ./ew_core
     """;
@@ -750,6 +1183,30 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   ew_ethereum:
     path: ./ew_ethereum
   """;
+  const ewBitcoinCash = """
+  ew_bitcoin_cash:
+    path: ./ew_bitcoin_cash
+  """;
+  const ewNano = """
+  ew_nano:
+    path: ./ew_nano
+  """;
+  const ewBanano = """
+  ew_banano:
+    path: ./ew_banano
+  """;
+  const ewPolygon = """
+  ew_polygon:
+    path: ./ew_polygon
+  """;
+  const ewSolana = """
+  ew_solana:
+    path: ./ew_solana
+  """;
+  const ewEVM = """
+  ew_evm:
+    path: ./ew_evm
+    """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -764,6 +1221,30 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
     output += '\n$ewBitcoin';
   }
 
+  if (hasEthereum) {
+    output += '\n$ewEthereum';
+  }
+
+  if (hasNano) {
+    output += '\n$ewNano';
+  }
+
+  if (hasBanano) {
+    output += '\n$ewBanano';
+  }
+
+  if (hasBitcoinCash) {
+    output += '\n$ewBitcoinCash';
+  }
+
+  if (hasPolygon) {
+    output += '\n$ewPolygon';
+  }
+
+  if (hasSolana) {
+    output += '\n$ewSolana';
+  }
+
   if (hasHaven && !hasMonero) {
     output += '\n$ewSharedExternal\n$ewHaven';
   } else if (hasHaven) {
@@ -776,15 +1257,15 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
     output += '\n$ewWownero';
   }
 
-  if (hasEthereum) {
-    output += '\n$ewEthereum';
+  if (hasEthereum || hasPolygon) {
+    output += '\n$ewEVM';
   }
 
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
   final outputFile = File(pubspecOutputPath);
-  
+
   if (outputFile.existsSync()) {
     await outputFile.delete();
   }
@@ -792,9 +1273,19 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasWownero, required bool hasEthereum}) async {
+Future<void> generateWalletTypes(
+    {required bool hasMonero,
+    required bool hasBitcoin,
+    required bool hasHaven,
+    required bool hasWownero,
+    required bool hasEthereum,
+    required bool hasNano,
+    required bool hasBanano,
+    required bool hasBitcoinCash,
+    required bool hasPolygon,
+    required bool hasSolana}) async {
   final walletTypesFile = File(walletTypesPath);
-  
+
   if (walletTypesFile.existsSync()) {
     await walletTypesFile.delete();
   }
@@ -817,6 +1308,26 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
 
   if (hasBitcoin) {
     outputContent += '\tWalletType.litecoin,\n';
+  }
+
+  if (hasBitcoinCash) {
+    outputContent += '\tWalletType.bitcoinCash,\n';
+  }
+
+  if (hasPolygon) {
+    outputContent += '\tWalletType.polygon,\n';
+  }
+
+  if (hasSolana) {
+    outputContent += '\tWalletType.solana,\n';
+  }
+
+  if (hasNano) {
+    outputContent += '\tWalletType.nano,\n';
+  }
+
+  if (hasBanano) {
+    outputContent += '\tWalletType.banano,\n';
   }
 
   if (hasHaven) {

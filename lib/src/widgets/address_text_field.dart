@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/utils/device_info.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,9 @@ import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/entities/qr_scanner.dart';
 import 'package:elite_wallet/entities/contact_base.dart';
 import 'package:ew_core/crypto_currency.dart';
+import 'package:elite_wallet/themes/extensions/send_page_theme.dart';
+import 'package:elite_wallet/utils/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook }
 
@@ -63,12 +67,16 @@ class AddressTextField extends StatelessWidget {
           enabled: isActive,
           controller: controller,
           focusNode: focusNode,
+        
           style: textStyle ??
-              TextStyle(fontSize: 16, color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+              TextStyle(
+                  fontSize: 16, color: Theme.of(context).extension<EliteTextTheme>()!.titleColor),
           decoration: InputDecoration(
+          
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
             ),
+         
             hintStyle: hintStyle ?? TextStyle(fontSize: 16, color: Theme.of(context).hintColor),
             hintText: placeholder ?? S.current.widgets_address,
             focusedBorder: isBorderExist
@@ -95,7 +103,7 @@ class AddressTextField extends StatelessWidget {
             child: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
               child: Row(
-                mainAxisAlignment: ResponsiveLayoutUtil.instance.isMobile
+                mainAxisAlignment: responsiveLayoutUtil.shouldRenderMobileUI
                     ? MainAxisAlignment.spaceBetween
                     : MainAxisAlignment.end,
                 children: [
@@ -113,15 +121,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                        Theme.of(context).dialogTheme.backgroundColor,
                                     borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/paste_ios.png',
                                   color: iconColor ??
                                       Theme.of(context)
-                                          .primaryTextTheme
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                 )),
                           ),
                         )),
@@ -140,15 +147,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                        Theme.of(context).dialogTheme.backgroundColor,
                                     borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/qr_code_icon.png',
                                   color: iconColor ??
                                       Theme.of(context)
-                                          .primaryTextTheme
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                 )),
                           ),
                         ))
@@ -167,15 +173,14 @@ class AddressTextField extends StatelessWidget {
                                 padding: EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: buttonColor ??
-                                        Theme.of(context).accentTextTheme.titleLarge!.color!,
+                                        Theme.of(context).dialogTheme.backgroundColor,
                                     borderRadius: BorderRadius.all(Radius.circular(6))),
                                 child: Image.asset(
                                   'assets/images/open_book.png',
                                   color: iconColor ??
                                       Theme.of(context)
-                                          .primaryTextTheme
-                                          .headlineMedium!
-                                          .decorationColor!,
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                 )),
                           ),
                         ))
@@ -188,6 +193,9 @@ class AddressTextField extends StatelessWidget {
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {
+    bool isCameraPermissionGranted =
+    await PermissionHandler.checkPermission(Permission.camera, context);
+    if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner();
     if (code.isEmpty) {
       return;

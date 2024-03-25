@@ -1,31 +1,30 @@
 import 'dart:async';
-import 'package:elite_wallet/exchange/changenow/changenow_exchange_provider.dart';
-import 'package:elite_wallet/exchange/majesticbank/majesticbank_exchange_provider.dart';
-import 'package:elite_wallet/exchange/xchangeme/xchangeme_exchange_provider.dart';
-import 'package:elite_wallet/exchange/exch/exch_exchange_provider.dart';
-import 'package:elite_wallet/exchange/exchange_provider.dart';
+
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
-import 'package:elite_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
-import 'package:elite_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
-import 'package:elite_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/majesticbank_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/xchangeme_exchange_provider.dart';
 import 'package:elite_wallet/exchange/trade.dart';
-import 'package:elite_wallet/exchange/trocador/trocador_exchange_provider.dart';
-import 'package:elite_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:elite_wallet/generated/i18n.dart';
+import 'package:elite_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:elite_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:elite_wallet/src/screens/trade_details/trade_details_status_item.dart';
+import 'package:elite_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
+import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/utils/date_formatter.dart';
 import 'package:elite_wallet/utils/show_bar.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:elite_wallet/src/screens/trade_details/track_trade_list_item.dart';
-import 'package:elite_wallet/src/screens/trade_details/trade_details_list_card.dart';
-import 'package:elite_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:collection/collection.dart';
-import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/format_amount.dart';
 
 part 'trade_details_view_model.g.dart';
@@ -41,40 +40,35 @@ abstract class TradeDetailsViewModelBase with Store {
         trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
             tradeForDetails {
     switch (trade.provider) {
-      case ExchangeProviderDescription.xmrto:
-        _provider = XMRTOExchangeProvider(settingsStore);
+      case ExchangeProviderDescription.majesticBank:
+        _provider = MajesticBankExchangeProvider();
+        break;
+      case ExchangeProviderDescription.xchangeme:
+        _provider = XchangeMeExchangeProvider();
         break;
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider(settingsStore: settingsStore);
         break;
-      case ExchangeProviderDescription.majesticBank:
-        _provider = MajesticBankExchangeProvider(settingsStore);
-        break;
-      case ExchangeProviderDescription.xchangeme:
-        _provider = XchangeMeExchangeProvider(settingsStore);
-        break;
-      case ExchangeProviderDescription.exch:
-        _provider = ExchExchangeProvider(settingsStore);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider(settingsStore, trades: trades);
-        break;
       case ExchangeProviderDescription.sideShift:
-        _provider = SideShiftExchangeProvider(settingsStore);
+        _provider = SideShiftExchangeProvider();
         break;
       case ExchangeProviderDescription.simpleSwap:
-        _provider = SimpleSwapExchangeProvider(settingsStore);
+        _provider = SimpleSwapExchangeProvider();
         break;
       case ExchangeProviderDescription.trocador:
-        _provider = TrocadorExchangeProvider(settingsStore);
+        _provider = TrocadorExchangeProvider();
+        break;
+      case ExchangeProviderDescription.exolix:
+        _provider = ExolixExchangeProvider();
         break;
     }
 
     _updateItems();
 
-    _updateTrade();
-
-    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    if (_provider != null) {
+      _updateTrade();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
   }
 
   final Box<Trade> trades;
@@ -96,9 +90,9 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null) {
+      if (updatedTrade.createdAt == null && trade.createdAt != null)
         updatedTrade.createdAt = trade.createdAt;
-      }
+
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {
         final editedTrade = trades.get(foundElement.key);
@@ -122,6 +116,10 @@ abstract class TradeDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
     items.clear();
+
+    if (_provider == null)
+      items.add(TradeProviderUnsupportedItem(
+          error: S.current.exchange_provider_unsupported(trade.provider.title)));
 
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
@@ -226,6 +224,12 @@ abstract class TradeDetailsViewModelBase with Store {
       if (trade.password != null && trade.password!.isNotEmpty)
         items.add(StandartListItem(
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.exolix) {
+      final buildURL = 'https://exolix.com/transaction/${trade.id.toString()}';
+      items.add(
+          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
     }
   }
 

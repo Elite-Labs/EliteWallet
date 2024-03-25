@@ -1,3 +1,6 @@
+import 'package:elite_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:elite_wallet/di.dart';
+import 'package:elite_wallet/reactions/wallet_connect.dart';
 import 'package:elite_wallet/utils/exception_handler.dart';
 import 'package:ew_core/transaction_info.dart';
 import 'package:mobx/mobx.dart';
@@ -23,8 +26,7 @@ abstract class AppStoreBase with Store {
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-      wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
 
   WalletListStore walletList;
 
@@ -33,12 +35,16 @@ abstract class AppStoreBase with Store {
   NodeListStore nodeListStore;
 
   @action
-  void changeCurrentWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet) {
+  Future<void> changeCurrentWallet(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
     this.wallet?.close();
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
+
+    if (isWalletConnectCompatibleChain(wallet.type)) {
+      await getIt.get<Web3WalletService>().onDispose();
+      getIt.get<Web3WalletService>().create();
+      await getIt.get<Web3WalletService>().init();
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/utils/date_formatter.dart';
@@ -36,9 +37,6 @@ class DateSectionRaw extends StatelessWidget {
         child: Text(title,
             style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context)
-                    .textTheme!
-                    .labelSmall!
-                    .backgroundColor!)));
+                color: Theme.of(context).extension<EliteTextTheme>()!.dateSectionRowColor)));
   }
 }

@@ -93,7 +93,6 @@ class ProxySettingsPage extends BasePage {
 
     return SectionStandardList(
         sectionCount: proxySettingsViewModel.sections.length,
-        context: context,
         itemCounter: (int sectionIndex) {
           if (sectionIndex < proxySettingsViewModel.sections.length) {
             return proxySettingsViewModel.sections[sectionIndex].length;
@@ -101,7 +100,7 @@ class ProxySettingsPage extends BasePage {
 
           return 0;
         },
-        itemBuilder: (_, sectionIndex, itemIndex) {
+        itemBuilder: (sectionIndex, itemIndex) {
           final item = 
             proxySettingsViewModel.sections[sectionIndex][itemIndex];
           if (item is ProxyInputListItem) {
@@ -130,10 +129,7 @@ class ProxySettingsPage extends BasePage {
                 onPressed: () => item.navigateTo(),
                 isLoading: item.isLoading,
                 text: S.of(context).save,
-                color: Theme.of(context)
-                    .accentTextTheme
-                    .bodyText1!
-                    .color!,
+                color: Theme.of(context).primaryColor,
                 textColor: Colors.white);
             });
           }

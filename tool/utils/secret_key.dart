@@ -31,10 +31,21 @@ class SecretKey {
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
     SecretKey('payfuraApiKey', () => ''),
+    SecretKey('chatwootWebsiteToken', () => ''),
+    SecretKey('exolixApiKey', () => ''),
+    SecretKey('robinhoodApplicationId', () => ''),
+    SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('walletConnectProjectId', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
-  static final ethereumSecrets = [
+  static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
+    SecretKey('polygonScanApiKey', () => ''),
+  ];
+
+  static final solanaSecrets = [
+    SecretKey('ankrApiKey', () => ''),
   ];
 
   final String name;

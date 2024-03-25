@@ -1,5 +1,5 @@
 import 'package:elite_wallet/buy/buy_provider.dart';
-import 'package:elite_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:elite_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:elite_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/entities/fiat_currency.dart';
@@ -61,8 +61,7 @@ abstract class BuyViewModelBase with Store {
     String _url = '';
 
     try {
-      _url = await selectedProvider
-            !.requestUrl(doubleAmount.toString(), fiatCurrency.title);
+      _url = await selectedProvider!.requestUrl(doubleAmount.toString(), fiatCurrency.title);
     } catch (e) {
       print(e.toString());
     }

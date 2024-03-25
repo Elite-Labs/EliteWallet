@@ -47,7 +47,7 @@ void callbackDispatcher() {
             for (int i = 0; i < moneroWallets.length; i++) {
               wallet = await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
 
-              await wallet.connectToNode(node: node, settingsStore: getIt.get<SettingsStore>());
+              await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
           } else {
@@ -59,7 +59,7 @@ void callbackDispatcher() {
 
               wallet = await walletLoadingService.load(WalletType.monero, name!);
 
-              await wallet.connectToNode(node: node, settingsStore: getIt.get<SettingsStore>());
+              await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
           }

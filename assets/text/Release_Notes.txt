@@ -1,4 +1,5 @@
 Add Ethereum cryptocurrency and various ERC20 tokens
+Add Bitcoin Cash, Nano, Polygon
 Bitcoin transaction history bugfix
 MajesticBank transaction details bugfix
 Add BCH and FIRO to MajesticBank exchange

@@ -1,11 +1,14 @@
 import 'package:elite_wallet/core/execution_state.dart';
 import 'package:elite_wallet/entities/qr_scanner.dart';
 import 'package:elite_wallet/store/settings_store.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:ew_core/node.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:collection/collection.dart';
+import 'package:elite_wallet/utils/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
@@ -54,6 +57,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.haven ||
       _walletType == WalletType.wownero;
+
+  bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
 
   String get uri {
     var uri = address;
@@ -137,7 +142,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         trusted: trusted);
     try {
       connectionState = IsExecutingState();
-      final isAlive = await node.requestNode(_settingsStore);
+      final isAlive = await node.requestNode();
       connectionState = ExecutedSuccessfullyState(payload: isAlive);
     } catch (e) {
       connectionState = FailureState(e.toString());
@@ -158,8 +163,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setAsCurrent(Node node) => _settingsStore.nodes[_walletType] = node;
 
   @action
-  Future<void> scanQRCodeForNewNode() async {
+  Future<void> scanQRCodeForNewNode(BuildContext context) async {
     try {
+      bool isCameraPermissionGranted =
+      await PermissionHandler.checkPermission(Permission.camera, context);
+      if (!isCameraPermissionGranted) return;
       String code = await presentQRScanner();
 
       if (code.isEmpty) {

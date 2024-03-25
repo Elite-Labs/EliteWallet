@@ -36,7 +36,7 @@ class YatService {
     final yatRecords = <YatRecord>[];
 
     try {
-      final response = await get(settingsStore, uri);
+      final response = await get(uri);
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       final results = resBody["result"] as Map<dynamic, dynamic>;
       // Favour a subaddress over a standard address.

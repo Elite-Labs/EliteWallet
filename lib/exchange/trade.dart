@@ -1,8 +1,9 @@
-import 'package:hive/hive.dart';
-import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
 import 'package:elite_wallet/exchange/trade_state.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:ew_core/format_amount.dart';
+import 'package:ew_core/hive_type_ids.dart';
+import 'package:hive/hive.dart';
 
 part 'trade.g.dart';
 
@@ -29,22 +30,18 @@ class Trade extends HiveObject {
     this.password,
     this.providerId,
     this.providerName,
+    this.fromWalletAddress
   }) {
-    if (provider != null) {
-      providerRaw = provider.raw;
-    }
-    if (from != null) {
-      fromRaw = from.raw;
-    }
-    if (to != null) {
-      toRaw = to.raw;
-    }
-    if (state != null) {
-      stateRaw = state.raw;
-    }
+    if (provider != null) providerRaw = provider.raw;
+
+    if (from != null) fromRaw = from.raw;
+
+    if (to != null) toRaw = to.raw;
+
+    if (state != null) stateRaw = state.raw;
   }
 
-  static const typeId = 3;
+  static const typeId = TRADE_TYPE_ID;
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 
@@ -117,6 +114,9 @@ class Trade extends HiveObject {
   @HiveField(19)
   String? providerName;
 
+  @HiveField(20)
+  String? fromWalletAddress;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
         id: map['id'] as String,
@@ -126,7 +126,9 @@ class Trade extends HiveObject {
         createdAt:
             map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
         amount: map['amount'] as String,
-        walletId: map['wallet_id'] as String);
+        walletId: map['wallet_id'] as String,
+        fromWalletAddress: map['from_wallet_address'] as String?
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -137,7 +139,8 @@ class Trade extends HiveObject {
       'output': to.serialize(),
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
-      'wallet_id': walletId
+      'wallet_id': walletId,
+      'from_wallet_address': fromWalletAddress
     };
   }
 

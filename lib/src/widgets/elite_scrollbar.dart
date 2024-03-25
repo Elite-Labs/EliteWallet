@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/elite_scrollbar_theme.dart';
 import 'package:flutter/material.dart';
 
 class EliteScrollbar extends StatelessWidget {
@@ -28,7 +29,7 @@ class EliteScrollbar extends StatelessWidget {
           width: width,
           decoration: BoxDecoration(
               color: backgroundColor ??
-                  Theme.of(context).textTheme!.bodyMedium!.decorationColor!,
+                  Theme.of(context).extension<EliteScrollbarTheme>()!.trackColor,
               borderRadius: BorderRadius.all(Radius.circular(3))),
           child: Stack(
             children: <Widget>[
@@ -40,7 +41,7 @@ class EliteScrollbar extends StatelessWidget {
                   width: width,
                   decoration: BoxDecoration(
                       color: thumbColor ??
-                          Theme.of(context).textTheme!.bodyMedium!.color!,
+                          Theme.of(context).extension<EliteScrollbarTheme>()!.thumbColor,
                       borderRadius: BorderRadius.all(Radius.circular(3))),
                 ),
               )

@@ -53,12 +53,12 @@ class AnyPayApi {
   			'Content-Type': contentTypePaymentRequest,
   			'X-Paypro-Version': xPayproVersion,
   			'Accept': '*/*',
-			'x-wallet': 'cake',
+			'x-wallet': 'elite',
 			'x-wallet-token': anypayToken,};
 		final body = <String, dynamic>{
 			'chain': chainByScheme(scheme),
 			'currency': currencyByScheme(scheme).title};
-		final response = await post(settingsStore, url, headers: headers,
+		final response = await post(url, headers: headers,
 																body: utf8.encode(json.encode(body)));
 
     if (response.statusCode != 200) {
@@ -79,13 +79,13 @@ class AnyPayApi {
   			'Content-Type': contentTypePayment,
   			'X-Paypro-Version': xPayproVersion,
   			'Accept': '*/*',
-			'x-wallet': 'cake',
+			'x-wallet': 'elite',
 			'x-wallet-token': anypayToken,};
 		final body = <String, dynamic>{
 			'chain': chain,
 			'currency': currency,
 			'transactions': transactions.map((tx) => {'tx': tx.tx, 'tx_hash': tx.id, 'tx_key': tx.key}).toList()};
-		final response = await post(settingsStore, Uri.parse(uri), headers: headers, body: utf8.encode(json.encode(body)));
+		final response = await post(Uri.parse(uri), headers: headers, body: utf8.encode(json.encode(body)));
 		if (response.statusCode == 400) {
 			final decodedBody = json.decode(response.body) as Map<String, dynamic>;
 			throw Exception(decodedBody['message'] as String? ?? 'Unexpected response\nError code: 400');

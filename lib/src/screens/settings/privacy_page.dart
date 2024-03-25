@@ -8,8 +8,8 @@ import 'package:elite_wallet/src/screens/settings/widgets/settings_cell_with_arr
 import 'package:elite_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:elite_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:elite_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/utils/device_info.dart';
+import 'package:elite_wallet/view_model/proxy_settings/settings_list_item.dart';
 import 'package:elite_wallet/view_model/settings/choices_list_item.dart';
 import 'package:elite_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
@@ -25,72 +25,90 @@ class PrivacyPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 10),
-      child: Observer(builder: (_) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SettingsChoicesCell(
-              ChoicesListItem<ExchangeApiMode>(
-                title: S.current.exchange,
-                items: ExchangeApiMode.all,
-                selectedItem: _privacySettingsViewModel.exchangeStatus,
-                onItemSelected: (ExchangeApiMode mode) =>
-                    _privacySettingsViewModel.setExchangeApiMode(mode),
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.only(top: 10),
+        child: Observer(builder: (_) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SettingsChoicesCell(
+                ChoicesListItem<ExchangeApiMode>(
+                  title: S.current.exchange,
+                  items: ExchangeApiMode.all,
+                  selectedItem: _privacySettingsViewModel.exchangeStatus,
+                  onItemSelected: (ExchangeApiMode mode) =>
+                      _privacySettingsViewModel.setExchangeApiMode(mode),
+                ),
               ),
-            ),
-            SettingsSwitcherCell(
-                title: S.current.settings_save_recipient_address,
-                value: _privacySettingsViewModel.shouldSaveRecipientAddress,
-                onValueChange: (BuildContext _, bool value) {
-                  _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
-                }),
-            if (DeviceInfo.instance.isMobile)
               SettingsSwitcherCell(
-                  title: S.current.prevent_screenshots,
-                  value: _privacySettingsViewModel.isAppSecure,
+                  title: S.current.settings_save_recipient_address,
+                  value: _privacySettingsViewModel.shouldSaveRecipientAddress,
                   onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setIsAppSecure(value);
+                    _privacySettingsViewModel.setShouldSaveRecipientAddress(value);
                   }),
-            SettingsCellWithArrow(
-                title: S.current.settings_select_anonymity,
-                handler: (BuildContext context) =>
-                  Navigator.of(context).pushNamed(
-                    Routes.selectAnonymity,
-                    arguments: false)),
-            SettingsCellWithArrow(
-                title: S.current.settings_proxy_settings,
-                handler: (BuildContext context) =>
-                  Navigator.of(context).pushNamed(
-                    Routes.proxySettings,
-                    arguments: <List<SettingsListItem>>[])),
-            SettingsPickerCell<String>(
-                title: S.current.settings_crypto_price_provider,
-                items: FiatConversionService.services,
-                displayItem: (dynamic service) {
-                  return service;
-                },
-                selectedItem:
-                  _privacySettingsViewModel.settingsStore.cryptoPriceProvider,
-                onItemSelected: (String provider) {
-                  _privacySettingsViewModel.settingsStore.cryptoPriceProvider =
-                    provider;
-                },
-                matchingCriteria: (String service, String searchText) {
-                  return service.toLowerCase().contains(searchText);
-                },
-            ),
-            if (_privacySettingsViewModel.canUseEtherscan)
-              SettingsSwitcherCell(
-                  title: S.current.etherscan_history,
-                  value: _privacySettingsViewModel.useEtherscan,
+              if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
+                SettingsSwitcherCell(
+                  title: S.current.auto_generate_subaddresses,
+                  value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                   onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setUseEtherscan(value);
-                  }),
-          ],
-        );
-      }),
+                    _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
+                  },
+                ),
+              if (DeviceInfo.instance.isMobile)
+                SettingsSwitcherCell(
+                    title: S.current.prevent_screenshots,
+                    value: _privacySettingsViewModel.isAppSecure,
+                    onValueChange: (BuildContext _, bool value) {
+                      _privacySettingsViewModel.setIsAppSecure(value);
+                    }),
+              SettingsCellWithArrow(
+                  title: S.current.settings_select_anonymity,
+                  handler: (BuildContext context) =>
+                    Navigator.of(context).pushNamed(
+                      Routes.selectAnonymity,
+                      arguments: false)),
+              SettingsCellWithArrow(
+                  title: S.current.settings_proxy_settings,
+                  handler: (BuildContext context) =>
+                    Navigator.of(context).pushNamed(
+                      Routes.proxySettings,
+                      arguments: <List<SettingsListItem>>[])),
+              SettingsPickerCell<String>(
+                  title: S.current.settings_crypto_price_provider,
+                  items: FiatConversionService.services,
+                  displayItem: (dynamic service) {
+                    return service;
+                  },
+                  selectedItem:
+                    _privacySettingsViewModel.settingsStore.cryptoPriceProvider,
+                  onItemSelected: (String provider) {
+                    _privacySettingsViewModel.settingsStore.cryptoPriceProvider =
+                      provider;
+                  },
+                  matchingCriteria: (String service, String searchText) {
+                    return service.toLowerCase().contains(searchText);
+                  },
+              ),
+              if (_privacySettingsViewModel.canUseEtherscan)
+                SettingsSwitcherCell(
+                    title: S.current.etherscan_history,
+                    value: _privacySettingsViewModel.useEtherscan,
+                    onValueChange: (BuildContext _, bool value) {
+                      _privacySettingsViewModel.setUseEtherscan(value);
+                    }),
+              if (_privacySettingsViewModel.canUsePolygonScan)
+                SettingsSwitcherCell(
+                  title: S.current.polygonscan_history,
+                  value: _privacySettingsViewModel.usePolygonScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUsePolygonScan(value);
+                  },
+                ),
+            ],
+          );
+        }),
+      ),
     );
   }
 }

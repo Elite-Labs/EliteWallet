@@ -1,3 +1,5 @@
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
+import 'package:elite_wallet/themes/extensions/elite_scrollbar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/palette.dart';
 
@@ -20,10 +22,7 @@ class PickerItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
           child: Row(
@@ -44,10 +43,7 @@ class PickerItemWidget extends StatelessWidget {
                       style: TextStyle(
                         color: isSelected
                             ? Palette.blueCraiola
-                            : Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
+                            : Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                         fontSize: isSelected ? 16 : 14.0,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
@@ -65,19 +61,13 @@ class PickerItemWidget extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
-                                  color: Theme.of(context)
-                                      .textTheme!
-                                      .bodyMedium!
-                                      .color!),
+                                  color: Theme.of(context).extension<EliteScrollbarTheme>()!.thumbColor),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context)
-                                .textTheme!
-                                .bodyMedium!
-                                .decorationColor!,
+                            color: Theme.of(context).extension<EliteScrollbarTheme>()!.trackColor,
                           ),
                         ),
                       ),
@@ -86,10 +76,7 @@ class PickerItemWidget extends StatelessWidget {
               ),
               if (isSelected)
                 Icon(Icons.check_circle,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!)
+                    color: Theme.of(context).primaryColor)
             ],
           ),
         ),

@@ -1,4 +1,6 @@
 import 'package:elite_wallet/palette.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
+import 'package:elite_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:elite_wallet/utils/clipboard_util.dart';
@@ -13,6 +15,7 @@ import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:elite_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -67,11 +70,13 @@ class WalletSeedPage extends BasePage {
               margin: EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(16)),
-                  color: Theme.of(context).accentTextTheme.bodySmall!.color!),
+                  color: Theme.of(context).cardColor),
               child: Text(
                 S.of(context).seed_language_next,
                 style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600, color: Palette.blueCraiola),
+                    fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context)
+                        .extension<EliteTextTheme>()!
+                        .buttonTextColor),
               ),
             ),
           )
@@ -88,7 +93,7 @@ class WalletSeedPage extends BasePage {
           padding: EdgeInsets.all(24),
           alignment: Alignment.center,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -105,7 +110,7 @@ class WalletSeedPage extends BasePage {
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+                            color: Theme.of(context).extension<EliteTextTheme>()!.titleColor),
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20, left: 16, right: 16),
@@ -115,7 +120,7 @@ class WalletSeedPage extends BasePage {
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
-                              color: Theme.of(context).primaryTextTheme.bodySmall!.color!),
+                              color: Theme.of(context).extension<EliteTextTheme>()!.secondaryTextColor),
                         ),
                       )
                     ],
@@ -132,7 +137,7 @@ class WalletSeedPage extends BasePage {
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,
-                                  color: Theme.of(context).primaryTextTheme.labelSmall!.color!),
+                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                             ),
                           )
                         : Offstage(),
@@ -164,7 +169,7 @@ class WalletSeedPage extends BasePage {
                                     showBar<void>(context, S.of(context).copied_to_clipboard);
                                   },
                                   text: S.of(context).copy,
-                                  color: Theme.of(context).accentTextTheme.bodyMedium!.color!,
+                                  color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
                                   textColor: Colors.white)),
                         ))
                       ],

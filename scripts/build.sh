@@ -12,12 +12,23 @@ fi
 .flutter/bin/flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=adminadmin keyPassword=adminadmin
 
 cd ew_core && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+cd ew_evm && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
 cd ew_monero && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
 cd ew_bitcoin && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
 cd ew_haven && ../.flutter/bin/flutter pub get; ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
 cd ew_wownero ; ../.flutter/bin/flutter pub get; ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
 cd ew_ethereum && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+cd ew_nano && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+cd ew_bitcoin_cash && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+cd ew_polygon && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+cd ew_solana && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+
 .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs
+
+if [[ "$@" =~ "--packages-only" ]]; then
+    echo "Exiting script as --packages-only is present."
+    exit 0
+fi
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   .flutter/bin/flutter build appbundle --release

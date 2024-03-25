@@ -1,3 +1,4 @@
+import 'package:elite_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/auth/auth_page.dart';
@@ -7,6 +8,8 @@ import 'package:elite_wallet/src/screens/dashboard/desktop_widgets/desktop_sideb
 import 'package:elite_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar/side_menu_item.dart';
 import 'package:elite_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:elite_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
+import 'package:elite_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
+import 'package:elite_wallet/src/widgets/services_updates_widget.dart';
 import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:elite_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +19,7 @@ import 'package:elite_wallet/router.dart' as Router;
 import 'package:mobx/mobx.dart';
 
 class DesktopSidebarWrapper extends BasePage {
+  final BottomSheetService bottomSheetService;
   final Widget child;
   final DesktopSidebarViewModel desktopSidebarViewModel;
   final DashboardViewModel dashboardViewModel;
@@ -23,6 +27,7 @@ class DesktopSidebarWrapper extends BasePage {
 
   DesktopSidebarWrapper({
     required this.child,
+    required this.bottomSheetService,
     required this.desktopSidebarViewModel,
     required this.dashboardViewModel,
     required this.desktopNavigatorKey,
@@ -67,63 +72,81 @@ class DesktopSidebarWrapper extends BasePage {
   Widget body(BuildContext context) {
     _setEffects();
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Observer(builder: (_) {
-          return SideMenu(
-            width: sideMenuWidth,
-            topItems: [
-              SideMenuItem(
-                imagePath: 'assets/images/wallet_outline.png',
-                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
-                onTap: () {
-                  desktopSidebarViewModel.onPageChange(SidebarItem.dashboard);
-                  desktopNavigatorKey.currentState
-                      ?.pushNamedAndRemoveUntil(Routes.desktop_actions, (route) => false);
-                },
-              ),
-              SideMenuItem(
-                onTap: () {
-                  if (desktopSidebarViewModel.currentPage == SidebarItem.transactions) {
+    return BottomSheetListener(
+      bottomSheetService: bottomSheetService,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Observer(builder: (_) {
+            return SideMenu(
+              width: sideMenuWidth,
+              topItems: [
+                SideMenuItem(
+                  imagePath: 'assets/images/wallet_outline.png',
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
+                  onTap: () {
+                    desktopSidebarViewModel.onPageChange(SidebarItem.dashboard);
                     desktopNavigatorKey.currentState
                         ?.pushNamedAndRemoveUntil(Routes.desktop_actions, (route) => false);
-                    desktopSidebarViewModel.resetSidebar();
-                  } else {
-                    desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
-                    desktopNavigatorKey.currentState?.pushNamed(Routes.transactionsPage);
-                  }
-                },
-                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
-                imagePath: desktopSidebarViewModel.currentPage == SidebarItem.transactions
-                    ? selectedIconPath
-                    : unselectedIconPath,
-              ),
-            ],
-            bottomItems: [
-              SideMenuItem(
+                  },
+                ),
+                SideMenuItem(
+                  onTap: () {
+                    if (desktopSidebarViewModel.currentPage == SidebarItem.transactions) {
+                      desktopNavigatorKey.currentState
+                          ?.pushNamedAndRemoveUntil(Routes.desktop_actions, (route) => false);
+                      desktopSidebarViewModel.resetSidebar();
+                    } else {
+                      desktopSidebarViewModel.onPageChange(SidebarItem.transactions);
+                      desktopNavigatorKey.currentState?.pushNamed(Routes.transactionsPage);
+                    }
+                  },
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
+                  imagePath: desktopSidebarViewModel.currentPage == SidebarItem.transactions
+                      ? selectedIconPath
+                      : unselectedIconPath,
+                ),
+                SideMenuItem(
+                  widget: ServicesUpdatesWidget(dashboardViewModel.getServicesStatus()),
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.status,
+                  onTap: () {},
+                ),
+              ],
+              bottomItems: [
+                SideMenuItem(
                   imagePath: 'assets/images/support_icon.png',
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.support,
-                  onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.support)),
-              SideMenuItem(
-                imagePath: 'assets/images/settings_outline.png',
-                isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,
-                onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.settings),
-              ),
-            ],
-          );
-        }),
-        Expanded(
-          child: PageView(
-            controller: pageController,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              child,
-              Container(
-                color: Theme.of(context).colorScheme.background,
-                padding: EdgeInsets.all(20),
-                child: Navigator(
-                  initialRoute: Routes.support,
+                  onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.support),
+                ),
+                SideMenuItem(
+                  imagePath: 'assets/images/settings_outline.png',
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,
+                  onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.settings),
+                ),
+              ],
+            );
+          }),
+          Expanded(
+            child: PageView(
+              controller: pageController,
+              physics: NeverScrollableScrollPhysics(),
+              children: [
+                child,
+                Container(
+                  color: Theme.of(context).colorScheme.background,
+                  padding: EdgeInsets.all(20),
+                  child: Navigator(
+                    initialRoute: Routes.supportOtherLinks,
+                    onGenerateRoute: (settings) => Router.createRoute(settings),
+                    onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+                      return [
+                        navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                      ];
+                    },
+                  ),
+                ),
+                Navigator(
+                  initialRoute: Routes.desktop_settings_page,
                   onGenerateRoute: (settings) => Router.createRoute(settings),
                   onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
                     return [
@@ -131,20 +154,11 @@ class DesktopSidebarWrapper extends BasePage {
                     ];
                   },
                 ),
-              ),
-              Navigator(
-                initialRoute: Routes.desktop_settings_page,
-                onGenerateRoute: (settings) => Router.createRoute(settings),
-                onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
-                  return [
-                    navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                  ];
-                },
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

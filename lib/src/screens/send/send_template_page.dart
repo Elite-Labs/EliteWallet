@@ -1,3 +1,5 @@
+import 'package:elite_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:elite_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:elite_wallet/src/widgets/trail_button.dart';
 import 'package:elite_wallet/view_model/send/template_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -7,6 +9,7 @@ import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/view_model/send/send_template_view_model.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:elite_wallet/themes/extensions/send_page_theme.dart';
 import 'package:elite_wallet/src/screens/send/widgets/send_template_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -21,10 +24,10 @@ class SendTemplatePage extends BasePage {
   String get title => S.current.exchange_new_template;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get extendBodyBehindAppBar => true;
 
   @override
-  bool get extendBodyBehindAppBar => true;
+  bool get gradientAll => true;
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
@@ -92,13 +95,12 @@ class SendTemplatePage extends BasePage {
                                       dotWidth: 6.0,
                                       dotHeight: 6.0,
                                       dotColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          .displaySmall!
-                                          .backgroundColor!,
+                                          .extension<SendPageTheme>()!
+                                          .indicatorDotColor,
                                       activeDotColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          .displayMedium!
-                                          .backgroundColor!))
+                                          .extension<DashboardPageTheme>()!
+                                          .indicatorDotTheme
+                                          .activeIndicatorColor))
                               : Offstage();
                         },
                       ),
@@ -119,10 +121,10 @@ class SendTemplatePage extends BasePage {
                         },
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
-                        textColor: Theme.of(context).accentTextTheme.displaySmall!.decorationColor!,
+                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                         isDottedBorder: true,
                         borderColor:
-                            Theme.of(context).primaryTextTheme.displaySmall!.decorationColor!)),
+                            Theme.of(context).extension<SendPageTheme>()!.templateBackgroundColor)),
               PrimaryButton(
                   onPressed: () {
                     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
@@ -145,7 +147,7 @@ class SendTemplatePage extends BasePage {
                     }
                   },
                   text: S.of(context).save,
-                  color: Colors.green,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white)
             ])));
   }

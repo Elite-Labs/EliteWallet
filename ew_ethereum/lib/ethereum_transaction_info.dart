@@ -1,48 +1,21 @@
-import 'package:ew_core/format_amount.dart';
 import 'package:ew_core/transaction_direction.dart';
-import 'package:ew_core/transaction_info.dart';
+import 'package:ew_evm/evm_chain_transaction_info.dart';
 
-class EthereumTransactionInfo extends TransactionInfo {
+class EthereumTransactionInfo extends EVMChainTransactionInfo {
   EthereumTransactionInfo({
-    required this.id,
-    required this.height,
-    required this.ethAmount,
-    required this.ethFee,
-    this.tokenSymbol = "ETH",
-    this.exponent = 18,
-    required this.direction,
-    required this.isPending,
-    required this.date,
-    required this.confirmations,
-  })  : this.amount = ethAmount.toInt(),
-        this.fee = ethFee.toInt();
-
-  final String id;
-  final int height;
-  final int amount;
-  final BigInt ethAmount;
-  final int exponent;
-  final TransactionDirection direction;
-  final DateTime date;
-  final bool isPending;
-  final int fee;
-  final BigInt ethFee;
-  final int confirmations;
-  final String tokenSymbol;
-  String? _fiatAmount;
-
-  @override
-  String amountFormatted() =>
-      '${formatAmount((ethAmount / BigInt.from(10).pow(exponent)).toString())} $tokenSymbol';
-
-  @override
-  String fiatAmount() => _fiatAmount ?? '';
-
-  @override
-  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
-
-  @override
-  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} ETH';
+    required super.id,
+    required super.height,
+    required super.ethAmount,
+    required super.ethFee,
+    required super.tokenSymbol,
+    required super.direction,
+    required super.isPending,
+    required super.date,
+    required super.confirmations,
+    required super.to,
+    required super.from,
+    super.exponent,
+  });
 
   factory EthereumTransactionInfo.fromJson(Map<String, dynamic> data) {
     return EthereumTransactionInfo(
@@ -56,19 +29,11 @@ class EthereumTransactionInfo extends TransactionInfo {
       isPending: data['isPending'] as bool,
       confirmations: data['confirmations'] as int,
       tokenSymbol: data['tokenSymbol'] as String,
+      to: data['to'],
+      from: data['from'],
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'height': height,
-        'amount': ethAmount.toString(),
-        'exponent': exponent,
-        'fee': ethFee.toString(),
-        'direction': direction.index,
-        'date': date.millisecondsSinceEpoch,
-        'isPending': isPending,
-        'confirmations': confirmations,
-        'tokenSymbol': tokenSymbol,
-      };
+  @override
+  String get feeCurrency => 'ETH';
 }

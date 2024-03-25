@@ -4,13 +4,13 @@ import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:ew_core/proxy_settings_store.dart';
+import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:flutter/foundation.dart';
 import 'socks5.dart';
 
 class PortRedirector {
   PortRedirector._(
-    SettingsStore settingsStore,
     String serverHost,
     int serverPort,
     {required Duration timeout}) {
@@ -34,11 +34,11 @@ class PortRedirector {
   static Map<String, PortRedirector> redirectors = {};
 
   static Future<PortRedirector> start(
-    SettingsStore settingsStore,
     String serverHost,
     int serverPort,
     {required Duration timeout}) async {
 
+    SettingsStore settingsStore = getIt.get<SettingsStore>();
       String mapKey = serverHost + ":" + serverPort.toString();
       if (redirectors.containsKey(mapKey))
         return redirectors[mapKey]!;
@@ -51,8 +51,7 @@ class PortRedirector {
         bool error = false;
         try {
           connectToProxy(
-            ProxySettingsStore.fromSettingsStore(settingsStore), serverHost,
-            serverPort, Duration(seconds: 1));
+            serverHost, serverPort, Duration(seconds: 1));
         } catch(_) {
           error = true;
         }
@@ -73,7 +72,7 @@ class PortRedirector {
       }
 
       PortRedirector redirector = await _startInternal(
-        settingsStore, serverHost, serverPort, timeout: timeout);
+        serverHost, serverPort, timeout: timeout);
       redirectors[mapKey] = redirector;
       return redirector;
   }
@@ -84,7 +83,7 @@ class PortRedirector {
     }
     try {
       await connectToProxy(
-        proxy, proxy.proxyIPAddress, int.parse(proxy.proxyPort),
+        proxy.proxyIPAddress, int.parse(proxy.proxyPort),
         Duration(seconds: 1));
       return true;
     } catch (_) {}
@@ -92,11 +91,13 @@ class PortRedirector {
   }
 
   static Future<SocksSocket> connectToProxy(
-    ProxySettingsStore proxySettingsStore,
     String host,
     int port,
     Duration timeout) {
 
+    SettingsStore settingsStore = getIt.get<SettingsStore>();
+    ProxySettingsStore proxySettingsStore =
+      ProxySettingsStore.fromSettingsStore(settingsStore);
     int proxyPort = 0;
     try {
       proxyPort = int.parse(proxySettingsStore.proxyPort);
@@ -115,13 +116,13 @@ class PortRedirector {
   }
 
   static Future<PortRedirector> _startInternal(
-    SettingsStore settingsStore,
     String serverHost,
     int serverPort,
     {required Duration timeout}) async {
 
+    SettingsStore settingsStore = getIt.get<SettingsStore>();
     PortRedirector redirector = PortRedirector._(
-      settingsStore, serverHost, serverPort, timeout: timeout);
+      serverHost, serverPort, timeout: timeout);
 
     ReceivePort receivePort = ReceivePort();
 
@@ -225,7 +226,7 @@ class PortRedirector {
     if (proxySettingsStore.proxyEnabled) {
       try {
         SocksSocket proxySocket = await connectToProxy(
-          proxySettingsStore, serverHost, serverPort, timeout);
+          serverHost, serverPort, timeout);
 
         StreamSubscription<Uint8List>? sub = proxySocket.subscription;
         if (sub == null) {

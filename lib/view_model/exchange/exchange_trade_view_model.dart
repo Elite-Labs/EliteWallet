@@ -1,25 +1,24 @@
 import 'dart:async';
-import 'package:elite_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
-import 'package:elite_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:elite_wallet/exchange/trocador/trocador_exchange_provider.dart';
-import 'package:ew_core/wallet_base.dart';
-import 'package:ew_core/crypto_currency.dart';
-import 'package:elite_wallet/exchange/changenow/changenow_exchange_provider.dart';
-import 'package:elite_wallet/exchange/majesticbank/majesticbank_exchange_provider.dart';
-import 'package:elite_wallet/exchange/xchangeme/xchangeme_exchange_provider.dart';
-import 'package:elite_wallet/exchange/exch/exch_exchange_provider.dart';
-import 'package:elite_wallet/exchange/exchange_provider.dart';
+
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
-import 'package:elite_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/majesticbank_exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/xchangeme_exchange_provider.dart';
 import 'package:elite_wallet/exchange/trade.dart';
-import 'package:elite_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:elite_wallet/generated/i18n.dart';
+import 'package:elite_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:elite_wallet/store/dashboard/trades_store.dart';
+import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/view_model/send/send_view_model.dart';
+import 'package:ew_core/crypto_currency.dart';
+import 'package:ew_core/wallet_base.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:elite_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
-import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/store/settings_store.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
@@ -33,45 +32,39 @@ abstract class ExchangeTradeViewModelBase with Store {
       required this.sendViewModel,
       required this.settingsStore})
       : trade = tradesStore.trade!,
-        isSendable = tradesStore.trade!.from == wallet.currency ||
-            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
-            (wallet.currency == CryptoCurrency.eth &&
-                tradesStore.trade!.from.tag == CryptoCurrency.eth.title),
+        isSendable = _checkIfCanSend(tradesStore, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
-      case ExchangeProviderDescription.xmrto:
-        _provider = XMRTOExchangeProvider(settingsStore);
-        break;
       case ExchangeProviderDescription.changeNow:
         _provider =
-            ChangeNowExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
+            ChangeNowExchangeProvider(settingsStore: settingsStore);
         break;
       case ExchangeProviderDescription.majesticBank:
-        _provider = MajesticBankExchangeProvider(settingsStore);
+        _provider = MajesticBankExchangeProvider();
         break;
       case ExchangeProviderDescription.xchangeme:
-        _provider = XchangeMeExchangeProvider(settingsStore);
-        break;
-      case ExchangeProviderDescription.exch:
-        _provider = ExchExchangeProvider(settingsStore);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider(settingsStore, trades: trades);
+        _provider = XchangeMeExchangeProvider();
         break;
       case ExchangeProviderDescription.sideShift:
-        _provider = SideShiftExchangeProvider(settingsStore);
+        _provider = SideShiftExchangeProvider();
         break;
       case ExchangeProviderDescription.simpleSwap:
-        _provider = SimpleSwapExchangeProvider(settingsStore);
+        _provider = SimpleSwapExchangeProvider();
         break;
       case ExchangeProviderDescription.trocador:
-        _provider = TrocadorExchangeProvider(settingsStore);
+        _provider = TrocadorExchangeProvider();
+        break;
+      case ExchangeProviderDescription.exolix:
+        _provider = ExolixExchangeProvider();
         break;
     }
 
     _updateItems();
-    _updateTrade();
-    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+
+    if (_provider != null) {
+      _updateTrade();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
   }
 
   final WalletBase wallet;
@@ -111,10 +104,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   Timer? timer;
 
   @action
-  Future confirmSending() async {
-    if (!isSendable) {
-      return;
-    }
+  Future<void> confirmSending() async {
+    if (!isSendable) return;
 
     sendViewModel.clearOutputs();
     final output = sendViewModel.outputs.first;
@@ -129,13 +120,10 @@ abstract class ExchangeTradeViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null) {
+      if (updatedTrade.createdAt == null && trade.createdAt != null)
         updatedTrade.createdAt = trade.createdAt;
-      }
 
-      if (updatedTrade.amount.isEmpty) {
-        updatedTrade.amount = trade.amount;
-      }
+      if (updatedTrade.amount.isEmpty) updatedTrade.amount = trade.amount;
 
       trade = updatedTrade;
 
@@ -174,5 +162,25 @@ abstract class ExchangeTradeViewModelBase with Store {
           data: trade.payoutAddress ?? '',
           isCopied: true),
     ]);
+  }
+
+  static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
+    bool _isEthToken() =>
+        wallet.currency == CryptoCurrency.eth &&
+        tradesStore.trade!.from.tag == CryptoCurrency.eth.title;
+
+    bool _isPolygonToken() =>
+        wallet.currency == CryptoCurrency.maticpoly &&
+        tradesStore.trade!.from.tag == CryptoCurrency.maticpoly.tag;
+
+    bool _isSplToken() =>
+        wallet.currency == CryptoCurrency.sol &&
+        tradesStore.trade!.from.tag == CryptoCurrency.sol.title;
+
+    return tradesStore.trade!.from == wallet.currency ||
+        tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
+        _isEthToken() ||
+        _isPolygonToken() ||
+        _isSplToken();
   }
 }

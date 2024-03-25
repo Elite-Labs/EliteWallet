@@ -1,7 +1,7 @@
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/entities/main_actions.dart';
 import 'package:elite_wallet/src/screens/dashboard/desktop_widgets/desktop_action_button.dart';
-import 'package:elite_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:elite_wallet/src/screens/dashboard/pages/market_place_page.dart';
 import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:elite_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:flutter/material.dart';
@@ -73,12 +73,12 @@ class DesktopDashboardActions extends StatelessWidget {
                   ),
                 ],
               ),
-              Expanded(
-                child: MarketPlacePage(
-                  dashboardViewModel: dashboardViewModel,
-                  marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
-                ),
+            Expanded(
+              child: MarketPlacePage(
+                dashboardViewModel: dashboardViewModel,
+                marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
               ),
+            ),
             ],
           );
         }

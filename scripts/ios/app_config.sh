@@ -17,6 +17,11 @@ cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${APP_IOS_BUNDLE_ID}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_IOS_VERSION}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${APP_IOS_BUILD_NUMBER}" ./ios/Runner/Info.plist
+
+/usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLName string ${APP_IOS_TYPE}" ./ios/Runner/Info.plist
+/usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLSchemes array" ./ios/Runner/Info.plist
+/usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLSchemes: string ${APP_IOS_TYPE}" ./ios/Runner/Info.plist
+
 CONFIG_ARGS=""
 
 case $APP_IOS_TYPE in
@@ -24,9 +29,11 @@ case $APP_IOS_TYPE in
 		CONFIG_ARGS="--monero"
 		;;
         $ELITEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum"
+		CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum --polygon --nano --bitcoinCash"
 		;;
 	$HAVEN)
+
+
 		CONFIG_ARGS="--haven"
 		;;
 	$WOWNERO)

@@ -54,7 +54,7 @@ Future<double> _fetchCoinGeckoPrice(Map<String, dynamic> args) async {
 
   try {
     final uri = Uri.https(fiatApiAuthority, fiatApiPath + congeckoId);
-    final response = await get(settingsStore, uri);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       return 0.0;
@@ -87,7 +87,7 @@ Future<double> _fetchMajesticBankPrice(Map<String, dynamic> args) async {
   try {
     final uri = Uri.https(
       fiatApiAuthority, fiatApiPath);
-    final response = await get(settingsStore, uri.toString());
+    final response = await get(uri.toString());
 
     if (response.statusCode != 200) {
       return 0.0;

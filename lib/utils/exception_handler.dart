@@ -16,11 +16,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ExceptionHandler {
   static bool _hasError = false;
   static const _coolDownDurationInDays = 7;
+  static File? _file;
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
-    final appDocDir = await getApplicationDocumentsDirectory();
+    if (_file == null) {
+      final appDocDir = await getApplicationDocumentsDirectory();
 
-    final file = File('${appDocDir.path}/error.txt');
+      _file = File('${appDocDir.path}/error.txt');
+    }
+
     final exception = {
       "${DateTime.now()}": {
         "Error": "$error\n\n",
@@ -32,7 +36,15 @@ class ExceptionHandler {
     const String separator = '''\n\n==========================================================
       ==========================================================\n\n''';
 
-    file.writeAsStringSync(
+    /// don't save existing errors
+    if (_file!.existsSync()) {
+      final String fileContent = await _file!.readAsString();
+      if (fileContent.contains("${exception.values.first}")) {
+        return;
+      }
+    }
+
+    _file!.writeAsStringSync(
       "$exception $separator",
       mode: FileMode.append,
     );
@@ -40,16 +52,18 @@ class ExceptionHandler {
 
   static void _sendExceptionFile() async {
     try {
-      final appDocDir = await getApplicationDocumentsDirectory();
+      if (_file == null) {
+        final appDocDir = await getApplicationDocumentsDirectory();
 
-      final file = File('${appDocDir.path}/error.txt');
+        _file = File('${appDocDir.path}/error.txt');
+      }
 
-      await _addDeviceInfo(file);
+      await _addDeviceInfo(_file!);
 
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
         recipients: ['info@elitewallet.sc'],
-        attachments: [file.path],
+        attachments: [_file!.path],
       );
 
       final result = await FlutterMailer.send(mailOptions);
@@ -59,7 +73,7 @@ class ExceptionHandler {
       if (result.name == MailerResponse.sent.name ||
           result.name == MailerResponse.saved.name ||
           result.name == MailerResponse.android.name) {
-        file.writeAsString("", mode: FileMode.write);
+        _file!.writeAsString("", mode: FileMode.write);
       }
     } catch (e, s) {
       _saveException(e.toString(), s);
@@ -81,6 +95,10 @@ class ExceptionHandler {
       errorDetails.stack,
       library: errorDetails.library,
     );
+
+    if (errorDetails.silent) {
+      return;
+    }
 
     final sharedPrefs = await SharedPreferences.getInstance();
 
@@ -147,6 +165,9 @@ class ExceptionHandler {
     "CERTIFICATE_VERIFY_FAILED",
     "Handshake error in client",
     "Error while launching http",
+    "OS Error: Network is unreachable",
+    "ClientException: Write failed, uri=http",
+    "Connection terminated during handshake",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

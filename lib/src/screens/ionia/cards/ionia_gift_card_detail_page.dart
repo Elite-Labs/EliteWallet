@@ -1,4 +1,6 @@
 import 'package:elite_wallet/core/execution_state.dart';
+import 'package:elite_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/ionia/ionia_gift_card.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
@@ -13,7 +15,7 @@ import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/utils/route_aware.dart';
 import 'package:elite_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
-// import 'package:device_display_brightness/device_display_brightness.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:elite_wallet/generated/i18n.dart';
@@ -33,7 +35,7 @@ class IoniaGiftCardDetailPage extends BasePage {
 
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+      color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
       size: 16,
     );
     return Padding(
@@ -60,10 +62,7 @@ class IoniaGiftCardDetailPage extends BasePage {
     return Text(
       viewModel.giftCard.legalName,
       style: textMediumSemiBold(
-          color: Theme.of(context)
-              .accentTextTheme!
-              .displayLarge!
-              .backgroundColor!),
+          color: Theme.of(context).extension<EliteTextTheme>()!.titleColor),
     );
   }
 
@@ -145,8 +144,8 @@ class IoniaGiftCardDetailPage extends BasePage {
                         viewModel.refeshCard();
                     },
                     text: S.of(context).more_options,
-                    color: Theme.of(context).accentTextTheme!.bodySmall!.color!,
-                    textColor: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                    color: Theme.of(context).cardColor,
+                    textColor: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                   ),
                   SizedBox(height: 12),
                   LoadingPrimaryButton(
@@ -158,7 +157,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                       },
                     ),
                     text: S.of(context).mark_as_redeemed,
-                    color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                   ),
                 ],
@@ -201,13 +200,13 @@ class IoniaGiftCardDetailPage extends BasePage {
                             child: Text(
                               instruction.header,
                               style: textLargeSemiBold(
-                                color: Theme.of(context).textTheme!.displaySmall!.color!,
+                                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                               ),
                             )),
                         Text(
                           instruction.body,
                           style: textMedium(
-                            color: Theme.of(context).textTheme!.displaySmall!.color!,
+                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                           ),
                         )
                       ];

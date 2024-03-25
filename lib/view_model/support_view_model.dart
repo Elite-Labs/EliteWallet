@@ -1,11 +1,9 @@
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/view_model/settings/link_list_item.dart';
-import 'package:elite_wallet/view_model/settings/regular_list_item.dart';
 import 'package:elite_wallet/view_model/settings/settings_list_item.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/wallet_type_utils.dart';
+import 'package:mobx/mobx.dart';
+import 'package:elite_wallet/.secrets.g.dart' as secrets;
 
 part 'support_view_model.g.dart';
 

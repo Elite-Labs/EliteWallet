@@ -1,4 +1,5 @@
 import 'package:elite_wallet/core/email_validator.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/ionia/ionia_create_state.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
@@ -33,10 +34,7 @@ class IoniaLoginPage extends BasePage {
     return Text(
       S.current.login,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
       ),
     );
   }
@@ -74,10 +72,7 @@ class IoniaLoginPage extends BasePage {
                   text: S.of(context).login,
                   onPressed: _login,
                   isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),

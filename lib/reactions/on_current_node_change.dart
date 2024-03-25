@@ -9,8 +9,14 @@ void startOnCurrentNodeChangeReaction(AppStore appStore) {
   appStore.settingsStore.nodes.observe((change) async {
     try {
       await appStore.wallet!.connectToNode(
-        node: change.newValue!,
-        settingsStore: appStore.settingsStore);
+        node: change.newValue!);
+    } catch (e) {
+      print(e.toString());
+    }
+  });
+  appStore.settingsStore.powNodes.observe((change) async {
+    try {
+      await appStore.wallet!.connectToPowNode(node: change.newValue!);
     } catch (e) {
       print(e.toString());
     }

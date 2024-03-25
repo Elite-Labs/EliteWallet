@@ -1,5 +1,9 @@
 import 'package:elite_wallet/bitcoin/bitcoin.dart';
+import 'package:elite_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:elite_wallet/ethereum/ethereum.dart';
+import 'package:elite_wallet/nano/nano.dart';
+import 'package:elite_wallet/polygon/polygon.dart';
+import 'package:elite_wallet/solana/solana.dart';
 import 'package:elite_wallet/view_model/restore/restore_mode.dart';
 import 'package:elite_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
@@ -66,6 +70,15 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
                 name: name, password: password, wif: wif);
+          case WalletType.ethereum:
+            return ethereum!.createEthereumRestoreWalletFromPrivateKey(
+                name: name, password: password, privateKey: restoreWallet.privateKey!);
+          case WalletType.polygon:
+            return polygon!.createPolygonRestoreWalletFromPrivateKey(
+                name: name, password: password, privateKey: restoreWallet.privateKey!);
+          case WalletType.solana:
+            return solana!.createSolanaRestoreWalletFromPrivateKey(
+                name: name, password: password, privateKey: restoreWallet.privateKey!);
           default:
             throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
         }
@@ -81,8 +94,20 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.bitcoinCash:
+            return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.nano:
+            return nano!.createNanoRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.polygon:
+            return polygon!.createPolygonRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.solana:
+            return solana!.createSolanaRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           default:
             throw Exception('Unexpected type: ${type.toString()}');

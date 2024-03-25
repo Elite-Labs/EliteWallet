@@ -4,8 +4,11 @@ import 'package:elite_wallet/haven/haven.dart';
 import 'package:elite_wallet/wownero/wownero.dart';
 import 'package:elite_wallet/core/validator.dart';
 import 'package:elite_wallet/entities/mnemonic_item.dart';
+import 'package:elite_wallet/polygon/polygon.dart';
+import 'package:elite_wallet/solana/solana.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/monero/monero.dart';
+import 'package:elite_wallet/nano/nano.dart';
 import 'package:elite_wallet/utils/language_list.dart';
 
 class SeedValidator extends Validator<MnemonicItem> {
@@ -31,6 +34,15 @@ class SeedValidator extends Validator<MnemonicItem> {
         return haven!.getMoneroWordList(language);
       case WalletType.ethereum:
         return ethereum!.getEthereumWordList(language);
+      case WalletType.bitcoinCash:
+        return getBitcoinWordList(language);
+      case WalletType.nano:
+      case WalletType.banano:
+        return nano!.getNanoWordList(language);
+      case WalletType.polygon:
+        return polygon!.getPolygonWordList(language);
+      case WalletType.solana:
+        return solana!.getSolanaWordList(language);
       default:
         return <String>[];
     }

@@ -103,7 +103,7 @@ class SettingActions {
     image: 'assets/images/question_mark.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
-      Navigator.of(context).pushNamed(Routes.support);
+      Navigator.of(context).pushNamed(Routes.supportOtherLinks);
     },
   );
 }

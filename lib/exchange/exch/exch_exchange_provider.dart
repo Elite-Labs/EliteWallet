@@ -1,19 +1,19 @@
 import 'dart:convert';
-import 'package:elite_wallet/exchange/trade_not_found_exeption.dart';
+import 'package:elite_wallet/exchange/trade_not_found_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ew_core/http_port_redirector.dart';
 import 'package:elite_wallet/store/settings_store.dart';
 import 'package:elite_wallet/.secrets.g.dart' as secrets;
 import 'package:ew_core/crypto_currency.dart';
 import 'package:elite_wallet/exchange/exchange_pair.dart';
-import 'package:elite_wallet/exchange/exchange_provider.dart';
+import 'package:elite_wallet/exchange/provider/exchange_provider.dart';
 import 'package:elite_wallet/exchange/limits.dart';
 import 'package:elite_wallet/exchange/trade.dart';
 import 'package:elite_wallet/exchange/trade_request.dart';
 import 'package:elite_wallet/exchange/trade_state.dart';
 import 'package:elite_wallet/exchange/exch/exch_request.dart';
 import 'package:elite_wallet/exchange/exchange_provider_description.dart';
-import 'package:elite_wallet/exchange/trade_not_created_exeption.dart';
+import 'package:elite_wallet/exchange/trade_not_created_exception.dart';
 
 class ExchExchangeProvider extends ExchangeProvider {
   ExchExchangeProvider(this.settingsStore)

@@ -1,8 +1,11 @@
+import 'package:elite_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:elite_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:elite_wallet/core/auth_service.dart';
 import 'package:elite_wallet/di.dart';
 import 'package:elite_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:elite_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:elite_wallet/src/widgets/add_template_button.dart';
+import 'package:elite_wallet/themes/extensions/send_page_theme.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/utils/debounce.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
@@ -78,7 +81,10 @@ class ExchangePage extends BasePage {
   String get title => S.current.exchange;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientBackground => true;
+
+  @override
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -115,13 +121,13 @@ class ExchangePage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor,
+      color: titleColor(context),
       size: 16,
     );
     final _closeButton =
         currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -152,7 +158,7 @@ class ExchangePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.bodyLarge!.backgroundColor!,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -205,8 +211,8 @@ class ExchangePage extends BasePage {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Theme.of(context)
-                                  .primaryTextTheme.displayLarge!
-                                  .decorationColor!,
+                                  .extension<ExchangePageTheme>()!
+                                  .receiveAmountColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 12),
                         ),
@@ -244,7 +250,7 @@ class ExchangePage extends BasePage {
                               }
                             }
                           },
-                          color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                          color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: exchangeViewModel.selectedProviders.isEmpty,
                           isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
@@ -378,7 +384,7 @@ class ExchangePage extends BasePage {
         (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, depositKey));
 
     reaction((_) => exchangeViewModel.depositAmount, (String amount) {
-      if (depositKey.currentState!.amountController.text != amount) {
+      if (depositKey.currentState!.amountController.text != amount && amount != S.of(context).all) {
         depositKey.currentState!.amountController.text = amount;
       }
     });
@@ -403,10 +409,6 @@ class ExchangePage extends BasePage {
       if (receiveKey.currentState!.addressController.text != address) {
         receiveKey.currentState!.addressController.text = address;
       }
-    });
-
-    reaction((_) => exchangeViewModel.isReceiveAddressEnabled, (bool isEnabled) {
-      receiveKey.currentState!.isAddressEditable(isEditable: isEnabled);
     });
 
     reaction((_) => exchangeViewModel.isReceiveAmountEditable, (bool isReceiveAmountEditable) {
@@ -465,7 +467,9 @@ class ExchangePage extends BasePage {
         .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 
     depositAmountController.addListener(() {
-      if (depositAmountController.text != exchangeViewModel.depositAmount) {
+      if (depositAmountController.text != exchangeViewModel.depositAmount &&
+          depositAmountController.text != S.of(context).all) {
+        exchangeViewModel.isSendAllEnabled = false;
         _depositAmountDebounce.run(() {
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
@@ -555,7 +559,7 @@ class ExchangePage extends BasePage {
   }
 
   Future<String> fetchParsedAddress(BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
@@ -587,8 +591,9 @@ class ExchangePage extends BasePage {
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
-                  ? () => exchangeViewModel.calculateDepositAllAmount()
+                  ? () => exchangeViewModel.enableSendAllAmount()
                   : null,
+              isAllAmountEnabled: exchangeViewModel.isSendAllEnabled,
               amountFocusNode: _depositAmountFocus,
               addressFocusNode: _depositAddressFocus,
               key: depositKey,
@@ -624,8 +629,10 @@ class ExchangePage extends BasePage {
               },
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).focusColor,
-              borderColor: Theme.of(context).primaryTextTheme.bodyLarge!.color!,
+              addressButtonsColor:
+                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+              borderColor:
+                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
                 return null;
               },
@@ -657,7 +664,6 @@ class ExchangePage extends BasePage {
                   ? exchangeViewModel.wallet.walletAddresses.address
                   : exchangeViewModel.receiveAddress,
               initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
-              initialIsAddressEditable: exchangeViewModel.isReceiveAddressEnabled,
               isAmountEstimated: true,
               isMoneroWallet: exchangeViewModel.isMoneroWallet,
               currencies: exchangeViewModel.receiveCurrencies,
@@ -665,8 +671,10 @@ class ExchangePage extends BasePage {
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
               imageArrow: arrowBottomEliteGreen,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).focusColor,
-              borderColor: Theme.of(context).primaryTextTheme.bodyLarge!.decorationColor!,
+              addressButtonsColor:
+                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+              borderColor:
+                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
@@ -692,7 +700,7 @@ class ExchangePage extends BasePage {
               },
             ));
 
-    if (ResponsiveLayoutUtil.instance.isMobile) {
+    if (responsiveLayoutUtil.shouldRenderMobileUI) {
       return MobileExchangeCardsSection(
         firstExchangeCard: firstExchangeCard,
         secondExchangeCard: secondExchangeCard,

@@ -33,7 +33,7 @@ class AnonPayApi {
 
   Future<AnonpayStatusResponse> paymentStatus(String id) async {
     final authority = await _getAuthority();
-    final response = await get(settingsStore, Uri.https(authority, "$anonPayStatus/$id"));
+    final response = await get(Uri.https(authority, "$anonPayStatus/$id"));
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as double?;
@@ -74,7 +74,7 @@ class AnonPayApi {
     }
     final authority = await _getAuthority();
 
-    final response = await get(settingsStore, Uri.https(authority, anonPayPath, body));
+    final response = await get(Uri.https(authority, anonPayPath, body));
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['ID'] as String;
@@ -152,7 +152,7 @@ class AnonPayApi {
     final String apiAuthority = await _getAuthority();
     final uri = Uri.https(apiAuthority, coinPath, params);
 
-    final response = await get(settingsStore, uri);
+    final response = await get(uri);
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -185,6 +185,8 @@ class AnonPayApi {
     switch (currency) {
       case CryptoCurrency.usdt:
         return CryptoCurrency.btc.title.toLowerCase();
+      case CryptoCurrency.eth:
+        return 'ERC20';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -205,7 +207,7 @@ class AnonPayApi {
         return onionApiAuthority;
       }
       final uri = Uri.https(onionApiAuthority, '/anonpay');
-      await get(settingsStore, uri);
+      await get(uri);
       return onionApiAuthority;
     } catch (e) {
       return clearNetAuthority;

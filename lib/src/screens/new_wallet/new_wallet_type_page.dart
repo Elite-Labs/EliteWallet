@@ -1,11 +1,14 @@
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:elite_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:elite_wallet/src/widgets/search_bar_widget.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/themes/theme_base.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
+import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/wallet_types.g.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -24,15 +27,18 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-      onTypeSelected: onTypeSelected,
-      walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage);
+        onTypeSelected: onTypeSelected,
+        walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
+        isCreate: isNew,
+      );
 }
 
 class WalletTypeForm extends StatefulWidget {
-  WalletTypeForm({required this.onTypeSelected, required this.walletImage});
+  WalletTypeForm({required this.onTypeSelected, required this.walletImage, required this.isCreate});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
   final Image walletImage;
+  final bool isCreate;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -68,7 +74,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   Widget build(BuildContext context) {
     return Center(
         child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               children: [
                 Padding(
@@ -79,7 +86,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                        color: Theme.of(context).extension<EliteTextTheme>()!.titleColor),
                   ),
                 ),
                 Padding(
@@ -111,7 +118,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     bottomSection: PrimaryButton(
                       onPressed: () => onTypeSelected(),
                       text: S.of(context).seed_language_next,
-                      color: Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                      color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isDisabled: selected == null,
                     ),
@@ -124,6 +131,19 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   Future<void> onTypeSelected() async {
     if (selected == null) {
       throw Exception('Wallet Type is not selected yet.');
+    }
+
+    if (selected == WalletType.haven && widget.isCreate) {
+      return await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return PopUpCancellableAlertDialog(
+            contentText: S.of(context).pause_wallet_creation,
+            actionButtonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          );
+        },
+      );
     }
 
     widget.onTypeSelected(context, selected!);

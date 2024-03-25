@@ -128,7 +128,6 @@ abstract class ProxySettingsViewModelBase with Store {
       return;
     }
     final node = _appStore.settingsStore.getCurrentNode(_appStore.wallet!.type);
-    _appStore.wallet!.connectToNode(
-      node: node, settingsStore: _appStore.settingsStore);
+    _appStore.wallet!.connectToNode(node: node);
   }
 }

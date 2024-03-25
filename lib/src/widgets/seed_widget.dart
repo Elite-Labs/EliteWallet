@@ -1,15 +1,11 @@
+import 'package:elite_wallet/generated/i18n.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:elite_wallet/src/widgets/validable_annotated_editable_text.dart';
-import 'package:elite_wallet/src/widgets/blockchain_height_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/core/seed_validator.dart';
-import 'package:elite_wallet/src/widgets/primary_button.dart';
-import 'package:elite_wallet/entities/mnemonic_item.dart';
-import 'package:elite_wallet/generated/i18n.dart';
-import 'package:flutter/widgets.dart';
+import 'package:elite_wallet/themes/extensions/send_page_theme.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget({
@@ -80,7 +76,7 @@ class SeedWidgetState extends State<SeedWidget> {
               Positioned(
                   top: 10,
                   left: 0,
-                  child: Text('Enter your seed',
+                  child: Text(S.of(context).enter_seed_phrase,
                       style: TextStyle(
                           fontSize: 16.0, color: Theme.of(context).hintColor))),
             Padding(
@@ -89,10 +85,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   cursorColor: Colors.blue,
                   backgroundCursorColor: Colors.blue,
                   validStyle: TextStyle(
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!,
+                      color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                       backgroundColor: Colors.transparent,
                       fontWeight: FontWeight.normal,
                       fontSize: 16),
@@ -105,10 +98,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   controller: controller,
                   words: words,
                   textStyle: TextStyle(
-                      color: Theme.of(context)
-                          .primaryTextTheme!
-                          .titleLarge!
-                          .color!,
+                      color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                       backgroundColor: Colors.transparent,
                       fontWeight: FontWeight.normal,
                       fontSize: 16),
@@ -128,19 +118,13 @@ class SeedWidgetState extends State<SeedWidget> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/paste_ios.png',
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .decorationColor!)),
+                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
                     )))
           ]),
           Container(
               margin: EdgeInsets.only(top: 15),
               height: 1.0,
-              color: Theme.of(context)
-                  .primaryTextTheme!
-                  .titleLarge!
-                  .backgroundColor!),
+              color: Theme.of(context).extension<EliteTextTheme>()!.textfieldUnderlineColor),
         ]));
   }
 

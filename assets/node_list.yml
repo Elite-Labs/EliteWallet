@@ -5,7 +5,8 @@
   uri: node.sethforprivacy.com:18089
   is_default: false
 -
-  uri: node2.sethforprivacy.com:18089
+  uri: node.sethforprivacy.com:443
+  useSSL: true
   is_default: false
 -
   uri: selsta1.featherwallet.net:18081

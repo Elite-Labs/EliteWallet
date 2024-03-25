@@ -11,7 +11,7 @@ case $APP_ANDROID_TYPE in
                 CONFIG_ARGS="--monero"
                 ;;
         $ELITEWALLET)
-                CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum"
+                CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum --polygon --nano --bitcoinCash"
                 ;;
         $HAVEN)
                 CONFIG_ARGS="--haven"

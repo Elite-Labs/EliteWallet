@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/core/email_validator.dart';
 import 'package:elite_wallet/ionia/ionia_create_state.dart';
 import 'package:elite_wallet/routes.dart';
@@ -39,10 +40,7 @@ class IoniaCreateAccountPage extends BasePage {
     return Text(
       S.current.sign_up,
       style: textMediumSemiBold(
-        color: Theme.of(context)
-            .accentTextTheme!
-            .displayLarge!
-            .backgroundColor!,
+        color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
       ),
     );
   }
@@ -83,10 +81,7 @@ class IoniaCreateAccountPage extends BasePage {
                   onPressed: _createAccount,
                   isLoading:
                       _authViewModel.createUserState is IoniaCreateStateLoading,
-                  color: Theme.of(context)
-                      .accentTextTheme!
-                      .bodyLarge!
-                      .color!,
+                  color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),
               ),
@@ -106,10 +101,7 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                       text: S.of(context).settings_terms_and_conditions,
                       style: TextStyle(
-                        color: Theme.of(context)
-                            .accentTextTheme!
-                            .bodyLarge!
-                            .color!,
+                        color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.w700,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -121,10 +113,7 @@ class IoniaCreateAccountPage extends BasePage {
                     TextSpan(
                         text: S.of(context).privacy_policy,
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w700,
                         ),
                         recognizer: TapGestureRecognizer()

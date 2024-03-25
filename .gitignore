@@ -86,13 +86,17 @@ ew_monero/ew_monero/android/.cxx/
 **/*.g.dart
 
 android/key.properties
+android/app/key.jks
 
 **/tool/.secrets-prod.json
 **/tool/.secrets-test.json
 **/tool/.secrets-config.json
+**/tool/.evm-secrets-config.json
 **/tool/.ethereum-secrets-config.json
+**/tool/.solana-secrets-config.json
 **/lib/.secrets.g.dart
-**/ew_ethereum/lib/.secrets.g.dart
+**/ew_evm/lib/.secrets.g.dart
+**/ew_solana/lib/.secrets.g.dart
 
 vendor/
 
@@ -135,6 +139,10 @@ lib/monero/monero.dart
 lib/haven/haven.dart
 lib/wownero/wownero.dart
 lib/ethereum/ethereum.dart
+lib/bitcoin_cash/bitcoin_cash.dart
+lib/nano/nano.dart
+lib/polygon/polygon.dart
+lib/solana/solana.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
@@ -155,4 +163,15 @@ assets/images/app_logo.png
 macos/Runner/Info.plist
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
-macos/Flutter/GeneratedPluginRegistrant.*
+
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
+macos/Runner/Configs/AppInfo.xcconfig
+
+.flutter/
+ew_shared_external/ios/External/sources/

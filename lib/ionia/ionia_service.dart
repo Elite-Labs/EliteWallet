@@ -111,9 +111,9 @@ class IoniaService {
 		required String currency}) async {
 		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
 		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
-		// final deviceId = await PlatformDeviceId.getDeviceId;
+		final deviceId = '';
 		return ioniaApi.purchaseGiftCard(
-			requestedUUID: "",
+			requestedUUID: deviceId,
 			merchId: merchId,
 			amount: amount,
 			currency: currency,

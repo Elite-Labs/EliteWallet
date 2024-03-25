@@ -126,6 +126,9 @@ class NodeForm extends StatelessWidget {
                   Observer(
                     builder: (_) => StandardCheckbox(
                       value: nodeViewModel.useSSL,
+                      gradientBackground: true,
+                      borderColor: Theme.of(context).dividerColor,
+                      iconColor: Colors.white,
                       onChanged: (value) => nodeViewModel.useSSL = value,
                       caption: S.of(context).use_ssl,
                     ),
@@ -142,6 +145,9 @@ class NodeForm extends StatelessWidget {
                   Observer(
                     builder: (_) => StandardCheckbox(
                       value: nodeViewModel.trusted,
+                      gradientBackground: true,
+                      borderColor: Theme.of(context).dividerColor,
+                      iconColor: Colors.white,
                       onChanged: (value) => nodeViewModel.trusted = value,
                       caption: S.of(context).trusted,
                     ),

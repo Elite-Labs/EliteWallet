@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,16 +36,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     restoreHeightController.addListener(() {
       if (restoreHeightController.text.isNotEmpty) {
         widget.onHeightOrDateEntered?.call(true);
-      }
-      else {
+      } else {
         widget.onHeightOrDateEntered?.call(false);
         dateController.text = '';
       }
       try {
-        _changeHeight(restoreHeightController.text != null &&
-                restoreHeightController.text.isNotEmpty
-            ? int.parse(restoreHeightController.text)
-            : 0);
+        _changeHeight(
+            restoreHeightController.text.isNotEmpty ? int.parse(restoreHeightController.text) : 0);
       } catch (_) {
         _changeHeight(0);
       }
@@ -81,7 +79,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
                   color:
-                      Theme.of(context).primaryTextTheme!.titleLarge!.color!),
+                      Theme.of(context).extension<EliteTextTheme>()!.titleColor),
             ),
           ),
           Row(
@@ -116,7 +114,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     );
   }
 
-  Future _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     final now = DateTime.now();
     final date = await getDate(
         context: context,

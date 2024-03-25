@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:elite_wallet/core/totp_request_details.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +40,11 @@ class AuthService with Store {
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
+    // secure storage has a weird bug on macOS, where overwriting a key doesn't work, unless
+    // we delete what's there first:
+    if (Platform.isMacOS) {
+      await secureStorage.delete(key: key);
+    }
     await secureStorage.write(key: key, value: encodedPassword);
   }
 
@@ -64,11 +72,11 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
+    secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
   }
 
-  bool requireAuth() {
-    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+  Future<bool> requireAuth() async {
+    final timestamp = int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
@@ -92,7 +100,7 @@ class AuthService with Store {
         'Either route or onAuthSuccess param must be passed.');
 
     if (!conditionToDetermineIfToUse2FA) {
-      if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (!(await requireAuth()) && !_alwaysAuthenticateRoutes.contains(route)) {
         if (onAuthSuccess != null) {
           onAuthSuccess(true);
         } else {
@@ -103,9 +111,8 @@ class AuthService with Store {
         }
         return;
       }
-}
+    }
 
-    
     Navigator.of(context).pushNamed(Routes.auth,
         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
@@ -135,8 +142,6 @@ class AuthService with Store {
           auth.close(route: route, arguments: arguments);
         }
       }
-      
-      });
-  
+    });
   }
 }

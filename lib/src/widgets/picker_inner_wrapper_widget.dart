@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/account_list_theme.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -44,14 +45,14 @@ class PickerInnerWrapperWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(14)),
               child: Container(
-                color: Theme.of(context).textTheme.displayLarge!.decorationColor!,
+                color: Theme.of(context).dialogTheme.backgroundColor,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight:
                         itemsHeight != null && itemsHeight! <= containerHeight
                             ? itemsHeight!
                             : containerHeight,
-                    maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                    maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                   ),
                   child: Column(
                     children: children,
@@ -72,11 +73,11 @@ class PickerInnerWrapperWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(14)),
             child: Container(
-              color: Theme.of(context).textTheme.displayLarge!.decorationColor!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
-                  maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                  maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                 ),
                 child: Column(
                   children: children,

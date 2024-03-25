@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:ew_bitcoin/bitcoin_amount_format.dart';
 import 'package:ew_core/balance.dart';
 
@@ -30,7 +29,8 @@ class ElectrumBalance extends Balance {
   @override
   String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
 
-  String get formattedFrozenBalance {
+  @override
+  String get formattedUnAvailableBalance {
     final frozenFormatted = bitcoinAmountToString(amount: frozen);
     return frozenFormatted == '0.0' ? '' : frozenFormatted;
   }

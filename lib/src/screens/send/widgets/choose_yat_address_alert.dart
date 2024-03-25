@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/src/widgets/elite_scrollbar.dart';
 import 'package:elite_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
@@ -66,12 +67,12 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
         Container(
             width: 300,
             height: 158,
-            color: Theme.of(context).accentTextTheme!.bodyMedium!.backgroundColor!,
+            color: Theme.of(context).dialogBackgroundColor,
             child: ListView.separated(
                 controller: controller,
                 padding: EdgeInsets.all(0),
                 itemCount: itemCount,
-                separatorBuilder: (_, __) => const SectionDivider(),
+                separatorBuilder: (_, __) => const HorizontalSectionDivider(),
                 itemBuilder: (context, index) {
                   final address = addresses[index];
 
@@ -95,7 +96,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                    color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                                     decoration: TextDecoration.none,
                                   ),
                                 )

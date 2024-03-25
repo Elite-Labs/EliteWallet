@@ -5,8 +5,13 @@ import 'package:elite_wallet/entities/sort_balance_types.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
+import 'package:elite_wallet/src/widgets/elite_image_widget.dart';
 import 'package:elite_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:elite_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:elite_wallet/themes/extensions/address_theme.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
+import 'package:elite_wallet/themes/extensions/menu_theme.dart';
+import 'package:elite_wallet/themes/extensions/picker_theme.dart';
 import 'package:elite_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -34,7 +39,7 @@ class HomeSettingsPage extends BasePage {
               onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
             ),
           ),
-          Divider(color: Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!),
+          Divider(color: Theme.of(context).extension<EliteMenuTheme>()!.dividerColor),
           Observer(
             builder: (_) => SettingsSwitcherCell(
               title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
@@ -44,7 +49,7 @@ class HomeSettingsPage extends BasePage {
               },
             ),
           ),
-          Divider(color: Theme.of(context).primaryTextTheme.bodySmall!.decorationColor!),
+          Divider(color: Theme.of(context).extension<EliteMenuTheme>()!.dividerColor),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -53,12 +58,13 @@ class HomeSettingsPage extends BasePage {
                   padding: const EdgeInsetsDirectional.only(start: 16),
                   child: TextFormField(
                     controller: _searchController,
-                    style: TextStyle(color: Theme.of(context).primaryTextTheme.titleLarge!.color!),
+                    style: TextStyle(
+                        color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
                     decoration: InputDecoration(
                       hintText: S.of(context).search_add_token,
                       prefixIcon: Image.asset("assets/images/search_icon.png"),
                       filled: true,
-                      fillColor: Theme.of(context).accentTextTheme.displaySmall!.color!,
+                      fillColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                       alignLabelWithHint: false,
                       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                       enabledBorder: OutlineInputBorder(
@@ -84,15 +90,15 @@ class HomeSettingsPage extends BasePage {
                   });
                 },
                 elevation: 0,
-                fillColor: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                fillColor: Theme.of(context).cardColor,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                  color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),
                 shape: CircleBorder(),
-                splashColor: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                splashColor: Theme.of(context).cardColor,
               ),
             ],
           ),
@@ -112,7 +118,7 @@ class HomeSettingsPage extends BasePage {
 
                         return SettingsSwitcherCell(
                           title: "${token.name} "
-                              "(${token.symbol})",
+                              "(${token.title})",
                           value: token.enabled,
                           onValueChange: (_, bool value) {
                             _homeSettingsViewModel.changeTokenAvailability(token, value);
@@ -123,20 +129,16 @@ class HomeSettingsPage extends BasePage {
                               'token': token,
                             });
                           },
-                          leading: token.iconPath != null
-                              ? Container(
-                                  child: Image.asset(
-                                    token.iconPath!,
-                                    height: 30.0,
-                                    width: 30.0,
-                                  ),
-                                )
-                              : Container(
+                          leading: EliteImageWidget(
+                            imageUrl: token.iconPath,
+                            height: 40,
+                            width: 40,
+                            displayOnError: Container(
                                   height: 30.0,
                                   width: 30.0,
                                   child: Center(
                                     child: Text(
-                                      token.symbol.substring(0, min(token.symbol.length, 2)),
+                                      token.title.substring(0, min(token.title.length, 2)),
                                       style: TextStyle(fontSize: 11),
                                     ),
                                   ),
@@ -144,9 +146,10 @@ class HomeSettingsPage extends BasePage {
                                     shape: BoxShape.circle,
                                     color: Colors.grey.shade400,
                                   ),
-                                ),
+                            ),
+                          ),        
                           decoration: BoxDecoration(
-                            color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(30),
                           ),
                         );

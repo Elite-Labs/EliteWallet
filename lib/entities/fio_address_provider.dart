@@ -18,7 +18,7 @@ class FioAddressProvider {
     final uri = Uri.https(apiAuthority, availCheck);
     final response =
         await http.post(
-          settingsStore, uri, headers: headers, body: json.encode(body));
+          uri, headers: headers, body: json.encode(body));
 
     if (response.statusCode != 200) {
       return isFioRegistered;
@@ -43,7 +43,7 @@ class FioAddressProvider {
     final uri = Uri.https(apiAuthority, getAddress);
     final response =
         await http.post(
-          settingsStore, uri, headers: headers, body: json.encode(body));
+          uri, headers: headers, body: json.encode(body));
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;

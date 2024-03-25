@@ -1,8 +1,10 @@
+import 'package:elite_wallet/routes.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'dart:ui';
+import 'package:elite_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/core/execution_state.dart';
@@ -19,19 +21,19 @@ import 'package:elite_wallet/src/screens/exchange_trade/widgets/timer_widget.dar
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:elite_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:elite_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
-  final fetchingLabel = S.current.fetching;
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_result_confirm(
-          trade.amount ?? fetchingLabel, trade.from.toString(), walletName) +
+          trade.amount, trade.from.toString(), walletName) +
         exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
-          trade.amount ?? fetchingLabel, trade.from.toString()) +
+          trade.amount, trade.from.toString()) +
         exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
@@ -50,7 +52,7 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!);
+        color: Theme.of(context).extension<EliteTextTheme>()!.titleColor);
 
     return SizedBox(
       height: 20.0,
@@ -89,6 +91,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   bool _effectsInstalled = false;
 
+  ReactionDisposer? _exchangeStateReaction;
+
   @override
   void initState() {
     super.initState();
@@ -101,8 +105,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   @override
   void dispose() {
-    super.dispose();
     widget.exchangeTradeViewModel.timer?.cancel();
+    _exchangeStateReaction?.reaction.dispose();
+    super.dispose();
   }
 
   @override
@@ -110,7 +115,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.labelSmall!.color!);
+        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor);
 
     _setEffects();
 
@@ -132,17 +137,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                               style: TextStyle(
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .labelSmall!
-                                      .color!),
+                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                             ),
                             if (trade.expiredAt != null)
                               TimerWidget(trade.expiredAt!,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .titleLarge!
-                                      .color!)
+                                  color: Theme.of(context).extension<EliteTextTheme>()!.titleColor)
                           ])
                     : Offstage(),
                 Padding(
@@ -159,10 +158,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           width: 3,
-                                          color: Theme.of(context)
-                                              .accentTextTheme!
-                                              .titleSmall!
-                                              .color!
+                                          color: Theme.of(context).extension<ExchangePageTheme>()!.qrCodeColor
                                       )
                                   ),
                                   child: QrImage(data: trade.inputAddress ?? fetchingLabel),
@@ -178,14 +174,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     itemCount: widget.exchangeTradeViewModel.items.length,
                     separatorBuilder: (context, index) => Container(
                       height: 1,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .titleSmall!
-                          .backgroundColor!,
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.dividerCodeColor,
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
-                      final value = item.data ?? fetchingLabel;
+                      final value = item.data;
 
                       final content = ListRow(
                         title: item.title,
@@ -227,10 +220,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodyLarge!
-                        .color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white)
                 : Offstage();
           })),
@@ -242,7 +232,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
+    _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -271,7 +261,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     fee: S.of(popupContext).send_fee,
                     feeValue: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransaction!.feeFormatted,
-                    rightButtonText: S.of(popupContext).ok,
+                    rightButtonText: S.of(popupContext).send,
                     leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
@@ -292,15 +282,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext popupContext) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(popupContext).sending,
-                    alertContent: S.of(popupContext).transaction_sent,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () => Navigator.of(popupContext).pop());
-              });
+          if (context.mounted) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithOneAction(
+                      alertTitle: S.of(popupContext).sending,
+                      alertContent: S.of(popupContext).transaction_sent,
+                      buttonText: S.of(popupContext).ok,
+                      buttonAction: () => Navigator.of(popupContext).pop());
+                });
+          }
         });
       }
     });
@@ -309,7 +301,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
   }
 
   void transactionStatePopup() {
-    showPopUp<void>(
+    if (this.mounted) {
+      showPopUp<void>(
         context: context,
         builder: (BuildContext popupContext) {
           return Observer(builder: (_) {
@@ -320,7 +313,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               return Stack(
                 children: <Widget>[
                   Container(
-                    color: Theme.of(popupContext).backgroundColor,
+                    color: Theme.of(popupContext).colorScheme.background,
                     child: Center(
                       child: Image.asset(
                           'assets/images/birthday_cake.png'),
@@ -340,10 +333,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(popupContext)
-                              .primaryTextTheme!
-                              .titleLarge!
-                              .color,
+                          color: Theme.of(popupContext).extension<EliteTextTheme>()!.titleColor,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -355,13 +345,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       bottom: 24,
                       child: PrimaryButton(
                           onPressed: () {
-                            Navigator.of(popupContext).pop();
-                          },  
+                              Navigator.pushNamedAndRemoveUntil(
+                                popupContext,
+                                Routes.dashboard,
+                                (route) => false,
+                              );
+                          },
                           text: S.of(popupContext).got_it,
-                          color: Theme.of(popupContext)
-                              .accentTextTheme!
-                              .bodyLarge!
-                              .color!,
+                          color: Theme.of(popupContext).primaryColor,
                           textColor: Colors.white))
                 ],
               );
@@ -370,7 +361,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             return Stack(
               children: <Widget>[
                 Container(
-                  color: Theme.of(popupContext).backgroundColor,
+                  color: Theme.of(popupContext).colorScheme.background,
                   child: Center(
                     child: Image.asset(
                         'assets/images/birthday_cake.png'),
@@ -382,7 +373,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   child: Container(
                     decoration: BoxDecoration(
                         color: Theme.of(popupContext)
-                            .backgroundColor
+                            .colorScheme
+                            .background
                             .withOpacity(0.25)),
                     child: Center(
                       child: Padding(
@@ -393,10 +385,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(popupContext)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
+                            color: Theme.of(popupContext).extension<EliteTextTheme>()!.titleColor,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -408,5 +397,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             );
           });
         });
+    }
   }
 }

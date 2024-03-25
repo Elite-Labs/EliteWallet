@@ -5,8 +5,11 @@ import 'package:elite_wallet/entities/language_service.dart';
 import 'package:elite_wallet/buy/order.dart';
 import 'package:elite_wallet/locales/locale.dart';
 import 'package:elite_wallet/store/yat/yat_store.dart';
+import 'package:elite_wallet/utils/device_info.dart';
 import 'package:elite_wallet/utils/exception_handler.dart';
+import 'package:ew_core/address_info.dart';
 import 'package:elite_wallet/utils/responsive_layout_util.dart';
+import 'package:ew_core/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,7 +40,7 @@ import 'package:elite_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:ew_core/unspent_coins_info.dart';
 import 'package:elite_wallet/monero/monero.dart';
-import 'package:elite_wallet/wallet_type_utils.dart';
+import 'package:ew_core/elite_hive.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -57,7 +60,7 @@ Future<void> main() async {
       return true;
     };
 
-    await Hive.close();
+    await EliteHive.close();
 
     await initializeAppConfigs();
 
@@ -69,77 +72,86 @@ Future<void> main() async {
 
 Future<void> initializeAppConfigs() async {
   final appDir = await getApplicationDocumentsDirectory();
-  Hive.init(appDir.path);
+  EliteHive.init(appDir.path);
 
-  if (!Hive.isAdapterRegistered(Contact.typeId)) {
-    Hive.registerAdapter(ContactAdapter());
+  if (!EliteHive.isAdapterRegistered(Contact.typeId)) {
+    EliteHive.registerAdapter(ContactAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Node.typeId)) {
-    Hive.registerAdapter(NodeAdapter());
+  if (!EliteHive.isAdapterRegistered(Node.typeId)) {
+    EliteHive.registerAdapter(NodeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
-    Hive.registerAdapter(TransactionDescriptionAdapter());
+  if (!EliteHive.isAdapterRegistered(TransactionDescription.typeId)) {
+    EliteHive.registerAdapter(TransactionDescriptionAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Trade.typeId)) {
-    Hive.registerAdapter(TradeAdapter());
+  if (!EliteHive.isAdapterRegistered(Trade.typeId)) {
+    EliteHive.registerAdapter(TradeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
-    Hive.registerAdapter(WalletInfoAdapter());
+  if (!EliteHive.isAdapterRegistered(AddressInfo.typeId)) {
+    EliteHive.registerAdapter(AddressInfoAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
-    Hive.registerAdapter(WalletTypeAdapter());
+  if (!EliteHive.isAdapterRegistered(WalletInfo.typeId)) {
+    EliteHive.registerAdapter(WalletInfoAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Template.typeId)) {
-    Hive.registerAdapter(TemplateAdapter());
+  if (!EliteHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
+    EliteHive.registerAdapter(DerivationTypeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
-    Hive.registerAdapter(ExchangeTemplateAdapter());
+  if (!EliteHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
+    EliteHive.registerAdapter(WalletTypeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(Order.typeId)) {
-    Hive.registerAdapter(OrderAdapter());
+  if (!EliteHive.isAdapterRegistered(Template.typeId)) {
+    EliteHive.registerAdapter(TemplateAdapter());
   }
 
-  if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-    Hive.registerAdapter(UnspentCoinsInfoAdapter());
+  if (!EliteHive.isAdapterRegistered(ExchangeTemplate.typeId)) {
+    EliteHive.registerAdapter(ExchangeTemplateAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
-    Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  if (!EliteHive.isAdapterRegistered(Order.typeId)) {
+    EliteHive.registerAdapter(OrderAdapter());
   }
 
-  final secureStorage = FlutterSecureStorage();
+  if (!EliteHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+    EliteHive.registerAdapter(UnspentCoinsInfoAdapter());
+  }
+
+  if (!EliteHive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
+    EliteHive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  }
+
+  final secureStorage = FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
-  final contacts = await Hive.openBox<Contact>(Contact.boxName);
-  final nodes = await Hive.openBox<Node>(Node.boxName);
-  final transactionDescriptions = await Hive.openBox<TransactionDescription>(
+  final contacts = await EliteHive.openBox<Contact>(Contact.boxName);
+  final nodes = await EliteHive.openBox<Node>(Node.boxName);
+  final powNodes =
+      await EliteHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
+  final transactionDescriptions = await EliteHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-  final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
-  final templates = await Hive.openBox<Template>(Template.boxName);
-  final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-  final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-  Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-  if (!isMoneroOnly) {
-    unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-  }
+  final trades = await EliteHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders = await EliteHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final walletInfoSource = await EliteHive.openBox<WalletInfo>(WalletInfo.boxName);
+  final templates = await EliteHive.openBox<Template>(Template.boxName);
+  final exchangeTemplates = await EliteHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo = await EliteHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  final unspentCoinsInfoSource = await EliteHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
       nodes: nodes,
+      powNodes: powNodes,
       walletInfoSource: walletInfoSource,
       contactSource: contacts,
       tradesSource: trades,
@@ -151,12 +163,13 @@ Future<void> initializeAppConfigs() async {
       transactionDescriptions: transactionDescriptions,
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 23);
-  }
+      initialMigrationVersion: 31);
+}
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences,
+    {required SharedPreferences sharedPreferences, 
     required Box<Node> nodes,
+    required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Contact> contactSource,
     required Box<Trade> tradesSource,
@@ -167,8 +180,8 @@ Future<void> initialSetup(
     required Box<TransactionDescription> transactionDescriptions,
     required FlutterSecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
-    int initialMigrationVersion = 23}) async {
+    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+    int initialMigrationVersion = 31}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -177,10 +190,12 @@ Future<void> initialSetup(
       walletInfoSource: walletInfoSource,
       contactSource: contactSource,
       tradeSource: tradesSource,
-      nodes: nodes);
+      nodes: nodes,
+      powNodes: powNodes);
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
+      powNodeSource: powNodes,
       contactSource: contactSource,
       tradesSource: tradesSource,
       templates: templates,
@@ -188,7 +203,8 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource);
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      secureStorage: secureStorage);
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -305,26 +321,24 @@ class _Home extends StatefulWidget {
 }
 
 class _HomeState extends State<_Home> {
- @override
+  @override
   void didChangeDependencies() {
-    if(!ResponsiveLayoutUtil.instance.isMobile){
     _setOrientation(context);
-    }
+
     super.didChangeDependencies();
   }
 
-
- void _setOrientation(BuildContext context){
-    final orientation = MediaQuery.of(context).orientation;
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    if (orientation == Orientation.portrait && width < height) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    } else if (orientation == Orientation.landscape && width > height) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+  void _setOrientation(BuildContext context) {
+    if (!DeviceInfo.instance.isDesktop) {
+      if (responsiveLayoutUtil.shouldRenderMobileUI) {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      } else {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      }
     }
-
- }
+  }
 
   @override
   Widget build(BuildContext context) {

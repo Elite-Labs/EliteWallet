@@ -1,13 +1,16 @@
 import 'dart:io';
 
-import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/keyable.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:ew_core/http_port_redirector.dart';
 import 'package:hive/hive.dart';
+import 'package:ew_core/hive_type_ids.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:ew_core/port_redirector.dart';
 import 'package:ew_core/http_port_redirector.dart';
+import 'package:http/io_client.dart' as ioc;
+// import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
@@ -38,7 +41,7 @@ class Node extends HiveObject with Keyable {
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false;
 
-  static const typeId = 1;
+  static const typeId = NODE_TYPE_ID;
   static const boxName = 'Nodes';
 
   @HiveField(0, defaultValue: '')
@@ -64,16 +67,23 @@ class Node extends HiveObject with Keyable {
   Uri get uri {
     switch (type) {
       case WalletType.monero:
-        return Uri.http(uriRaw, '');
-      case WalletType.bitcoin:
-        return createUriFromElectrumAddress(uriRaw);
-      case WalletType.litecoin:
-        return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
-        return Uri.http(uriRaw, '');
       case WalletType.wownero:
         return Uri.http(uriRaw, '');
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return createUriFromElectrumAddress(uriRaw);
+      case WalletType.nano:
+      case WalletType.banano:
+        if (isSSL) {
+          return Uri.https(uriRaw, '');
+        } else {
+          return Uri.http(uriRaw, '');
+        }
       case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
         return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
@@ -111,21 +121,23 @@ class Node extends HiveObject with Keyable {
 
   dynamic _keyIndex;
 
-  Future<bool> requestNode(SettingsStore settingsStore) async {
+  Future<bool> requestNode() async {
     try {
       switch (type) {
         case WalletType.monero:
-          return requestMoneroNode(settingsStore);
         case WalletType.wownero:
-          return requestMoneroNode(settingsStore);
-        case WalletType.bitcoin:
-          return requestElectrumServer(settingsStore);
-        case WalletType.litecoin:
-          return requestElectrumServer(settingsStore);
         case WalletType.haven:
-          return requestMoneroNode(settingsStore);
+          return requestMoneroNode();
+        case WalletType.nano:
+        case WalletType.banano:
+          return requestNanoNode();
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
         case WalletType.ethereum:
-          return requestEthereumServer(settingsStore);
+        case WalletType.polygon:
+        case WalletType.solana:
+          return requestElectrumServer();
         default:
           return false;
       }
@@ -134,8 +146,11 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestMoneroNode(SettingsStore settingsStore) async {
+  Future<bool> requestMoneroNode() async {
     final path = '/json_rpc';
+    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final realm = 'monero-rpc';
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
 
     try {
 
@@ -148,6 +163,9 @@ class Node extends HiveObject with Keyable {
       };
       final authenticatingClient = HttpClient();
 
+      authenticatingClient.badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => true);
+
       authenticatingClient.addCredentials(
           rpcUri,
           realm,
@@ -158,7 +176,6 @@ class Node extends HiveObject with Keyable {
         ((X509Certificate cert, String host, int port) => true);
 
       final response = await post(
-        settingsStore,
         rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: json.encode(body),
@@ -171,13 +188,13 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestElectrumServer(SettingsStore settingsStore) async {
+  Future<bool> requestElectrumServer() async {
     try {
       PortRedirector portRedirector;
       String host = uri.host;
       int port = uri.port;
       portRedirector = await PortRedirector.start(
-        settingsStore, host, port, timeout: Duration(seconds: 5));
+        host, port, timeout: Duration(seconds: 5));
       host = portRedirector.host;
       port = portRedirector.port;
 
@@ -191,10 +208,26 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestEthereumServer(SettingsStore settingsStore) async {
+  Future<bool> requestNanoNode() async {
+    http.Response response = await post(
+      uri,
+      headers: {'Content-type': 'application/json'},
+      body: json.encode(
+        {
+          "action": "block_count",
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> requestEthereumServer() async {
     try {
       final response = await get(
-        settingsStore,
         uri,
         headers: {'Content-Type': 'application/json'},
       );

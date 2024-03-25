@@ -4,15 +4,16 @@ import 'package:elite_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/widgets/standard_list.dart';
 import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/routes.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
+import 'package:elite_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:elite_wallet/utils/clipboard_util.dart';
 import 'package:elite_wallet/utils/show_bar.dart';
 import 'package:elite_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
-
+import 'package:url_launcher/url_launcher.dart';
 
 class Setup2FAQRPage extends BasePage {
   Setup2FAQRPage({required this.setup2FAViewModel});
@@ -24,52 +25,63 @@ class Setup2FAQRPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-  
-    final copyImage = Image.asset(
-      'assets/images/copy_content.png',
-      height: 12,
-      width: 12,
-      color: Color(0xFF355688),
-    );
+    final copyImage = Image.asset('assets/images/copy_content.png',
+        height: 16,
+        width: 16,
+        color: Theme.of(context).extension<EliteTextTheme>()!.titleColor);
+    final elite2FAHowToUseUrl = Uri.parse(
+        'https://guides.elitewallet.sc/docs/advanced-features/authentication/#enabling-elite-2fa');
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          SizedBox(height: 58),
+          Spacer(),
+          Text(
+            S.current.scan_qr_on_device,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              height: 1.5714,
+              color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
+            ),
+          ),
+          SizedBox(height: 10),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.4),
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: Container(
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 3,
+                    color: Theme.of(context)
+                        .extension<EliteTextTheme>()!
+                        .titleColor,
+                  ),
+                ),
+                child: Container(
+                    child: QrImage(
+                  data: setup2FAViewModel.totpVersionOneLink,
+                  version: qr.QrVersions.auto,
+                  foregroundColor:
+                      Theme.of(context).extension<EliteTextTheme>()!.titleColor,
+                  backgroundColor: Colors.transparent,
+                )),
+              ),
+            ),
+          ),
+          SizedBox(height: 26),
           Text(
             S.current.add_secret_code,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
               height: 1.5714,
-              color: Palette.darkBlueCraiola,
+              color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
             ),
           ),
-          SizedBox(height: 10),
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  width: 3,
-                  color: Theme.of(context).accentTextTheme.headline2!.backgroundColor!,
-                ),
-              ),
-              child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 3,
-                      color: Colors.white,
-                    ),
-                  ),
-                  child: QrImage(
-                    data: setup2FAViewModel.totpVersionOneLink,
-                    version: qr.QrVersions.auto,
-                  )),
-            ),
-          ),
-          SizedBox(height: 13),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,18 +96,20 @@ class Setup2FAQRPage extends BasePage {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Palette.darkGray,
+                        color: Theme.of(context)
+                            .extension<EliteTextTheme>()!
+                            .secondaryTextColor,
                         height: 1.8333,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '${setup2FAViewModel.secretKey}',
+                      '${setup2FAViewModel.totpSecretKey}',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        height: 1.375,
-                      ),
+                          fontSize: 18,
+                          color: Theme.of(context)
+                              .extension<EliteTextTheme>()!
+                              .titleColor),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -108,15 +122,11 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    ClipboardUtil.setSensitiveDataToClipboard(
-                        ClipboardData(text: '${setup2FAViewModel.secretKey}'));
+                    ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(
+                        text: '${setup2FAViewModel.totpSecretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: Color(0xFFF2F0FA),
-                    ),
                     child: copyImage,
                   ),
                 ),
@@ -125,24 +135,104 @@ class Setup2FAQRPage extends BasePage {
           ),
           SizedBox(height: 8),
           StandardListSeparator(),
-          Spacer(),
+          SizedBox(height: 13),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.current.totp_auth_url,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context)
+                            .extension<EliteTextTheme>()!
+                            .secondaryTextColor,
+                        height: 1.8333,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '${setup2FAViewModel.totpVersionOneLink}',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Theme.of(context)
+                              .extension<EliteTextTheme>()!
+                              .titleColor),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 8),
+              Container(
+                width: 32,
+                height: 32,
+                child: InkWell(
+                  onTap: () {
+                    ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(
+                        text: '${setup2FAViewModel.totpVersionOneLink}'));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  child: Container(
+                    child: copyImage,
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 8),
+          StandardListSeparator(),
+          SizedBox(height: 16),
+          GestureDetector(
+              onTap: () => _launchUrl(elite2FAHowToUseUrl),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(S.current.how_to_use,
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context)
+                              .extension<EliteTextTheme>()!
+                              .titleColor)),
+                  Icon(Icons.info_outline,
+                      size: 20,
+                      color: Theme.of(context)
+                          .extension<EliteTextTheme>()!
+                          .titleColor)
+                ],
+              )),
+          Spacer(flex: 5),
           PrimaryButton(
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed(
-                Routes.totpAuthCodePage,
-                  arguments: TotpAuthArgumentsModel(
-                    isForSetup: true,
-                  )
-                  
-              );
+              Navigator.of(context)
+                  .pushReplacementNamed(Routes.totpAuthCodePage,
+                      arguments: TotpAuthArgumentsModel(
+                        isForSetup: true,
+                      ));
             },
             text: S.current.continue_text,
-            color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+            color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
           SizedBox(height: 24),
         ],
       ),
     );
+  }
+
+  static void _launchUrl(Uri url) async {
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {}
   }
 }

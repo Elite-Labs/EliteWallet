@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:elite_wallet/buy/buy_provider.dart';
-import 'package:elite_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:elite_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:elite_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:elite_wallet/generated/i18n.dart';
-import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/store/dashboard/orders_store.dart';
 import 'package:elite_wallet/view_model/buy/buy_view_model.dart';
@@ -23,9 +20,6 @@ class BuyWebViewPage extends BasePage {
 
   @override
   Color get backgroundDarkColor => Colors.white;
-
-  @override
-  Color get titleColor => Palette.darkBlueCraiola;
 
   @override
   Widget body(BuildContext context) =>
@@ -75,10 +69,10 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
   Widget build(BuildContext context) {
     return InAppWebView(
         key: _webViewkey,
-        initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(transparentBackground: true),
+        initialSettings: InAppWebViewSettings(
+          transparentBackground: true,
         ),
-        initialUrlRequest: URLRequest(url: Uri.tryParse(widget.url ?? '')),
+        initialUrlRequest: URLRequest(url: WebUri(widget.url ?? '')),
         onWebViewCreated: (InAppWebViewController controller) =>
             setState(() => _webViewController = controller));
   }

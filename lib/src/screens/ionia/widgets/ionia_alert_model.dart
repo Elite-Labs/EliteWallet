@@ -1,5 +1,7 @@
 import 'package:elite_wallet/src/widgets/alert_background.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
+import 'package:elite_wallet/themes/extensions/elite_scrollbar_theme.dart';
 import 'package:elite_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +43,7 @@ class IoniaAlertModal extends StatelessWidget {
                     Text(
                       title,
                       style: textLargeSemiBold(
-                        color: Theme.of(context).textTheme!.bodyMedium!.color!,
+                        color: Theme.of(context).extension<EliteScrollbarTheme>()!.thumbColor,
                       ),
                     ),
                   Container(
@@ -56,12 +58,9 @@ class IoniaAlertModal extends StatelessWidget {
                   PrimaryButton(
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
-                    color: Theme.of(context)
-                        .accentTextTheme!
-                        .bodySmall!
-                        .color!,
+                    color: Theme.of(context).cardColor,
                     textColor:
-                        Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                        Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                   ),
                   SizedBox(height: 21),
                 ],

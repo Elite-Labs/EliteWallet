@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:elite_wallet/store/settings_store.dart';
 import 'package:ew_core/account.dart';
 import 'package:ew_core/crypto_currency.dart';
 import 'package:ew_core/monero_transaction_priority.dart';
@@ -141,12 +140,11 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
 
   @override
   Future<void> connectToNode({
-    required Node node,
-    required SettingsStore settingsStore}) async {
+    required Node node}) async {
     String host = node.uri.host;
     int port = node.uri.port;
     PortRedirector portRedirector = await PortRedirector.start(
-      settingsStore, host, port, timeout: connectionTimeout);
+      host, port, timeout: connectionTimeout);
     host = portRedirector.host;
     port = portRedirector.port;
     _portRedirector = portRedirector;

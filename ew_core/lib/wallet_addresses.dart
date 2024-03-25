@@ -1,16 +1,24 @@
+import 'package:ew_core/address_info.dart';
 import 'package:ew_core/wallet_info.dart';
 
 abstract class WalletAddresses {
   WalletAddresses(this.walletInfo)
-    : addressesMap = {};
+    : addressesMap = {},
+      addressInfos = {};
 
   final WalletInfo walletInfo;
 
   String get address;
 
+  String? get primaryAddress => null;
+
   set address(String address);
 
   Map<String, String> addressesMap;
+
+  Map<int, List<AddressInfo>> addressInfos;
+
+  Set<String> usedAddresses = {};
 
   Future<void> init();
 
@@ -20,6 +28,8 @@ abstract class WalletAddresses {
     try {
       walletInfo.address = address;
       walletInfo.addresses = addressesMap;
+      walletInfo.addressInfos = addressInfos;
+      walletInfo.usedAddresses = usedAddresses.toList();
 
       if (walletInfo.isInBox) {
         await walletInfo.save();
@@ -28,4 +38,6 @@ abstract class WalletAddresses {
       print(e.toString());
     }
   }
+
+  bool containsAddress(String address) => addressesMap.containsKey(address);
 }

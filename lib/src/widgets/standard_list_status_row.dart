@@ -1,7 +1,10 @@
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:elite_wallet/palette.dart';
 import 'package:elite_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:elite_wallet/themes/extensions/address_theme.dart';
+import 'package:elite_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class StandardListStatusRow extends StatelessWidget {
   StandardListStatusRow({required this.title, required this.value});
@@ -24,13 +27,13 @@ class StandardListStatusRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryTextTheme!.labelSmall!.color!),
+                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).accentTextTheme!.displaySmall!.color!,
+                    color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: Padding(
@@ -50,10 +53,7 @@ class StandardListStatusRow extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .titleLarge!
-                                    .color!))
+                                color: Theme.of(context).extension<EliteTextTheme>()!.titleColor))
                       ],
                     ),
                   ),

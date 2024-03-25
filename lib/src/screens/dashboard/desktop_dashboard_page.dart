@@ -1,17 +1,15 @@
 import 'dart:async';
 import 'package:elite_wallet/entities/preferences_key.dart';
-import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:elite_wallet/src/screens/yat_emoji_id.dart';
-import 'package:elite_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:elite_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:elite_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:elite_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:elite_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:elite_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:mobx/mobx.dart';
 import 'package:elite_wallet/main.dart';
 import 'package:elite_wallet/router.dart' as Router;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,23 +69,6 @@ class DesktopDashboardPage extends StatelessWidget {
     }
     _isEffectsInstalled = true;
 
-    autorun((_) async {
-      if (!dashboardViewModel.isOutdatedElectrumWallet) {
-        return;
-      }
-
-      await Future<void>.delayed(Duration(seconds: 1));
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).pre_seed_title,
-                alertContent: S.of(context).outdated_electrum_wallet_description,
-                buttonText: S.of(context).understand,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    });
-
     var needToPresentYat = false;
     var isInactive = false;
 
@@ -129,6 +110,26 @@ class DesktopDashboardPage extends StatelessWidget {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     } else if (isNewInstall!) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
+
+    _showVulnerableSeedsPopup(context);
+  }
+
+  void _showVulnerableSeedsPopup(BuildContext context) async {
+    final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
+
+    if (affectedWalletNames.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+            () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return VulnerableSeedsPopup(affectedWalletNames);
+            },
+          );
+        },
+      );
     }
   }
 }

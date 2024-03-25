@@ -2,17 +2,17 @@ part of 'ethereum.dart';
 
 class EWEthereum extends Ethereum {
   @override
-  List<String> getEthereumWordList(String language) => EthereumMnemonics.englishWordlist;
+  List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource) =>
-      EthereumWalletService(walletInfoSource);
+      EthereumWalletService(walletInfoSource, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
   }) =>
-      EthereumNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({
@@ -20,20 +20,45 @@ class EWEthereum extends Ethereum {
     required String mnemonic,
     required String password,
   }) =>
-      EthereumRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      EVMChainRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+
+  @override
+  WalletCredentials createEthereumRestoreWalletFromPrivateKey({
+    required String name,
+    required String privateKey,
+    required String password,
+  }) =>
+      EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
+  String getPrivateKey(WalletBase wallet) {
+    final privateKeyHolder = (wallet as EthereumWallet).evmChainPrivateKey;
+    String stringKey = bytesToHex(privateKeyHolder.privateKey);
+    return stringKey;
+  }
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => EthereumTransactionPriority.all;
+  String getPublicKey(WalletBase wallet) {
+    final privateKeyInUnitInt = (wallet as EthereumWallet).evmChainPrivateKey;
+    final publicKey = privateKeyInUnitInt.address.hex;
+    return publicKey;
+  }
+
+  @override
+  TransactionPriority getDefaultTransactionPriority() => EVMChainTransactionPriority.medium;
+
+  @override
+  TransactionPriority getEthereumTransactionPrioritySlow() => EVMChainTransactionPriority.slow;
+
+  @override
+  List<TransactionPriority> getTransactionPriorities() => EVMChainTransactionPriority.all;
 
   @override
   TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
-      EthereumTransactionPriority.deserialize(raw: raw);
+      EVMChainTransactionPriority.deserialize(raw: raw);
 
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {
@@ -41,7 +66,7 @@ class EWEthereum extends Ethereum {
     required CryptoCurrency currency,
     int? feeRate,
   }) =>
-      EthereumTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
@@ -53,7 +78,7 @@ class EWEthereum extends Ethereum {
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
-        priority: priority as EthereumTransactionPriority,
+        priority: priority as EVMChainTransactionPriority,
         currency: currency,
         feeRate: feeRate,
       );
@@ -64,15 +89,15 @@ class EWEthereum extends Ethereum {
     required CryptoCurrency currency,
     required int feeRate,
   }) =>
-      EthereumTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs,
-        priority: priority as EthereumTransactionPriority?,
+        priority: priority as EVMChainTransactionPriority?,
         currency: currency,
         feeRate: feeRate,
       );
 
   @override
-  int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
+  int formatterEthereumParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   double formatterEthereumAmountToDouble(
@@ -80,7 +105,7 @@ class EWEthereum extends Ethereum {
     assert(transaction != null || amount != null);
 
     if (transaction != null) {
-      transaction as EthereumTransactionInfo;
+      transaction as EVMChainTransactionInfo;
       return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
     } else {
       return (amount!) / BigInt.from(10).pow(exponent);
@@ -94,12 +119,13 @@ class EWEthereum extends Ethereum {
   }
 
   @override
-  Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).addErc20Token(token);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token) async {
+    await (wallet as EthereumWallet).addErc20Token(token as Erc20Token);
+  }
 
   @override
-  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).deleteErc20Token(token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
@@ -109,7 +135,7 @@ class EWEthereum extends Ethereum {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as EthereumTransactionInfo;
+    transaction as EVMChainTransactionInfo;
     if (transaction.tokenSymbol == CryptoCurrency.eth.title) {
       return CryptoCurrency.eth;
     }
@@ -121,6 +147,13 @@ class EWEthereum extends Ethereum {
 
   @override
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
+    (wallet as EthereumWallet).updateScanProviderUsageState(isEnabled);
   }
+
+  @override
+  Web3Client? getWeb3Client(WalletBase wallet) {
+    return (wallet as EthereumWallet).getWeb3Client();
+  }
+
+  String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 }

@@ -35,7 +35,7 @@ class IoniaApi {
 		final headers = <String, String>{'clientId': clientId};
 		final query = <String, String>{'emailAddress': email};
 		final uri = createUserUri.replace(queryParameters: query);
-		final response = await put(settingsStore, uri, headers: headers);
+		final response = await put(uri, headers: headers);
 		
 		if (response.statusCode != 200) {
 			throw Exception('Unexpected http status: ${response.statusCode}');
@@ -63,7 +63,7 @@ class IoniaApi {
 			'EmailAddress': email};
 		final query = <String, String>{'verificationCode': code};
 		final uri = verifyEmailUri.replace(queryParameters: query);
-		final response = await put(settingsStore, uri, headers: headers);
+		final response = await put(uri, headers: headers);
 
 		if (response.statusCode != 200) {
 			throw Exception('Unexpected http status: ${response.statusCode}');
@@ -88,7 +88,7 @@ class IoniaApi {
 		final headers = <String, String>{'clientId': clientId};
 		final query = <String, String>{'emailAddress': email};
 		final uri = signInUri.replace(queryParameters: query);
-		final response = await put(settingsStore, uri, headers: headers);
+		final response = await put(uri, headers: headers);
 		
 		if (response.statusCode != 200) {
 		  throw Exception('Unexpected http status: ${response.statusCode}');
@@ -113,7 +113,7 @@ class IoniaApi {
 			'clientId': clientId,
 			'username': username,
 			'password': password};
-		final response = await post(settingsStore, getCardsUri, headers: headers);
+		final response = await post(getCardsUri, headers: headers);
 
 		if (response.statusCode != 200) {
 		  throw Exception('Unexpected http status: ${response.statusCode}');
@@ -142,7 +142,7 @@ class IoniaApi {
 			'username': username,
 			'password': password};
 		final response = await post(
-			settingsStore, createCardUri, headers: headers);
+			createCardUri, headers: headers);
 
 		if (response.statusCode != 200) {
 		  throw Exception('Unexpected http status: ${response.statusCode}');
@@ -170,7 +170,7 @@ class IoniaApi {
 			'username': username,
 			'password': password};
 		final response = await post(
-			settingsStore, getMerchantsUrl, headers: headers);
+			getMerchantsUrl, headers: headers);
 
 		if (response.statusCode != 200) {
 			return <IoniaMerchant>[];
@@ -225,7 +225,7 @@ class IoniaApi {
 				.toList();
 		}
 
-		final response = await post(settingsStore, getMerchantsByFilterUrl,
+		final response = await post(getMerchantsByFilterUrl,
 																headers: headers, body: json.encode(body));
 
 		if (response.statusCode != 200) {
@@ -272,7 +272,7 @@ class IoniaApi {
 			'Amount': amount,
 		    'Currency': currency,
 		    'MerchantId': merchId};
-		final response = await post(settingsStore, getPurchaseMerchantsUrl,
+		final response = await post(getPurchaseMerchantsUrl,
 																headers: headers, body: json.encode(body));
 
     	if (response.statusCode != 200) {
@@ -301,7 +301,7 @@ class IoniaApi {
 			'username': username,
 			'password': password};
 		final response = await post(
-			settingsStore, getCurrentUserGiftCardSummariesUrl, headers: headers);
+			getCurrentUserGiftCardSummariesUrl, headers: headers);
 
 		if (response.statusCode != 200) {
 			return <IoniaGiftCard>[];
@@ -344,7 +344,6 @@ class IoniaApi {
 			'Id': giftCardId,
 			'Amount': amount};
 		final response = await post(
-			settingsStore,
 			changeGiftCardUrl,
 			headers: headers,
 			body: json.encode(body));
@@ -382,7 +381,6 @@ class IoniaApi {
 			'Content-Type': 'application/json'};
 		final body = <String, dynamic>{'Id': id};
 		final response = await post(
-			settingsStore,
 			getGiftCardUrl,
 			headers: headers,
 			body: json.encode(body));
@@ -425,7 +423,6 @@ class IoniaApi {
 			'order_id': orderId,
 			'paymentId': paymentId};
 		final response = await post(
-			settingsStore,
 			getPaymentStatusUrl,
 			headers: headers,
 			body: json.encode(body));

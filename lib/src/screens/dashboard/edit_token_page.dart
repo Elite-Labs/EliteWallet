@@ -6,7 +6,9 @@ import 'package:elite_wallet/src/widgets/base_text_form_field.dart';
 import 'package:elite_wallet/src/widgets/checkbox_widget.dart';
 import 'package:elite_wallet/src/widgets/primary_button.dart';
 import 'package:elite_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:elite_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:elite_wallet/view_model/dashboard/home_settings_view_model.dart';
+import 'package:ew_core/crypto_currency.dart';
 import 'package:ew_core/erc20_token.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +17,12 @@ class EditTokenPage extends BasePage {
   EditTokenPage({
     Key? key,
     required this.homeSettingsViewModel,
-    this.erc20token,
+    this.token,
     this.initialContractAddress,
-  }) : assert(erc20token == null || initialContractAddress == null);
+  }) : assert(token == null || initialContractAddress == null);
 
   final HomeSettingsViewModel homeSettingsViewModel;
-  final Erc20Token? erc20token;
+  final CryptoCurrency? token;
   final String? initialContractAddress;
 
   @override
@@ -30,7 +32,7 @@ class EditTokenPage extends BasePage {
   Widget body(BuildContext context) {
     return EditTokenPageBody(
       homeSettingsViewModel: homeSettingsViewModel,
-      erc20token: erc20token,
+      token: token,
       initialContractAddress: initialContractAddress,
     );
   }
@@ -40,12 +42,12 @@ class EditTokenPageBody extends StatefulWidget {
   const EditTokenPageBody({
     Key? key,
     required this.homeSettingsViewModel,
-    this.erc20token,
+    this.token,
     this.initialContractAddress,
   }) : super(key: key);
 
   final HomeSettingsViewModel homeSettingsViewModel;
-  final Erc20Token? erc20token;
+  final CryptoCurrency? token;
   final String? initialContractAddress;
 
   @override
@@ -72,11 +74,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   void initState() {
     super.initState();
 
-    if (widget.erc20token != null) {
-      _contractAddressController.text = widget.erc20token!.contractAddress;
-      _tokenNameController.text = widget.erc20token!.name;
-      _tokenSymbolController.text = widget.erc20token!.symbol;
-      _tokenDecimalController.text = widget.erc20token!.decimal.toString();
+    String? address;
+
+    if (widget.token != null) {
+      address = widget.homeSettingsViewModel.getTokenAddressBasedOnWallet(widget.token!);
+      
+      _contractAddressController.text = address ?? '';
+      _tokenNameController.text = widget.token!.name;
+      _tokenSymbolController.text = widget.token!.title;
+      _tokenDecimalController.text = widget.token!.decimals.toString();
     }
 
     if (widget.initialContractAddress != null) {
@@ -90,7 +96,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       }
 
       final contractAddress = _contractAddressController.text;
-      if (contractAddress.isNotEmpty && contractAddress != widget.erc20token?.contractAddress) {
+      if (contractAddress.isNotEmpty && contractAddress != address) {
         setState(() {
           _showDisclaimer = true;
         });
@@ -111,7 +117,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               Container(
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 28),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).accentTextTheme.bodySmall!.color!,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -128,7 +134,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.titleLarge!.color!,
+                              color: Theme.of(context).dialogTheme.backgroundColor,
                             ),
                           ),
                           Padding(
@@ -138,7 +144,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
-                                color: Theme.of(context).primaryTextTheme.labelSmall!.color!,
+                                color: Theme.of(context)
+                                    .extension<TransactionTradeTheme>()!
+                                    .detailsTitlesColor,
                               ),
                             ),
                           ),
@@ -171,12 +179,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                 Expanded(
                   child: PrimaryButton(
                     onPressed: () async {
-                      if (widget.erc20token != null) {
-                        await widget.homeSettingsViewModel.deleteErc20Token(widget.erc20token!);
+                      if (widget.token != null) {
+                        await widget.homeSettingsViewModel.deleteToken(widget.token!);
                       }
                       Navigator.pop(context);
                     },
-                    text: widget.erc20token != null ? S.of(context).delete : S.of(context).cancel,
+                    text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
                     color: Colors.red,
                     textColor: Colors.white,
                   ),
@@ -187,17 +195,19 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           (!_showDisclaimer || _disclaimerChecked)) {
-                        await widget.homeSettingsViewModel.addErc20Token(Erc20Token(
+                        await widget.homeSettingsViewModel.addToken(Erc20Token(
                           name: _tokenNameController.text,
                           symbol: _tokenSymbolController.text,
                           contractAddress: _contractAddressController.text,
                           decimal: int.parse(_tokenDecimalController.text),
                         ));
-                        Navigator.pop(context);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
                       }
                     },
                     text: S.of(context).save,
-                    color: Theme.of(context).accentTextTheme.bodyLarge!.color!,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                   ),
                 ),
@@ -211,14 +221,13 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
   void _getTokenInfo() async {
     if (_contractAddressController.text.isNotEmpty) {
-      final token =
-          await widget.homeSettingsViewModel.getErc20Token(_contractAddressController.text);
+      final token = await widget.homeSettingsViewModel.getToken(_contractAddressController.text);
 
       if (token != null) {
         if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.symbol;
+        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.title;
         if (_tokenDecimalController.text.isEmpty)
-          _tokenDecimalController.text = token.decimal.toString();
+          _tokenDecimalController.text = token.decimals.toString();
       }
     }
   }

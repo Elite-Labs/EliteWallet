@@ -51,29 +51,14 @@ class SelectAnonymityPage extends BasePage {
     final standardAnonymity = Image.asset(
         'assets/images/standard_anonymity.png',
         height: 32,
-        width: 32,
-        color: Theme
-            .of(context)
-            .accentTextTheme
-            .headline5!
-            .decorationColor!);
+        width: 32);
     final advancedAnonymity = Image.asset(
         'assets/images/advanced_anonymity.png',
         height: 32,
-        width: 32,
-        color: Theme
-            .of(context)
-            .accentTextTheme
-            .headline5!
-            .decorationColor!);
+        width: 32);
     final eliteAnonymity = Image.asset('assets/images/elite_anonymity.png',
         height: 32,
-        width: 32,
-        color: Theme
-            .of(context)
-            .accentTextTheme
-            .headline5!
-            .decorationColor!);
+        width: 32);
 
     void Function() close = () {
       if (fromWelcome) {
@@ -143,11 +128,6 @@ class SelectAnonymityPage extends BasePage {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme
-                                      .of(context)
-                                      .accentTextTheme
-                                      .headline2!
-                                      .color!,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -161,11 +141,6 @@ class SelectAnonymityPage extends BasePage {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.normal,
-                                color: Theme
-                                    .of(context)
-                                    .accentTextTheme
-                                    .headline2!
-                                    .color!,
                               ),
                               textAlign: TextAlign.center,
                             )
@@ -184,11 +159,7 @@ class SelectAnonymityPage extends BasePage {
                                 text: S
                                     .of(context)
                                     .standard_anonymity,
-                                color: Theme
-                                    .of(context)
-                                    .accentTextTheme
-                                    .caption!
-                                    .color!,
+                                color: Theme.of(context).cardColor,
                                 textColor: Theme
                                     .of(context)
                                     .primaryTextTheme
@@ -209,11 +180,7 @@ class SelectAnonymityPage extends BasePage {
                                 text: S
                                     .of(context)
                                     .advanced_anonymity,
-                                color: Theme
-                                    .of(context)
-                                    .accentTextTheme
-                                    .caption!
-                                    .color!,
+                                color: Theme.of(context).cardColor,
                                 textColor: Theme
                                     .of(context)
                                     .primaryTextTheme
@@ -232,11 +199,7 @@ class SelectAnonymityPage extends BasePage {
                                 text: S
                                     .of(context)
                                     .elite_anonymity,
-                                color: Theme
-                                    .of(context)
-                                    .accentTextTheme
-                                    .caption!
-                                    .color!,
+                                color: Theme.of(context).cardColor,
                                 textColor: Theme
                                     .of(context)
                                     .primaryTextTheme

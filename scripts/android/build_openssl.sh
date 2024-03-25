@@ -37,7 +37,7 @@ git clean -fdx
 
 CC=clang ANDROID_NDK=$TOOLCHAIN \
 	./Configure ${X_ARCH} \
-	no-shared no-tests \
+	no-asm no-shared no-tests \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
 	--prefix=${PREFIX} \

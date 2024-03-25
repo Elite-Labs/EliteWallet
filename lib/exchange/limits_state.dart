@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:elite_wallet/exchange/limits.dart';
 
 abstract class LimitsState {}

@@ -1,36 +1,36 @@
 -
-  uri: eu-west-2.wow.xmr.pm:34568
-  is_default: true
-  useSSL: false
--
-  uri: eu-west-1.wow.xmr.pm:34568
-  is_default: false
-  useSSL: false
--
-  uri: eu-west-6.wow.xmr.pm:34568
-  is_default: false
-  useSSL: false
--
-  uri: node.wownero.club:34568
-  is_default: false
-  useSSL: false
--
   uri: node.suchwow.xyz:34568
   is_default: false
   useSSL: false
 -
-  uri: idontwanttogototoronto.wow.fail:34568
+  uri: wowmom.0z.network:443
   is_default: false
   useSSL: false
 -
-  uri: nyc.muchwow.lol:34568
+  uri: node.monerodevs.org:34568
   is_default: false
   useSSL: false
 -
-  uri: amsterdam.muchwow.lol:34568
+  uri: node2.monerodevs.org:34568
   is_default: false
   useSSL: false
 -
-  uri: singapore.muchwow.lol:34568
+  uri: node3.monerodevs.org:34568
+  is_default: false
+  useSSL: false
+-
+  uri: wownero.sphinxlogic.com:34569
+  is_default: false
+  useSSL: false
+-
+  uri: spippolatori.it:34568
+  is_default: false
+  useSSL: false
+-
+  uri: wow.jongoose.com:34568
+  is_default: false
+  useSSL: false
+-
+  uri: konakona.moe:34568
   is_default: false
   useSSL: false

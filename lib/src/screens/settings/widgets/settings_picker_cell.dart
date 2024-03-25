@@ -1,3 +1,4 @@
+import 'package:elite_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:elite_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/src/widgets/picker.dart';
@@ -55,7 +56,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       style: TextStyle(
         fontSize: 14.0,
         fontWeight: FontWeight.w500,
-        color: Theme.of(context).primaryTextTheme!.labelSmall?.color,
+        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
       ),
     );
   }

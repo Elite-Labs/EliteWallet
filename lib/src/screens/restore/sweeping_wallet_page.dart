@@ -1,8 +1,10 @@
 import 'package:elite_wallet/themes/theme_base.dart';
+import 'package:elite_wallet/themes/extensions/elite_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:elite_wallet/themes/extensions/new_wallet_theme.dart';
 
 class SweepingWalletPage extends BasePage {
   SweepingWalletPage();
@@ -82,10 +84,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayMedium!
-                                      .color,
+                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -97,10 +96,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                 style: TextStyle(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme!
-                                      .titleLarge!
-                                      .color!,
+                                  color: Theme.of(context).extension<EliteTextTheme>()!.titleColor,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -112,10 +108,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayMedium!
-                                      .color,
+                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                                 ),
                                 textAlign: TextAlign.center,
                               ),

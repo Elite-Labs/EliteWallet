@@ -3,10 +3,13 @@ import 'package:elite_wallet/core/fiat_conversion_service.dart';
 import 'package:elite_wallet/entities/fiat_api_mode.dart';
 import 'package:elite_wallet/entities/update_haven_rate.dart';
 import 'package:elite_wallet/ethereum/ethereum.dart';
+import 'package:elite_wallet/polygon/polygon.dart';
+import 'package:elite_wallet/solana/solana.dart';
 import 'package:elite_wallet/store/app_store.dart';
 import 'package:elite_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:elite_wallet/store/settings_store.dart';
-import 'package:ew_core/port_redirector.dart';
+import 'package:ew_core/crypto_currency.dart';
+import 'package:ew_core/erc20_token.dart';
 import 'package:ew_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -32,10 +35,24 @@ Future<void> startFiatRateUpdate(
                 appStore.wallet!.currency, settingsStore.fiatCurrency, settingsStore);
       }
 
+      Iterable<CryptoCurrency>? currencies;
       if (appStore.wallet!.type == WalletType.ethereum) {
-        final currencies =
-                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+        currencies =
+            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
 
+      if (appStore.wallet!.type == WalletType.polygon) {
+        currencies =
+            polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+      if (appStore.wallet!.type == WalletType.solana) {
+        currencies =
+            solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+
+      if (currencies != null) {
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(

@@ -1,17 +1,19 @@
 import 'package:elite_wallet/anonpay/anonpay_info_base.dart';
 import 'package:elite_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:elite_wallet/entities/qr_view_data.dart';
-import 'package:elite_wallet/entities/receive_page_option.dart';
+import 'package:ew_core/receive_page_option.dart';
 import 'package:elite_wallet/generated/i18n.dart';
 import 'package:elite_wallet/routes.dart';
 import 'package:elite_wallet/src/screens/base_page.dart';
+import 'package:elite_wallet/src/widgets/gradient_background.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/anonpay_status_section.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:elite_wallet/src/screens/receive/widgets/copy_link_item.dart';
-import 'package:elite_wallet/themes/theme_base.dart';
-// import 'package:device_display_brightness/device_display_brightness.dart';
+import 'package:elite_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:elite_wallet/utils/brightness_util.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
+import 'package:elite_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class AnonPayReceivePage extends BasePage {
   final AnonpayInfoBase invoiceInfo;
@@ -22,11 +24,7 @@ class AnonPayReceivePage extends BasePage {
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
-
-  @override
-  Color get backgroundDarkColor => Colors.transparent;
+  bool get gradientBackground => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -44,10 +42,7 @@ class AnonPayReceivePage extends BasePage {
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .displayMedium!
-                  .backgroundColor!),
+              color: titleColor(context)),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
@@ -56,7 +51,7 @@ class AnonPayReceivePage extends BasePage {
           style: TextStyle(
               fontSize: 10.0,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).textTheme!.headlineSmall!.color!),
+              color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
         )
       ],
     );
@@ -78,10 +73,7 @@ class AnonPayReceivePage extends BasePage {
         ),
         icon: Icon(
           Icons.edit,
-          color: Theme.of(context)
-              .accentTextTheme!
-              .bodySmall!
-              .color!,
+          color: pageIconColor(context),
           size: 22.0,
         ),
       ),
@@ -90,14 +82,7 @@ class AnonPayReceivePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).scaffoldBackgroundColor,
-            Theme.of(context).primaryColor,
-          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
-          child: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget body(BuildContext context) {
@@ -115,19 +100,13 @@ class AnonPayReceivePage extends BasePage {
               ),
               child: GestureDetector(
                 onTap: () async {
-                  // final double brightness = await DeviceDisplayBrightness.getBrightness();
-
-                  // ignore: unawaited_futures
-                  // DeviceDisplayBrightness.setBrightness(1.0);
-                  await Navigator.pushNamed(
-                    context,
-                    Routes.fullscreenQR,
-                    arguments: QrViewData(data: invoiceInfo.clearnetUrl,
-                      version: qr.QrVersions.auto,
-                    )
-                  );
-                  // ignore: unawaited_futures
-                  // DeviceDisplayBrightness.setBrightness(brightness);
+                  BrightnessUtil.changeBrightnessForFunction(() async {
+                    await Navigator.pushNamed(context, Routes.fullscreenQR,
+                        arguments: QrViewData(
+                          data: invoiceInfo.clearnetUrl,
+                          version: qr.QrVersions.auto,
+                        ));
+                  });
                 },
                 child: Hero(
                   tag: Key(invoiceInfo.clearnetUrl),
@@ -139,10 +118,7 @@ class AnonPayReceivePage extends BasePage {
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 3,
-                            color: Theme.of(context)
-                                .accentTextTheme!
-                                .displayMedium!
-                                .backgroundColor!,
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                           ),
                         ),
                         child: QrImage(

@@ -6,6 +6,7 @@ class Elite2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> 
   static const narrow = Elite2FAPresetsOptions(title: 'Narrow', raw: 0);
   static const normal = Elite2FAPresetsOptions(title: 'Normal', raw: 1);
   static const aggressive = Elite2FAPresetsOptions(title: 'Aggressive', raw: 2);
+  static const none = Elite2FAPresetsOptions(title: 'None', raw: 3);
 
   static Elite2FAPresetsOptions deserialize({required int raw}) {
     switch (raw) {
@@ -15,6 +16,8 @@ class Elite2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> 
         return Elite2FAPresetsOptions.normal;
       case 2:
         return Elite2FAPresetsOptions.aggressive;
+      case 3:
+        return Elite2FAPresetsOptions.none;
       default:
         throw Exception(
           'Incorrect Elite 2FA Preset $raw  for Elite2FAPresetOptions deserialize',
@@ -30,6 +33,7 @@ enum VerboseControlSettings {
   sendsToNonContacts,
   sendsToInternalWallets,
   exchangesToInternalWallets,
+  exchangesToExternalWallets,
   securityAndBackupSettings,
   creatingNewWallets,
 }
