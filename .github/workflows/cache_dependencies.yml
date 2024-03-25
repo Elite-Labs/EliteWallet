@@ -31,7 +31,7 @@ jobs:
           sudo chown $USER /opt/android
           cd /opt/android
           git clone https://github.com/Elite-Labs/EliteWallet --branch master
-          cd elite_wallet/scripts/android/
+          cd EliteWallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh elitewallet
           ./app_config.sh
