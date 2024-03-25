@@ -30,7 +30,7 @@ jobs:
           sudo mkdir -p /opt/android
           sudo chown $USER /opt/android
           cd /opt/android
-          git clone https://github.com/Elite-Labs/EliteWallet --branch master
+          git clone https://github.com/Elite-Labs/EliteWallet --branch main
           cd EliteWallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh elitewallet
@@ -45,8 +45,10 @@ jobs:
             /opt/android/elite_wallet/ew_haven/ios/External
             /opt/android/elite_wallet/ew_monero/android/.cxx
             /opt/android/elite_wallet/ew_monero/ios/External
+            /opt/android/elite_wallet/ew_wownero/android/.cxx
+            /opt/android/elite_wallet/ew_wownero/ios/External
             /opt/android/elite_wallet/ew_shared_external/ios/External
-          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
+          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/build_wownero.sh', '**/monero_api.cpp', '**/haven_api.cpp', '**/wownero_api.cpp') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
