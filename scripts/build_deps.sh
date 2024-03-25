@@ -23,7 +23,7 @@ fi
 
 if [[ ! " $@ " =~ " --skip_other_deps " ]]; then
   if [[ "$BUILD_PLATFORM" == "android" ]]; then
-    sudo apt-get install -y curl unzip automake build-essential file pkg-config git python2 libtool libtinfo5 cmake openjdk-8-jre-headless clang bison byacc gperf groff
+    sudo apt-get install -y curl unzip automake build-essential file pkg-config git python2 libtool libtinfo5 cmake openjdk-11-jre-headless clang bison byacc gperf groff
   else
     brew install autoconf cmake pkg-config cocoapods
   fi
@@ -32,6 +32,10 @@ fi
 git config --global protocol.file.allow always
 
 git submodule update --init --force
+
+if [[ ! " $@ " =~ " --skip_main_deps " ]]; then
+    exit 0
+fi
 
 cd scripts/android
 
