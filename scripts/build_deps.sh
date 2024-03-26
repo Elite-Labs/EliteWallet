@@ -1,3 +1,6 @@
+#!/bin/bash
+
+set -x
 
 BUILD_PLATFORM="ios"
 
@@ -68,3 +71,5 @@ else
   pod install
   cd ..
 fi
+
+set +x
