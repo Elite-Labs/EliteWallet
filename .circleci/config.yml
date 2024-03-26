@@ -15,7 +15,7 @@ jobs:
           command: echo 'replace me with real tests!'
   build:
     macos:
-      xcode: 15.3.0
+      xcode: 14.3.1
     steps:
       - checkout
       # Replace this with steps to build a package, or executable
