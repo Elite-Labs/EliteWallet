@@ -39,6 +39,6 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Build app
         run: |
-          ./scripts/build_deps.sh --skip_main_deps ios
+          ./scripts/build_deps.sh ios
           ./scripts/build.sh --packages-only ios
           .flutter/bin/flutter build ipa --release
