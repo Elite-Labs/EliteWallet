@@ -1,4 +1,6 @@
 
+set -x
+
 BUILD_PLATFORM="ios"
 
 if [[ " $@ " =~ " android " ]]; then
