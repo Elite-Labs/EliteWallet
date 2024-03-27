@@ -1,16 +1,19 @@
 workflows:
   build-ios:
     environment:
-      xcode: 14.3.1
+      xcode: 14.3
+      cocoapods: default
       ios_signing:
         distribution_type: app_store
         bundle_identifier: sc.elitewallet.elite-wallet
     name: Build IOS
     instance_type: mac_mini_m1
     max_build_duration: 120
+    integrations:
+      app_store_connect: codemagic
     scripts:
-      - xcode-select --install
       - xcode-project use-profiles
+      - xcode-select --install
       - ./scripts/build_deps.sh ios
       - ./scripts/build.sh --packages-only
       - .flutter/bin/flutter build ipa --release
