@@ -39,11 +39,6 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Build app
         run: |
-          sudo mkdir -p /opt/android
-          sudo chown $USER /opt/android
-          cd /opt/android
-          git clone https://github.com/Elite-Labs/EliteWallet --branch main
-          cd EliteWallet/
           ./scripts/build_deps.sh --skip_main_deps ios
           ./scripts/build.sh --packages-only ios
           .flutter/bin/flutter build ipa --release
