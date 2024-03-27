@@ -12,6 +12,8 @@ cd $MONERO_DIR_PATH
 git submodule update --init --force
 git checkout .
 git clean -fdx
+git revert eff4dc2be6d8bd1cb565141bbfce66e2bf697a4c --no-edit
+git reset HEAD~1
 
 mkdir -p build
 cd ..

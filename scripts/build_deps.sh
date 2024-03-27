@@ -33,7 +33,7 @@ git config --global protocol.file.allow always
 
 git submodule update --init --force
 
-if [[ ! " $@ " =~ " --skip_main_deps " ]]; then
+if [[ " $@ " =~ " --skip_main_deps " ]]; then
     exit 0
 fi
 
