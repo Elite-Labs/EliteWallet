@@ -10,7 +10,6 @@ workflows:
     integrations:
       app_store_connect: Codemagic
     scripts:
-      - xcode-select --install
       - ./scripts/build_deps.sh ios
       - ./scripts/build.sh --packages-only
       - xcode-project use-profiles --project ios/*.xcodeproj
