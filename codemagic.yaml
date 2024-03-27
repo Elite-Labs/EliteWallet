@@ -1,8 +1,6 @@
 workflows:
   build-ios:
     environment:
-      xcode: 14.3
-      cocoapods: default
       ios_signing:
         distribution_type: app_store
         bundle_identifier: sc.elitewallet.elite-wallet
