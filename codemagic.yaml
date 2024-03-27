@@ -10,7 +10,7 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 120
     integrations:
-      app_store_connect: codemagic
+      app_store_connect: Codemagic
     scripts:
       - xcode-project use-profiles
       - xcode-select --install
