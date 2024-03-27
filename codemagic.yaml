@@ -10,10 +10,10 @@ workflows:
     integrations:
       app_store_connect: Codemagic
     scripts:
-      - xcode-project use-profiles
       - xcode-select --install
       - ./scripts/build_deps.sh ios
       - ./scripts/build.sh --packages-only
+      - xcode-project use-profiles --project ios/*.xcodeproj
       - .flutter/bin/flutter build ipa --release
     artifacts:
       - build/ios/ipa/*.ipa
