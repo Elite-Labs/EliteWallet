@@ -9,9 +9,10 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 120
     scripts:
+      - xcode-select --install
+      - xcode-project use-profiles
       - ./scripts/build_deps.sh ios
       - ./scripts/build.sh --packages-only
-      - xcode-project use-profiles
       - .flutter/bin/flutter build ipa --release
     artifacts:
       - build/ios/ipa/*.ipa
