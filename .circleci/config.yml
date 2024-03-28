@@ -23,9 +23,9 @@ jobs:
       - checkout
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+          command: rm -rf ew_shared_external/ios/External/sources/elite_wallet_data; ln -s ../data ew_shared_external/ios/External/sources/elite_wallet_data; ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - attach_workspace:
-          at: ew_shared_external/ios/External/sources/elite_wallet_data
+          at: ../data
       - store_artifacts:
           path: build/
 
