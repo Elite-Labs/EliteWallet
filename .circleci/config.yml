@@ -21,11 +21,11 @@ jobs:
       xcode: 15.3.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ew_shared_external/ios/External/sources/elite_wallet_data
       - run:
           name: Build
-          command: rm -rf ew_shared_external/ios/External/sources/elite_wallet_data; ln -s ../data ew_shared_external/ios/External/sources/elite_wallet_data; cat ew_shared_external/ios/External/sources/elite_wallet_data/t.txt;
-      - attach_workspace:
-          at: ../data
+          command: cat ew_shared_external/ios/External/sources/elite_wallet_data/t.txt;
       - store_artifacts:
           path: build/
 
