@@ -9,6 +9,18 @@ jobs:
       xcode: 14.3.1
     steps:
       - checkout
+      - run:
+          name: decode Certificates
+          command: base64 -D -o ios/Certificates.p12 \<< $Certificates
+      - run:
+          name: make Provisioning Profiles directory
+          command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
+      - run:
+          name: decode Provisioning Profiles
+          command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
+      - run:
+          name: Test fastlane
+          command: cd ios; bundle init; bundle install; bundle exec fastlane release
       - restore_cache:
           name: Restore Deps
           keys:
@@ -21,26 +33,6 @@ jobs:
           key: deps-cache
           paths:
             - ew_shared_external/ios/External/sources/elite_wallet_data
-      - persist_to_workspace:
-          root: ew_shared_external/ios/External/sources/elite_wallet_data
-          paths:
-            - "*"
-  build:
-    macos:
-      xcode: 15.3.0
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ew_shared_external/ios/External/sources/elite_wallet_data
-      - run:
-          name: decode Certificates
-          command: base64 -D -o ios/Certificates.p12 \<< $Certificates
-      - run:
-          name: make Provisioning Profiles directory
-          command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
-      - run:
-          name: decode Provisioning Profiles
-          command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
       - run:
           name: Build
           command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign; cd ios; bundle exec fastlane release
