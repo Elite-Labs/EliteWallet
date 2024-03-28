@@ -98,86 +98,6 @@ PODS:
   - DKPhotoGallery/Resource (0.0.17):
     - SDWebImage
     - SwiftyGif
-  - ew_haven (0.0.1):
-    - ew_haven/Boost (= 0.0.1)
-    - ew_haven/Haven (= 0.0.1)
-    - ew_haven/OpenSSL (= 0.0.1)
-    - ew_haven/Sodium (= 0.0.1)
-    - ew_shared_external
-    - Flutter
-  - ew_haven/Boost (0.0.1):
-    - ew_shared_external
-    - Flutter
-  - ew_haven/Haven (0.0.1):
-    - ew_shared_external
-    - Flutter
-  - ew_haven/OpenSSL (0.0.1):
-    - ew_shared_external
-    - Flutter
-  - ew_haven/Sodium (0.0.1):
-    - ew_shared_external
-    - Flutter
-  - ew_monero (0.0.2):
-    - ew_monero/Boost (= 0.0.2)
-    - ew_monero/Monero (= 0.0.2)
-    - ew_monero/OpenSSL (= 0.0.2)
-    - ew_monero/Sodium (= 0.0.2)
-    - ew_monero/Unbound (= 0.0.2)
-    - ew_shared_external
-    - Flutter
-  - ew_monero/Boost (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_monero/Monero (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_monero/OpenSSL (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_monero/Sodium (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_monero/Unbound (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_shared_external (0.0.1):
-    - ew_shared_external/Boost (= 0.0.1)
-    - ew_shared_external/OpenSSL (= 0.0.1)
-    - ew_shared_external/Sodium (= 0.0.1)
-    - Flutter
-  - ew_shared_external/Boost (0.0.1):
-    - Flutter
-  - ew_shared_external/OpenSSL (0.0.1):
-    - Flutter
-  - ew_shared_external/Sodium (0.0.1):
-    - Flutter
-  - ew_wownero (0.0.2):
-    - ew_shared_external
-    - ew_wownero/Boost (= 0.0.2)
-    - ew_wownero/OpenSSL (= 0.0.2)
-    - ew_wownero/Sodium (= 0.0.2)
-    - ew_wownero/Unbound (= 0.0.2)
-    - ew_wownero/Wownero (= 0.0.2)
-    - ew_wownero/Wownero-seed (= 0.0.2)
-    - Flutter
-  - ew_wownero/Boost (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_wownero/OpenSSL (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_wownero/Sodium (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_wownero/Unbound (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_wownero/Wownero (0.0.2):
-    - ew_shared_external
-    - Flutter
-  - ew_wownero/Wownero-seed (0.0.2):
-    - ew_shared_external
-    - Flutter
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -242,13 +162,10 @@ DEPENDENCIES:
   - ew_haven (from `.symlinks/plugins/ew_haven/ios`)
   - ew_monero (from `.symlinks/plugins/ew_monero/ios`)
   - ew_shared_external (from `.symlinks/plugins/ew_shared_external/ios`)
+  - ew_wownero (from `.symlinks/plugins/ew_wownero/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
-  - ew_haven (from `.symlinks/plugins/ew_haven/ios`)
-  - ew_monero (from `.symlinks/plugins/ew_monero/ios`)
-  - ew_shared_external (from `.symlinks/plugins/ew_shared_external/ios`)
-  - ew_wownero (from `.symlinks/plugins/ew_wownero/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
@@ -295,20 +212,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/ew_monero/ios"
   ew_shared_external:
     :path: ".symlinks/plugins/ew_shared_external/ios"
+  ew_wownero:
+    :path: ".symlinks/plugins/ew_wownero/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
-  ew_haven:
-    :path: ".symlinks/plugins/ew_haven/ios"
-  ew_monero:
-    :path: ".symlinks/plugins/ew_monero/ios"
-  ew_shared_external:
-    :path: ".symlinks/plugins/ew_shared_external/ios"
-  ew_wownero:
-    :path: ".symlinks/plugins/ew_wownero/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
