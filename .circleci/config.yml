@@ -4,26 +4,35 @@
 # Stacks detected: cicd:github-actions:.github/workflows
 version: 2.1
 jobs:
-  build:
+  build_deps:
     macos:
       xcode: 14.3.1
     steps:
       - checkout
       - run:
-          name: decode Certificates
-          command: base64 -D -o Certificates.p12 \<< $Certificates
-      - run:
-          name: make Provisioning Profiles directory
-          command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
-      - run:
-          name: decode Provisioning Profiles
-          command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
-      - run:
           name: Build an artifact
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ipa --release
+          command: ./scripts/build_deps.sh ios;
+      - persist_to_workspace:
+          root: ew_shared_external/ios/External/sources/elite_wallet_data
+          paths:
+            - "*"
+  build:
+    macos:
+      xcode: 15.3.0
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+      - attach_workspace:
+          at: ew_shared_external/ios/External/sources/elite_wallet_data
       - store_artifacts:
-          path: ew_shared_external/ios/External/sources/elite_wallet_data/
+          path: build/
+
 workflows:
   example:
     jobs:
-      - build
+      - build_deps
+      - build:
+          requires:
+            - build_deps

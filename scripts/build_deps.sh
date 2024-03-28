@@ -63,8 +63,4 @@ else
   configure_and_build_deps
   ./setup.sh
   cd ../..
-  cd ios
-  ../.flutter/bin/flutter precache --ios
-  pod install
-  cd ..
 fi

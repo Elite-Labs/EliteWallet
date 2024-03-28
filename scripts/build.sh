@@ -1,8 +1,37 @@
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+
+BUILD_PLATFORM="ios"
+
+if [[ " $@ " =~ " android " ]]; then
+  BUILD_PLATFORM="android"
+else
+  if [[ " $@ " =~ " ios " ]]; then
+    BUILD_PLATFORM="ios"
+  else
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      BUILD_PLATFORM="android"
+    else
+      BUILD_PLATFORM="ios"
+    fi
+  fi
+fi
+
+TYPES=("android" "ios")
+if ! [[ " ${TYPES[*]} " =~ " ${BUILD_PLATFORM} " ]]; then
+    echo "Platform type must be 'android' or 'ios'."
+    exit 1
+fi
+
+
+if [[ "$BUILD_PLATFORM" == "android" ]]; then
   cd scripts/android
   source ./app_env.sh elitewallet
   ./app_config.sh
   cd ../..
+else
+  cd ios
+  ../.flutter/bin/flutter precache --ios
+  pod install
+  cd ..
 fi
 
 .flutter/bin/flutter pub get
@@ -30,7 +59,7 @@ if [[ "$@" =~ "--packages-only" ]]; then
     exit 0
 fi
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+if [[ "$BUILD_PLATFORM" == "android" ]]; then
   .flutter/bin/flutter build appbundle --release
 else
   .flutter/bin/flutter run
