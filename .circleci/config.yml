@@ -43,6 +43,9 @@ jobs:
           name: Restore Deps
           keys:
             - deps-cache
+      - run: |
+          cat /Users/distiller/Library/MobileDevice/Provisioning Profiles/App_Store.mobileprovision
+          exit 1
       - run:
           name: Build Deps
           command: ./scripts/build_deps.sh ios;
