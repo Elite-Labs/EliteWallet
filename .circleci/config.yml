@@ -9,9 +9,29 @@ jobs:
       xcode: 14.3.1
     steps:
       - checkout
-      - run:
-          name: decode Certificates
-          command: base64 -D -o ios/Certificates.p12 \<< $Certificates
+      - run: |
+          # create variables
+          CERTIFICATE_PATH=~/build_certificate.p12
+          PP_PATH=~/build_pp.mobileprovision
+          KEYCHAIN_PATH=~/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$Certificates" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$App_Store_Profile" | base64 --decode -o $PP_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - run:
           name: make Provisioning Profiles directory
           command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
