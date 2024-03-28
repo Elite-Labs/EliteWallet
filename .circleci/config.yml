@@ -9,9 +9,18 @@ jobs:
       xcode: 14.3.1
     steps:
       - checkout
+      - restore_cache:
+          name: Restore Deps
+          keys:
+            - deps-cache
       - run:
-          name: Build an artifact
+          name: Build Deps
           command: ./scripts/build_deps.sh ios;
+      - save_cache:
+          name: Cache Deps
+          key: deps-cache
+          paths:
+            - ew_shared_external/ios/External/sources/elite_wallet_data
       - persist_to_workspace:
           root: ew_shared_external/ios/External/sources/elite_wallet_data
           paths:
@@ -21,11 +30,11 @@ jobs:
       xcode: 15.3.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ew_shared_external/ios/External/sources/elite_wallet_data
       - run:
           name: Build
-          command: rm -rf ew_shared_external/ios/External/sources/elite_wallet_data; ln -s ../data ew_shared_external/ios/External/sources/elite_wallet_data; ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
-      - attach_workspace:
-          at: ../data
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - store_artifacts:
           path: build/
 
