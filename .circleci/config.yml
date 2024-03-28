@@ -44,7 +44,7 @@ jobs:
           keys:
             - deps-cache
       - run: |
-          cat /Users/distiller/Library/MobileDevice/Provisionings\ Profiles/App_Store.mobileprovision
+          cat /Users/distiller/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           exit 1
       - run:
           name: Build Deps
