@@ -10,5 +10,8 @@ platform :ios do
     )
   end
 
+  lane :release do
+    build_ios_app(scheme: "elitewallet")
+  end
   
 end

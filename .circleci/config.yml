@@ -33,10 +33,21 @@ jobs:
       - attach_workspace:
           at: ew_shared_external/ios/External/sources/elite_wallet_data
       - run:
+          name: decode Certificates
+          command: base64 -D -o ios/Certificates.p12 \<< $Certificates
+      - run:
+          name: make Provisioning Profiles directory
+          command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
+      - run:
+          name: decode Provisioning Profiles
+          command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
+      - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign; cd ios; bundle exec fastlane release
       - store_artifacts:
-          path: build/
+          path: build/ios/iphoneos/Runner.app
+      - store_artifacts:
+          path: build/ios/iphoneos/Runner.ipa
 
 workflows:
   example:
