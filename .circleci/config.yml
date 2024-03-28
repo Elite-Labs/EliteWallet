@@ -32,7 +32,7 @@ jobs:
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $CERTIFICATE_PATH ios/
+          cp $CERTIFICATE_PATH ios/Certificates.p12
       - run:
           name: make Provisioning Profiles directory
           command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
