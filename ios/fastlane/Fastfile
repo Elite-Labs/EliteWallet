@@ -11,7 +11,7 @@ platform :ios do
     end
 
     import_certificate(
-      keychain_path: "~/app-signing.keychain-db",
+      keychain_path: File.expand_path("~/app-signing.keychain-db"),
       keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"],
       certificate_path: 'Certificates.p12',
       certificate_password: ENV["CERTIFICATE_PASSWORD"] || "default"
