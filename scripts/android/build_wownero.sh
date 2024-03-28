@@ -13,7 +13,7 @@ rm -rf external/trezor-common/*
 rm -rf tests
 
 git apply --stat --apply ${EW_DIR}/patches/wownero/refresh_thread.patch
-git apply --stat --apply ${EW_ROOT}/patches/wownero/bugfix.patch
+git apply --stat --apply ${EW_DIR}/patches/wownero/bugfix.patch
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
