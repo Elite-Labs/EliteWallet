@@ -31,7 +31,7 @@ jobs:
 
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           cp $CERTIFICATE_PATH ios/Certificates.p12
           cat /Users/distiller/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           exit 1
