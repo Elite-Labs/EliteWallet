@@ -15,7 +15,7 @@ git checkout .
 git clean -fdx
 
 git apply --stat --apply ${EW_ROOT}/patches/wownero/refresh_thread.patch
-sed -i 's/transaction->m_unsigned_tx_set.transfers.second/std::get<2>(transaction->m_unsigned_tx_set.transfers)/g' ${EW_ROOT}/ew_shared_external/ios/External/sources/wownero/src/wallet/api/wallet.cpp
+git apply --stat --apply ${EW_ROOT}/patches/wownero/bugfix.patch
 
 mkdir -p build
 cd ..
