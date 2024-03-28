@@ -20,7 +20,7 @@ jobs:
           command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
       - run:
           name: Test fastlane
-          command: cd ios; bundle init; echo "gem 'fastlane'" > Gemfile; bundle install; bundle exec fastlane release
+          command: cd ios; bundle init; echo "gem 'fastlane'" > Gemfile; bundle install; bundle exec fastlane ios release
       - restore_cache:
           name: Restore Deps
           keys:
