@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run:
           name: Build an artifact
-          command: mkdir ew_shared_external/ios/External/sources/elite_wallet_data; echo uhefuwhef >> ew_shared_external/ios/External/sources/elite_wallet_data/t.txt;
+          command: mkdir ew_shared_external/ios/External/sources/elite_wallet_data; echo uhefuwhef >> ew_shared_external/ios/External/sources/elite_wallet_data/t.txt; cat ew_shared_external/ios/External/sources/elite_wallet_data/t.txt;
       - persist_to_workspace:
           root: ew_shared_external/ios/External/sources/elite_wallet_data
           paths:
