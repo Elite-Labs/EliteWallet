@@ -17,6 +17,6 @@ git clean -fdx
 	--boost-libs "${BOOST_LIBS}" \
 	--boost-version ${BOOST_VERSION} \
 	--no-framework
-cat build/boost/1.72.0/ios/release/*
+
 cp -r ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/include/*  $EXTERNAL_IOS_INCLUDE_DIR
 cp -r ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/lib/*  $EXTERNAL_IOS_LIB_DIR
