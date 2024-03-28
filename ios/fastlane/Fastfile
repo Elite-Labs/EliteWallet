@@ -19,7 +19,7 @@ platform :ios do
   end
 
   lane :release do
-    build_ios_app(scheme: "Release")
+    build_ios_app()
   end
   
 end
