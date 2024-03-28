@@ -23,7 +23,7 @@ jobs:
       - checkout
       - run:
           name: Build
-          command: rm -rf ew_shared_external/ios/External/sources/elite_wallet_data; ln -s ../data ew_shared_external/ios/External/sources/elite_wallet_data; echo ew_shared_external/ios/External/sources/elite_wallet_data/t.txt;
+          command: rm -rf ew_shared_external/ios/External/sources/elite_wallet_data; ln -s ../data ew_shared_external/ios/External/sources/elite_wallet_data; cat ew_shared_external/ios/External/sources/elite_wallet_data/t.txt;
       - attach_workspace:
           at: ../data
       - store_artifacts:
