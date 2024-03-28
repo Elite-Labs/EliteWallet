@@ -39,9 +39,6 @@ jobs:
       - run:
           name: decode Provisioning Profiles
           command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
-      - run:
-          name: Test fastlane
-          command: cd ios; bundle init; echo "gem 'fastlane'" > Gemfile; bundle install; bundle exec fastlane ios release
       - restore_cache:
           name: Restore Deps
           keys:
@@ -56,7 +53,10 @@ jobs:
             - ew_shared_external/ios/External/sources/elite_wallet_data
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign; cd ios; bundle exec fastlane release
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+      - run:
+          name: Build IPA
+          command: cd ios; bundle init; echo "gem 'fastlane'" > Gemfile; bundle install; bundle exec fastlane ios release
       - store_artifacts:
           path: build/ios/iphoneos/Runner.app
       - store_artifacts:
