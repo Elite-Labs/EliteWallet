@@ -33,19 +33,12 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           cp $CERTIFICATE_PATH ios/Certificates.p12
-      - run:
-          name: make Provisioning Profiles directory
-          command: mkdir -pv ~/Library/MobileDevice/Provisioning\ Profiles/
-      - run:
-          name: decode Provisioning Profiles
-          command: base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision \<< $App_Store_Profile
+          cat /Users/distiller/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
+          exit 1
       - restore_cache:
           name: Restore Deps
           keys:
             - deps-cache
-      - run: |
-          cat /Users/distiller/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
-          exit 1
       - run:
           name: Build Deps
           command: ./scripts/build_deps.sh ios;
