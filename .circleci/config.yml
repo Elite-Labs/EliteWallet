@@ -4,7 +4,7 @@
 # Stacks detected: cicd:github-actions:.github/workflows
 version: 2.1
 jobs:
-  build_deps:
+  build:
     macos:
       xcode: 14.3.1
     steps:
@@ -42,9 +42,6 @@ jobs:
           path: build/ios/iphoneos/Runner.ipa
 
 workflows:
-  example:
+  build-ios:
     jobs:
-      - build_deps
-      - build:
-          requires:
-            - build_deps
+      - build
