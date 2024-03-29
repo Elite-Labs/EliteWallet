@@ -33,9 +33,8 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           cp $CERTIFICATE_PATH ios/Certificates.p12
-      - run:
-          name: Sign Code
-          command: codesign -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
+      - run: |
+          codesign -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
       - restore_cache:
           name: Restore Deps
           keys:
