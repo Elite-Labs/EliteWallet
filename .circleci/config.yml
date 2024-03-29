@@ -9,32 +9,9 @@ jobs:
       xcode: 14.3.1
     steps:
       - checkout
-      - run: |
-          defaults write com.apple.dt.Xcode DVTEnableCoreDevice enabled
-      - run: |
-          # create variables
-          CERTIFICATE_PATH=~/build_certificate.p12
-          PP_PATH=~/build_pp.mobileprovision
-          KEYCHAIN_PATH=~/app-signing.keychain-db
-
-          # import certificate and provisioning profile from secrets
-          echo -n "$Certificates" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$App_Store_Profile" | base64 --decode -o $PP_PATH
-
-          # create temporary keychain
-          security create-keychain -p "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          # import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -k "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-
-          # apply provisioning profile
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
-          cp $CERTIFICATE_PATH ios/Certificates.p12
+      - run:
+          name: Build IPA
+          command: cd ios; bundle install; bundle exec fastlane ios release
       - restore_cache:
           name: Restore Deps
           keys:
@@ -49,7 +26,7 @@ jobs:
             - ew_shared_external/ios/External/sources/elite_wallet_data
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+          command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - run:
           name: Build IPA
           command: cd ios; bundle init; echo "gem 'fastlane'" > Gemfile; bundle install; bundle exec fastlane ios release
