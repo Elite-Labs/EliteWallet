@@ -33,9 +33,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           cp $CERTIFICATE_PATH ios/Certificates.p12
-      - run:
-          name: Build IPA
-          command: cd ios; bundle install; bundle exec fastlane ios release
       - restore_cache:
           name: Restore Deps
           keys:
@@ -53,7 +50,7 @@ jobs:
           command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - run:
           name: Build IPA
-          command: cd ios; bundle init; echo "gem 'fastlane'" > Gemfile; bundle install; bundle exec fastlane ios release
+          command: cd ios; bundle install; bundle exec fastlane ios release
 
 workflows:
   build-ios:
