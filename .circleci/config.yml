@@ -6,9 +6,11 @@ version: 2.1
 jobs:
   build:
     macos:
-      xcode: 14.3.1
+      xcode: 14.2.0
     steps:
       - checkout
+      # - run: |
+      #     defaults write com.apple.dt.Xcode DVTEnableCoreDevice enabled
       - run: |
           # create variables
           CERTIFICATE_PATH=~/build_certificate.p12
