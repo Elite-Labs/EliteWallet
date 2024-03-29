@@ -49,6 +49,9 @@ jobs:
           name: Build
           command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - run:
+          name: Build
+          command: xcode-project use-profiles --project ios/*.xcodeproj
+      - run:
           name: Build IPA
           command: cd ios; bundle install; bundle exec fastlane ios release
 
