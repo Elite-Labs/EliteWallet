@@ -49,7 +49,12 @@ jobs:
           name: Build
           command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - run: |
-          codesign -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
+          codesign --deep --force --verbose=4 --sign "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
+          mkdir Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -r app.ipa Payload
+      - store_artifacts:
+          path: app.ipa
 
 workflows:
   build-ios:
