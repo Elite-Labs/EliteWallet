@@ -13,7 +13,7 @@ jobs:
           # create variables
           CERTIFICATE_PATH=~/build_certificate.p12
           PP_PATH=~/build_pp.mobileprovision
-          KEYCHAIN_PATH=ios/keychain.keychain-db
+          KEYCHAIN_PATH=~/Library/Keychains/$MATCH_KEYCHAIN_NAME-db
 
           # import certificate and provisioning profile from secrets
           echo -n "$Certificates" | base64 --decode -o $CERTIFICATE_PATH
