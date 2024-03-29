@@ -49,10 +49,12 @@ jobs:
           name: Build
           command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
       - run: |
-          codesign --deep --force --verbose=4 --sign "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
-          zip -r app.ipa Payload
+          cp ~/build_pp.mobileprovision "Payload/Application.app/embedded.mobileprovision"
+          codesign -f -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" --resource-rules "Payload/Application.app/ResourceRules.plist" "Payload/Runner.app"
+          ls Payload/Runner.app
+          zip -qr app.ipa Payload
       - store_artifacts:
           path: app.ipa
 
