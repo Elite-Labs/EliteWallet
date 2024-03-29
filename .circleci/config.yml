@@ -33,8 +33,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           cp $CERTIFICATE_PATH ios/Certificates.p12
-      - run: |
-          codesign -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
       - restore_cache:
           name: Restore Deps
           keys:
@@ -50,6 +48,8 @@ jobs:
       - run:
           name: Build
           command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+      - run: |
+          codesign -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" build/ios/iphoneos/Runner.app
 
 workflows:
   build-ios:
