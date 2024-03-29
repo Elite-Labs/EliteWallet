@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run:
           name: Build IPA
-          command: cd ios; bundle install; bundle exec fastlane ios release
+          command: cd ios; bundle install; bundle exec fastlane match appstore; bundle exec fastlane ios release
       - restore_cache:
           name: Restore Deps
           keys:
