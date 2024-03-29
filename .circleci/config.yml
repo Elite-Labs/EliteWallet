@@ -9,9 +9,33 @@ jobs:
       xcode: 15.2.0
     steps:
       - checkout
+      - run: |
+          # create variables
+          CERTIFICATE_PATH=~/build_certificate.p12
+          PP_PATH=~/build_pp.mobileprovision
+          KEYCHAIN_PATH=~/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$Certificates" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$App_Store_Profile" | base64 --decode -o $PP_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$MATCH_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
+          cp $CERTIFICATE_PATH ios/Certificates.p12
       - run:
           name: Build IPA
-          command: cd ios; bundle install; bundle exec fastlane match appstore; bundle exec fastlane ios release
+          command: cd ios; bundle install; bundle exec fastlane ios release
       - restore_cache:
           name: Restore Deps
           keys:
