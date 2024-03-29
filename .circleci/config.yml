@@ -52,9 +52,9 @@ jobs:
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
           cp ~/build_pp.mobileprovision "Payload/Runner.app/embedded.mobileprovision"
-          codesign -f -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" --resource-rules "Payload/Runner.app/ResourceRules.plist" "Payload/Runner.app"
+          codesign -f -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" "Payload/Runner.app"
           ls Payload/Runner.app
-          zip -qr app.ipa Payload
+          zip -qr app.ipa Payload/
       - store_artifacts:
           path: app.ipa
 
