@@ -16,7 +16,7 @@ git clean -fdx
 
 git apply --stat --apply ${EW_ROOT}/patches/wownero/refresh_thread.patch
 git apply --stat --apply ${EW_ROOT}/patches/wownero/bugfix.patch
-git apply --stat --apply ${EW_DIR}/patches/wownero/wow-ios-sim.patch
+git apply --stat --apply ${EW_ROOT}/patches/wownero/wow-ios-sim.patch
 
 mkdir -p build
 cd ..
