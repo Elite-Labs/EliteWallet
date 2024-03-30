@@ -16,6 +16,8 @@ LAST_DEPS_CHANGE_GITHASH=$(find "$IOS_SCRIPTS_DIR" -type f -exec shasum -a 256 {
 
 SUBMODULE_HASHES=""
 
+cd $EW_ROOT
+
 # Loop through each submodule
 git submodule foreach |
 while read -r line; do
