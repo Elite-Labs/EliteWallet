@@ -62,7 +62,7 @@ jobs:
             - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --release --no-codesign
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --debug --no-codesign
       - run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
