@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export IOS_SCRIPTS_DIR=`pwd`
 export EW_ROOT=${IOS_SCRIPTS_DIR}/../..
@@ -18,7 +18,7 @@ SUBMODULE_HASHES=""
 
 # Loop through each submodule
 git submodule foreach |
-while IFS= read -r line; do
+while read -r line; do
     submodule_path=$(echo "$line" | awk '{ print $2 }')
     submodule_hash=$(git -C "$submodule_path" rev-parse HEAD)
     
