@@ -17,7 +17,7 @@ fi
 
 TYPES=("android" "ios")
 if ! [[ " ${TYPES[*]} " =~ " ${BUILD_PLATFORM} " ]]; then
-    echo "Platform type must be 'android' or 'ios'."
+    echo "Platform type must be 'android' or 'ios'"
     exit 1
 fi
 
@@ -55,7 +55,7 @@ cd ew_solana && ../.flutter/bin/flutter pub get && ../.flutter/bin/flutter packa
 .flutter/bin/flutter packages pub run build_runner build --delete-conflicting-outputs
 
 if [[ "$@" =~ "--packages-only" ]]; then
-    echo "Exiting script as --packages-only is present."
+    echo "Exiting script as --packages-only is present"
     exit 0
 fi
 

@@ -16,10 +16,9 @@ git clean -fdx
 
 git apply --stat --apply ${EW_ROOT}/patches/wownero/refresh_thread.patch
 git apply --stat --apply ${EW_ROOT}/patches/wownero/bugfix.patch
+git apply --stat --apply ${EW_DIR}/patches/wownero/wow-ios-sim.patch
 
 mkdir -p build
-sed -i -e 's/elseif(IOS AND ARCH STREQUAL "arm64")/elseif(IOS AND ARCH STREQUAL "x86_64")\n     message(STATUS "IOS: Changing arch from x86_64 to x86-64")\n     set(ARCH_FLAG "-march=x86-64")\n  elseif(IOS AND ARCH STREQUAL "arm64")/g' CMakeLists.txt
-sed -i -e 's/bool expand_transaction_1(transaction &tx, bool base_only)/void get_transaction_prefix_hash(const transaction_prefix\& tx, crypto::hash\& h)\n  {\n    std::ostringstream s;\n    binary_archive<true> a(s);\n    ::serialization::serialize(a, const_cast<transaction_prefix\&>(tx));\n    crypto::cn_fast_hash(s.str().data(), s.str().size(), h);\n  }\n\n  crypto::hash get_transaction_prefix_hash(const transaction_prefix\& tx)\n  {\n    crypto::hash h = crypto::null_hash;\n    get_transaction_prefix_hash(tx, h);\n    return h;\n  }\n\n  bool expand_transaction_1(transaction \&tx, bool base_only)/g' src/cryptonote_basic/cryptonote_format_utils.cpp
 cd ..
 
 echo $DEST_LIB_DIR

@@ -11,7 +11,21 @@ export ELITEWALLET_DATA_DIR=${EXTERNAL_IOS_SOURCE_DIR}/elite_wallet_data
 export LOCAL_GIT_DEPS=${ELITEWALLET_DATA_DIR}/deps
 export BUILD_TYPE="simulator"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
-export LAST_DEPS_CHANGE_GITHASH=$(find "$IOS_SCRIPTS_DIR" -type f -exec shasum -a 256 {} + | shasum -a 256 | cut -c1-6)
+
+LAST_DEPS_CHANGE_GITHASH=$(find "$IOS_SCRIPTS_DIR" -type f -exec shasum -a 256 {} + | shasum -a 256 | cut -c1-6)
+
+SUBMODULE_HASHES=""
+
+# Loop through each submodule
+for submodule in $(git submodule | awk '{ print $2 }'); do
+    # Get the git hash of the submodule
+    submodule_hash=$(git -C "$submodule" rev-parse HEAD)
+    # Append the git hash to the variable
+    SUBMODULE_HASHES="$SUBMODULE_HASHES$submodule_hash"
+done
+
+# Calculate the combined hash of all submodule hashes
+export LAST_DEPS_CHANGE_GITHASH=$(echo "$LAST_DEPS_CHANGE_GITHASH$SUBMODULE_HASHES" | shasum -a 256 | cut -c1-6)
 export CURRENT_DEPS=${LOCAL_GIT_DEPS_SUBDIR}/${LAST_DEPS_CHANGE_GITHASH}
 
 mkdir -p $EXTERNAL_IOS_LIB_DIR

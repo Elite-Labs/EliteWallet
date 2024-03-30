@@ -17,23 +17,40 @@ fi
 
 TYPES=("android" "ios")
 if ! [[ " ${TYPES[*]} " =~ " ${BUILD_PLATFORM} " ]]; then
-    echo "Platform type must be 'android' or 'ios'."
+    echo "Platform type must be 'android' or 'ios'"
     exit 1
 fi
 
-if [[ ! " $@ " =~ " --skip_other_deps " ]]; then
+if [[ " $@ " =~ " --skip-all-if-deps-exist " ]]; then
+  if [[ "$BUILD_PLATFORM" == "android" ]]; then
+    cd scripts/android
+  else
+    cd scripts/ios
+  fi
+  . ./config.sh
+  if [-d $CURRENT_DEPS ]; then
+    echo "Exiting script as --skip-all-if-deps-exist is present"
+    exit 0
+  fi
+  cd ../..
+fi
+
+if [[ ! " $@ " =~ " --skip-other-deps " ]]; then
   if [[ "$BUILD_PLATFORM" == "android" ]]; then
     sudo apt-get install -y curl unzip automake build-essential file pkg-config git python2 libtool libtinfo5 cmake openjdk-11-jre-headless clang bison byacc gperf groff
   else
     brew install autoconf cmake pkg-config cocoapods
   fi
+else
+  echo "Skipping as --skip-other-deps is present"
 fi
 
 git config --global protocol.file.allow always
 
 git submodule update --init --force
 
-if [[ " $@ " =~ " --skip_main_deps " ]]; then
+if [[ " $@ " =~ " --skip-main-deps " ]]; then
+    echo "Exiting script as --skip-main-deps is present"
     exit 0
 fi
 
@@ -43,10 +60,15 @@ configure_and_build_deps () {
   source ./app_env.sh elitewallet
   ./app_config.sh
   . ./config.sh
-  ./build_all.sh
-  rm -rf $CURRENT_DEPS
-  mkdir -p $CURRENT_DEPS
-  ./cache_deps.sh
+  if [ ! -d $CURRENT_DEPS ]; then
+    echo "Building deps"
+    ./build_all.sh
+    mkdir -p $CURRENT_DEPS
+    ./cache_deps.sh
+  else
+    echo "Copying cached deps"
+    ./copy_cached_deps.sh
+  fi
 }
 
 if [[ "$BUILD_PLATFORM" == "android" ]]; then
