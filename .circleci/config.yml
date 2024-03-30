@@ -54,6 +54,9 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/App_Store.mobileprovision
           cp $CERTIFICATE_PATH ios/Certificates.p12
       - run: |
+          cd ios
+          xcodebuild -importProvisioningProfile ~/build_pp.mobileprovision
+      - run: |
           cd scripts/ios
           . ./config.sh
           echo $LAST_DEPS_CHANGE_GITHASH > /tmp/deps-version
@@ -63,7 +66,7 @@ jobs:
             - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --debug
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ipa --release --no-codesign
       - run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
