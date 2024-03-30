@@ -10,6 +10,26 @@ jobs:
     steps:
       - checkout
       - run: |
+          cd scripts/ios
+          . ./config.sh
+          echo $LAST_DEPS_CHANGE_GITHASH > /tmp/deps-version
+      - restore_cache:
+          name: Restore Deps
+          keys:
+            - deps-cache-{{ checksum "/tmp/deps-version" }}
+      - run: |
+          ./scripts/build_deps.sh --skip-all-if-deps-exist ios;
+      - save_cache:
+          name: Cache Deps
+          key: deps-cache-{{ checksum "/tmp/deps-version" }}
+          paths:
+            - ew_shared_external/ios/External/sources/elite_wallet_data
+  build:
+    macos:
+      xcode: 15.2.0
+    steps:
+      - checkout
+      - run: |
           # create variables
           CERTIFICATE_PATH=~/build_certificate.p12
           PP_PATH=~/build_pp.mobileprovision
@@ -41,29 +61,9 @@ jobs:
           name: Restore Deps
           keys:
             - deps-cache-{{ checksum "/tmp/deps-version" }}
-      - run: |
-          ./scripts/build_deps.sh --skip_all_if_deps_exist ios;
-      - save_cache:
-          name: Cache Deps
-          key: deps-cache-{{ checksum "/tmp/deps-version" }}
-          paths:
-            - ew_shared_external/ios/External/sources/elite_wallet_data
-  build:
-    macos:
-      xcode: 15.2.0
-    steps:
-      - checkout
-      - run: |
-          cd scripts/ios
-          . ./config.sh
-          echo $LAST_DEPS_CHANGE_GITHASH > /tmp/deps-version
-      - restore_cache:
-          name: Restore Deps
-          keys:
-            - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
-          command: ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --debug
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --debug
       - run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/

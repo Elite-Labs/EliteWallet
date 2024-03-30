@@ -62,7 +62,7 @@ configure_and_build_deps () {
   . ./config.sh
   if [ ! -d $CURRENT_DEPS ]; then
     echo "Building deps"
-    ./build_all.sh
+    ./build_all.sh || { echo 'Build failed' ; exit 1; }
     mkdir -p $CURRENT_DEPS
     ./cache_deps.sh
   else
