@@ -43,13 +43,10 @@ configure_and_build_deps () {
   source ./app_env.sh elitewallet
   ./app_config.sh
   . ./config.sh
-  if [ ! -d $CURRENT_DEPS ]; then
-    ./build_all.sh
-    mkdir -p $CURRENT_DEPS
-    ./cache_deps.sh
-  else
-    ./copy_cached_deps.sh
-  fi
+  ./build_all.sh
+  rm -rf $CURRENT_DEPS
+  mkdir -p $CURRENT_DEPS
+  ./cache_deps.sh
 }
 
 if [[ "$BUILD_PLATFORM" == "android" ]]; then
