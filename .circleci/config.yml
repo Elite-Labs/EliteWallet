@@ -16,12 +16,12 @@ jobs:
       - restore_cache:
           name: Restore Deps
           keys:
-            - deps-cache-queDDj_pHqr2nhcrfkhZW3zF_k74fcdrnDFzJqRgsUI=
+            - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run: |
           ./scripts/build_deps.sh --skip-all-if-deps-exist ios;
       - save_cache:
           name: Cache Deps
-          key: deps-cache-queDDj_pHqr2nhcrfkhZW3zF_k74fcdrnDFzJqRgsUI=
+          key: deps-cache-{{ checksum "/tmp/deps-version" }}
           paths:
             - ew_shared_external/ios/External/sources/elite_wallet_data
   build:
@@ -60,7 +60,7 @@ jobs:
       - restore_cache:
           name: Restore Deps
           keys:
-            - deps-cache-queDDj_pHqr2nhcrfkhZW3zF_k74fcdrnDFzJqRgsUI=
+            - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
           command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --debug
