@@ -32,6 +32,8 @@ while read -r line; do
     fi
 done
 
+cd $IOS_SCRIPTS_DIR
+
 # Calculate the combined hash of all submodule hashes
 export LAST_DEPS_CHANGE_GITHASH=$(echo -e "$LAST_DEPS_CHANGE_GITHASH$SUBMODULE_HASHES" | shasum -a 256 | cut -c1-6)
 echo "Combined hash: $LAST_DEPS_CHANGE_GITHASH"
