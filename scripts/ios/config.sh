@@ -11,7 +11,7 @@ export ELITEWALLET_DATA_DIR=${EXTERNAL_IOS_SOURCE_DIR}/elite_wallet_data
 export LOCAL_GIT_DEPS=${ELITEWALLET_DATA_DIR}/deps
 export BUILD_TYPE="simulator"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
-
+echo $IOS_SCRIPTS_DIR
 LAST_DEPS_CHANGE_GITHASH=$(find "$IOS_SCRIPTS_DIR" -type f -exec shasum -a 256 {} + | shasum -a 256 | cut -c1-6)
 
 SUBMODULE_HASHES=""
