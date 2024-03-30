@@ -16,13 +16,12 @@ LAST_DEPS_CHANGE_GITHASH=$(find "$IOS_SCRIPTS_DIR" -type f -exec shasum -a 256 {
 
 SUBMODULE_HASHES=""
 
-cd $EW_ROOT
-
 # Loop through each submodule
 git submodule foreach |
 while read -r line; do
     submodule_path=$(echo "$line" | awk '{ print $2 }')
-    submodule_hash=$(git -C "$EW_ROOT/$submodule_path" rev-parse HEAD)
+    submodule_path=${submodule_path//\'/}
+    submodule_hash=$(git -C "$submodule_path" rev-parse HEAD)
     
     if [ -n "$submodule_hash" ]; then
         SUBMODULE_HASHES="$SUBMODULE_HASHES$submodule_hash\n"
@@ -31,8 +30,6 @@ while read -r line; do
         exit 1
     fi
 done
-
-cd $IOS_SCRIPTS_DIR
 
 # Calculate the combined hash of all submodule hashes
 export LAST_DEPS_CHANGE_GITHASH=$(echo -e "$LAST_DEPS_CHANGE_GITHASH$SUBMODULE_HASHES" | shasum -a 256 | cut -c1-6)
