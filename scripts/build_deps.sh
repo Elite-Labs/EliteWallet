@@ -28,7 +28,8 @@ if [[ " $@ " =~ " --skip-all-if-deps-exist " ]]; then
     cd scripts/ios
   fi
   . ./config.sh
-  if [-d $CURRENT_DEPS ]; then
+  
+  if [ -d $CURRENT_DEPS ]; then
     echo "Exiting script as --skip-all-if-deps-exist is present"
     exit 0
   fi
