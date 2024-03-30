@@ -21,6 +21,8 @@ cd $EW_ROOT
 # Loop through each submodule
 git submodule foreach |
 while read -r line; do
+    echo $pwd
+    ls
     submodule_path=$(echo "$line" | awk '{ print $2 }')
     submodule_hash=$(git -C "$submodule_path" rev-parse HEAD)
     
