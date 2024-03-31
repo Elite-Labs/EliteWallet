@@ -62,7 +62,7 @@ jobs:
             - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; xcodebuild -sdk iphonesimulator
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; cd ios; xcodebuild -sdk iphonesimulator
       - run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
