@@ -11,5 +11,5 @@ git checkout .
 git clean -fdx
 ./dist-build/apple-xcframework.sh
 
-mv ${SODIUM_PATH}/libsodium-apple/ios/include/* $EXTERNAL_IOS_INCLUDE_DIR
-mv ${SODIUM_PATH}/libsodium-apple/ios/lib/* $EXTERNAL_IOS_LIB_DIR
+mv ${SODIUM_PATH}/libsodium-apple/ios-simulators/include/* $EXTERNAL_IOS_INCLUDE_DIR
+mv ${SODIUM_PATH}/libsodium-apple/ios-simulators/lib/* $EXTERNAL_IOS_LIB_DIR
