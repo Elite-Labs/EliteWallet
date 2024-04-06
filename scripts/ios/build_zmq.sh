@@ -9,6 +9,7 @@ echo "============================ ZMQ ============================"
 cd $ZMQ_PATH
 git checkout .
 git clean -fdx
+git cherry-pick 438d5d88
 
 mkdir cmake-build
 cd cmake-build
