@@ -12,7 +12,6 @@ echo "============================ Boost ============================"
 cd $BOOST_DIR_PATH
 git checkout .
 git clean -fdx
-git apply --stat --apply ${EW_ROOT}/patches/boost/ios.patch
 ./boost.sh -ios \
 	--min-ios-version ${MIN_IOS_VERSION} \
 	--boost-libs "${BOOST_LIBS}" \

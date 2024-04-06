@@ -4,9 +4,9 @@
 # Stacks detected: cicd:github-actions:.github/workflows
 version: 2.1
 jobs:
-  build:
+  build_deps:
     macos:
-      xcode: 15.3.0
+      xcode: 14.3.1
     steps:
       - checkout
       - run: |
@@ -18,12 +18,20 @@ jobs:
           keys:
             - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run: |
-          ./scripts/build_deps.sh ios;
+          ./scripts/build_deps.sh --skip-all-if-deps-exist ios;
+          cd ew_shared_external/ios/External/sources/; zip -r elite_wallet_data.zip elite_wallet_data; cd -
       - save_cache:
           name: Cache Deps
           key: deps-cache-{{ checksum "/tmp/deps-version" }}
           paths:
             - ew_shared_external/ios/External/sources/elite_wallet_data
+      - store_artifacts:
+          path: ew_shared_external/ios/External/sources/elite_wallet_data.zip
+  build:
+    macos:
+      xcode: 15.2.0
+    steps:
+      - checkout
       - run: |
           # create variables
           CERTIFICATE_PATH=~/build_certificate.p12
@@ -51,9 +59,13 @@ jobs:
           cd scripts/ios
           . ./config.sh
           echo $LAST_DEPS_CHANGE_GITHASH > /tmp/deps-version
+      - restore_cache:
+          name: Restore Deps
+          keys:
+            - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
-          command: ./scripts/build.sh --packages-only ios; cd ios; xcodebuild -sdk iphonesimulator
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; cd ios; xcodebuild -sdk iphonesimulator
       - run: |
           mkdir Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
@@ -67,4 +79,7 @@ jobs:
 workflows:
   build-ios:
     jobs:
-      - build
+      - build_deps
+      - build:
+          requires:
+            - build_deps
