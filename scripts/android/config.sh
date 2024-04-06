@@ -17,7 +17,8 @@ export ELITEWALLET_DATA_DIR=${WORKDIR}/elite_wallet_data
 export LOCAL_GIT_DEPS=${ELITEWALLET_DATA_DIR}/local_deps
 export BUILD_TYPE="release"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
-export LAST_DEPS_CHANGE_GITHASH=$(find "$ANDROID_SCRIPTS_DIR" -type f -exec sha256sum {} + | sha256sum | cut -c1-6)
+contents=$(cat "$ANDROID_SCRIPTS_DIR"/*)
+export LAST_DEPS_CHANGE_GITHASH=$(echo -n "$contents" | sha256sum | cut -c1-6)
 echo "Combined hash: $LAST_DEPS_CHANGE_GITHASH"
 export CURRENT_DEPS=${LOCAL_GIT_DEPS_SUBDIR}/${LAST_DEPS_CHANGE_GITHASH}
 
