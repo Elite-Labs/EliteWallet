@@ -12,6 +12,9 @@ export LOCAL_GIT_DEPS=${ELITEWALLET_DATA_DIR}/deps
 export BUILD_TYPE="simulator"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
 contents=$(cat "$IOS_SCRIPTS_DIR"/*)
+echo "--------"
+echo $contents
+echo "--------"
 export LAST_DEPS_CHANGE_GITHASH=$(echo -n "$contents" | shasum -a 256 | cut -c1-6)
 echo "Combined hash: $LAST_DEPS_CHANGE_GITHASH"
 export CURRENT_DEPS=${LOCAL_GIT_DEPS_SUBDIR}/${LAST_DEPS_CHANGE_GITHASH}

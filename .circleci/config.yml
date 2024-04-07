@@ -65,16 +65,9 @@ jobs:
             - deps-cache-{{ checksum "/tmp/deps-version" }}
       - run:
           name: Build
-          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; cd ios; xcodebuild -sdk iphonesimulator
-      - run: |
-          mkdir Payload
-          cp -R build/ios/iphoneos/Runner.app Payload/
-          cp ~/build_pp.mobileprovision "Payload/Runner.app/embedded.mobileprovision"
-          codesign -f -s "Apple Distribution: OPCDT HOLDING LIMITED (L7NMAVCM28)" "Payload/Runner.app"
-          ls Payload/Runner.app
-          zip -qr app.ipa Payload/
+          command: ./scripts/build_deps.sh ios; ./scripts/build.sh --packages-only ios; .flutter/bin/flutter build ios --simulator; zip -r sim.zip build/ios/iphonesimulator
       - store_artifacts:
-          path: app.ipa
+          path: sim.zip
 
 workflows:
   build-ios:
