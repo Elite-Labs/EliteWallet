@@ -15,7 +15,6 @@ git clean -fdx
 
 mkdir -p build
 sed -i -e 's/ifdef TARGET_OS_OSX/ifndef TARGET_OS_OSX/g' external/randomx/src/virtual_memory.cpp
-sed -i -e 's/elseif(IOS AND ARCH STREQUAL "arm64")/elseif(IOS AND ARCH STREQUAL "x86_64")\n     message(STATUS "IOS: Changing arch from x86_64 to x86-64")\n     set(ARCH_FLAG "-march=x86-64")\n  elseif(IOS AND ARCH STREQUAL "arm64")/g' CMakeLists.txt
 cd ..
 
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -23,7 +22,7 @@ if [ -z $INSTALL_PREFIX ]; then
     INSTALL_PREFIX=${ROOT_DIR}/haven
 fi
 
-for arch in "x86_64" #"armv7" "arm64"
+for arch in "arm64" #"armv7" "arm64"
 do
 
 echo "Building IOS ${arch}"
@@ -31,8 +30,6 @@ export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 case $arch in
-	"x86_64")
-		DEST_LIB=../../lib-x86_64;;
 	"armv7"	)
 		DEST_LIB=../../lib-armv7;;
 	"arm64"	)
@@ -44,7 +41,6 @@ rm -rf haven/build > /dev/null
 mkdir -p haven/build/${BUILD_TYPE}
 pushd haven/build/${BUILD_TYPE}
 cmake -D IOS=ON \
-	-DIOS_PLATFORM=SIMULATOR64 \
 	-DARCH=${arch} \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DSTATIC=ON \
@@ -63,5 +59,5 @@ done
 #only for arm64
 mkdir -p $DEST_LIB_DIR
 mkdir -p $DEST_INCLUDE_DIR
-cp ${HAVEN_DIR_PATH}/lib-x86_64/* $DEST_LIB_DIR
+cp ${HAVEN_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
 cp ${HAVEN_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR

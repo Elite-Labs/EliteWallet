@@ -16,7 +16,6 @@ git clean -fdx
 
 git apply --stat --apply ${EW_ROOT}/patches/wownero/refresh_thread.patch
 git apply --stat --apply ${EW_ROOT}/patches/wownero/bugfix.patch
-git apply --stat --apply ${EW_ROOT}/patches/wownero/wow-ios-sim.patch
 
 mkdir -p build
 cd ..
@@ -30,7 +29,7 @@ if [ -z $INSTALL_PREFIX ]; then
     INSTALL_PREFIX=${ROOT_DIR}/wownero
 fi
 
-for arch in "x86_64" #"armv7" "arm64"
+for arch in "arm64" #"armv7" "arm64"
 do
 
 echo "Building IOS ${arch}"
@@ -38,8 +37,6 @@ export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 case $arch in
-	"x86_64")
-		DEST_LIB=../../lib-x86_64;;
 	"armv7"	)
 		DEST_LIB=../../lib-armv7;;
 	"arm64"	)
@@ -51,7 +48,6 @@ rm -rf wownero/build > /dev/null
 mkdir -p wownero/build/${BUILD_TYPE}
 pushd wownero/build/${BUILD_TYPE}
 cmake -D IOS=ON \
-	-DIOS_PLATFORM=SIMULATOR64 \
 	-DARCH=${arch} \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DSTATIC=ON \
@@ -72,5 +68,5 @@ done
 #only for arm64
 mkdir -p $DEST_LIB_DIR
 mkdir -p $DEST_INCLUDE_DIR
-cp ${WOWNERO_DIR_PATH}/lib-x86_64/* $DEST_LIB_DIR
+cp ${WOWNERO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
 cp ${WOWNERO_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR

@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.dependency 'ew_shared_external'
   s.platform = :ios, '10.0'
   s.swift_version = '4.0'
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS' => 'x86_64', 'ENABLE_BITCODE' => 'NO' }
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS' => 'arm64', 'ENABLE_BITCODE' => 'NO' }
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/Classes/*.h" }
 
   s.subspec 'OpenSSL' do |openssl|

@@ -9,7 +9,7 @@ export EXTERNAL_IOS_LIB_DIR=${EXTERNAL_IOS_DIR}/lib
 export EXTERNAL_IOS_INCLUDE_DIR=${EXTERNAL_IOS_DIR}/include
 export ELITEWALLET_DATA_DIR=${EXTERNAL_IOS_SOURCE_DIR}/elite_wallet_data
 export LOCAL_GIT_DEPS=${ELITEWALLET_DATA_DIR}/deps
-export BUILD_TYPE="simulator"
+export BUILD_TYPE="release"
 export LOCAL_GIT_DEPS_SUBDIR=${LOCAL_GIT_DEPS}/${BUILD_TYPE}
 contents=$(cat "$IOS_SCRIPTS_DIR"/*)
 echo "--------"

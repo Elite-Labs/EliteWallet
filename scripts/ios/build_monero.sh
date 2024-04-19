@@ -27,7 +27,7 @@ if [ -z $INSTALL_PREFIX ]; then
     INSTALL_PREFIX=${ROOT_DIR}/monero
 fi
 
-for arch in "x86_64" #"armv7" "arm64"
+for arch in "arm64" #"armv7" "arm64"
 do
 
 echo "Building IOS ${arch}"
@@ -35,8 +35,6 @@ export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
 
 case $arch in
-	"x86_64")
-		DEST_LIB=../../lib-x86_64;;
 	"armv7"	)
 		DEST_LIB=../../lib-armv7;;
 	"arm64"	)
@@ -48,7 +46,6 @@ rm -r monero/build > /dev/null
 mkdir -p monero/build/${BUILD_TYPE}
 pushd monero/build/${BUILD_TYPE}
 cmake -D IOS=ON \
-	-DIOS_PLATFORM=SIMULATOR64 \
 	-DARCH=${arch} \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DSTATIC=ON \
